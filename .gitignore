@@ -1,4 +1,8 @@
 .firecrawl/
 .playwright/
+.generated/
+.next/
 node_modules/
+next-env.d.ts
+public/
 dist/
