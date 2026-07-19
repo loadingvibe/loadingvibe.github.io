@@ -37,7 +37,7 @@
 - Consumes: the eight supplied program names, descriptions, source URLs, and `assets/covers/*`.
 - Produces: `.show-card[data-category][data-language][data-search]`, `[data-filter]`, `[data-view]`, and `#show-search` hooks used by styling and JavaScript.
 
-- [ ] **Step 1: Add the document metadata and no-JS-safe structure**
+- [x] **Step 1: Add the document metadata and no-JS-safe structure**
 
 ```html
 <!doctype html>
@@ -57,7 +57,7 @@
 </html>
 ```
 
-- [ ] **Step 2: Add eight complete show articles**
+- [x] **Step 2: Add eight complete show articles**
 
 Each article must use this exact interface and real content, repeated for all eight shows:
 
@@ -70,7 +70,7 @@ Each article must use this exact interface and real content, repeated for all ei
 </article>
 ```
 
-- [ ] **Step 3: Validate the content shell**
+- [x] **Step 3: Validate the content shell**
 
 Run: open `index.html` and confirm all eight `<article class="show-card">` nodes are present without JavaScript.
 Expected: eight visible, linked shows with meaningful image alt text.
@@ -85,7 +85,7 @@ Expected: eight visible, linked shows with meaningful image alt text.
 - Consumes: semantic classes and `data-view-mode` on `<body>`.
 - Produces: `editorial`, `covers`, and `list` layout modes.
 
-- [ ] **Step 1: Declare immutable design tokens**
+- [x] **Step 1: Declare immutable design tokens**
 
 ```css
 :root {
@@ -100,7 +100,7 @@ Expected: eight visible, linked shows with meaningful image alt text.
 }
 ```
 
-- [ ] **Step 2: Add the editorial grid, cover wall, and compact list**
+- [x] **Step 2: Add the editorial grid, cover wall, and compact list**
 
 ```css
 body[data-view-mode="editorial"] .catalog { display: grid; grid-template-columns: repeat(12, 1fr); }
@@ -108,7 +108,7 @@ body[data-view-mode="covers"] .catalog { display: grid; grid-template-columns: r
 body[data-view-mode="list"] .show-card { display: grid; grid-template-columns: 88px 1fr auto; }
 ```
 
-- [ ] **Step 3: Add responsive and reduced-motion rules**
+- [x] **Step 3: Add responsive and reduced-motion rules**
 
 ```css
 @media (max-width: 760px) {
@@ -120,7 +120,7 @@ body[data-view-mode="list"] .show-card { display: grid; grid-template-columns: 8
 }
 ```
 
-- [ ] **Step 4: Verify desktop and mobile composition**
+- [x] **Step 4: Verify desktop and mobile composition**
 
 Run: load at 1440×1000 and 390×844.
 Expected: no horizontal overflow, readable text, square covers, and reachable controls.
@@ -134,7 +134,7 @@ Expected: no horizontal overflow, readable text, square covers, and reachable co
 - Consumes: `[data-filter]`, `[data-view]`, `#show-search`, and `.show-card`.
 - Produces: active-control states, hidden-card states, result count, and `loading-vibe-view` localStorage preference.
 
-- [ ] **Step 1: Implement combined filtering and search**
+- [x] **Step 1: Implement combined filtering and search**
 
 ```js
 const state = { filter: "全部", query: "" };
@@ -147,7 +147,7 @@ function applyCatalogState() {
 }
 ```
 
-- [ ] **Step 2: Implement the three view modes**
+- [x] **Step 2: Implement the three view modes**
 
 ```js
 function setView(mode) {
@@ -156,11 +156,11 @@ function setView(mode) {
 }
 ```
 
-- [ ] **Step 3: Add keyboard-visible states and optional reveal motion**
+- [x] **Step 3: Add keyboard-visible states and optional reveal motion**
 
 Use `IntersectionObserver` only when reduced motion is not requested; the page must remain fully visible when the API is unavailable.
 
-- [ ] **Step 4: Exercise the primary interaction flow**
+- [x] **Step 4: Exercise the primary interaction flow**
 
 Expected sequence: choose “商业” → type “AI” → clear search → switch to “列表” → reload → list view remains active.
 
@@ -174,23 +174,22 @@ Expected sequence: choose “商业” → type “AI” → clear search → sw
 - Consumes: the completed static artifact.
 - Produces: reproducible preview instructions and a browser QA record.
 
-- [ ] **Step 1: Add preview and content-update instructions**
+- [x] **Step 1: Add preview and content-update instructions**
 
 ```markdown
 python -m http.server 4173
 # Open http://127.0.0.1:4173
 ```
 
-- [ ] **Step 2: Run a local HTTP server**
+- [x] **Step 2: Run a local HTTP server**
 
 Run: `python -m http.server 4173`
 Expected: server listens on `127.0.0.1:4173`.
 
-- [ ] **Step 3: Run browser checks**
+- [x] **Step 3: Run browser checks**
 
 Expected: clean console, no failed local resources, eight cards, three view buttons, working category/search flow, and no overflow at 390px.
 
-- [ ] **Step 4: Review the final screenshot**
+- [x] **Step 4: Review the final screenshot**
 
 Expected: the selected editorial/media/library synthesis is visually coherent and the mobile layout retains the content hierarchy.
-

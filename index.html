@@ -9,6 +9,7 @@
     >
     <meta name="theme-color" content="#11110f">
     <title>Loading Vibe — 值得听完的长谈</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
   </head>
   <body data-view-mode="editorial">
@@ -169,7 +170,14 @@
                 autocomplete="off"
                 placeholder="节目、主题或关键词"
               >
-              <button type="button" data-clear-search aria-label="清空搜索">×</button>
+              <button
+                type="button"
+                data-clear-search
+                aria-label="清空搜索"
+                aria-hidden="true"
+                disabled
+                hidden
+              >×</button>
             </div>
           </div>
 
@@ -530,5 +538,6 @@
       </p>
       <p class="site-footer__credit">Designed for long attention — 2026</p>
     </footer>
+    <script src="script.js" defer></script>
   </body>
 </html>
