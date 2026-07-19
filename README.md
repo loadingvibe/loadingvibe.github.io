@@ -21,6 +21,14 @@ python -m http.server 4173 --bind 127.0.0.1
 
 > 不建议直接双击 `index.html` 进行完整验收；本地 HTTP 服务更接近实际部署环境，也能更准确地发现资源路径问题。
 
+部署流程如需独立的发布目录，可运行零依赖静态打包：
+
+```powershell
+npm run build
+```
+
+命令只会把 `index.html`、`styles.css`、`script.js` 和 `assets/` 复制到 `dist/`，不会改变源码。
+
 ## 文件结构
 
 ```text
