@@ -188,9 +188,9 @@
     align-items: center;
     gap: var(--space-4);
     padding: 0 var(--page-gutter);
-    border-bottom: 1px solid var(--line-light);
-    background: color-mix(in srgb, var(--ink) 94%, transparent);
-    color: var(--paper);
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+    background: #fff;
+    color: var(--ink);
     backdrop-filter: blur(16px);
   }
 
@@ -265,12 +265,12 @@
     flex-direction: column;
     align-items: flex-end;
     justify-self: end;
-    color: color-mix(in srgb, var(--paper) 62%, transparent);
+    color: var(--ink);
     text-align: right;
   }
 
   .site-header__edition span:first-child {
-    color: var(--paper);
+    color: var(--ink);
   }
 
   .hero {
@@ -1197,8 +1197,12 @@
       font-size: 20px;
     }
 
-    .wordmark__name {
+    .wordmark--footer .wordmark__name {
       display: none;
+    }
+
+    .site-header .wordmark__name {
+      font-size: 11px;
     }
 
     .site-nav {
