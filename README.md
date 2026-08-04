@@ -1,10 +1,10 @@
-# 频率加载
+# 有点来电
 
-频率加载是一个可直接部署的播客策展静态网站。它收录 8 档中英文节目，并通过分类、搜索和三种目录视图，帮助读者快速找到值得深入收听的内容；项目同时提供一个本地优先的 Markdown 文章写作页。
+有点来电是一个可直接部署的播客策展静态网站。它收录 8 档中英文节目，并通过分类、搜索和三种目录视图，帮助读者快速找到值得深入收听的内容；项目同时提供一个本地优先的 Markdown 文章写作页。
 
 ## 本地预览
 
-项目没有安装或构建步骤。Windows 用户可在 PowerShell 中运行：
+仅预览页面不需要安装依赖或构建。Windows 用户可在 PowerShell 中运行：
 
 ```powershell
 cd D:\loadingvibe.com
@@ -24,11 +24,33 @@ python -m http.server 4173 --bind 127.0.0.1
 部署流程如需独立的发布目录，可运行：
 
 ```powershell
-npm run build
+npm.cmd run build
 ```
 
 命令会保留原生 HTML/CSS/JS 页面，并通过 Vinext 生成 Sites 可识别的
 `dist/server/index.js` Worker 入口；静态资源位于 `dist/client/`。
+
+## GitHub Pages 自动部署
+
+仓库已提供 `.github/workflows/deploy-pages.yml`。推送到 `main` 分支时，GitHub Actions 会自动：
+
+1. 使用 Node.js 22 执行 `npm run build:pages`；
+2. 检查页面脚本语法，并将首页、Markdown 写作页和本地资源整理到 `_site/`；
+3. 对生成页面执行本地 HTTP 冒烟测试；
+4. 上传专用的 GitHub Pages artifact；
+5. 通过 `github-pages` 环境发布，并在工作流页面显示部署地址。
+
+也可以在 GitHub 的 **Actions → Build and deploy GitHub Pages → Run workflow** 手动重新部署。首次启用时，请在仓库 **Settings → Pages → Build and deployment** 中将 **Source** 设为 **GitHub Actions**。
+
+本地检查 Pages 发布产物：
+
+```powershell
+npm.cmd run build:pages
+npm.cmd run check:pages
+py -m http.server 4173 --bind 127.0.0.1 --directory _site
+```
+
+随后打开 [http://127.0.0.1:4173](http://127.0.0.1:4173)。`_site/` 是生成目录，不应提交到 Git。若仓库根目录存在 `CNAME`，构建脚本会一并复制；自定义域名仍需在 GitHub Pages 设置中确认。
 
 ## 文件结构
 
@@ -40,14 +62,18 @@ loadingvibe.com/
 ├─ editor.html                        # Markdown 写作工作台
 ├─ editor.css                         # 编辑器、预览与移动端布局
 ├─ editor.js                          # 安全渲染、草稿、导入与导出
+├─ build-pages.mjs                    # GitHub Pages 静态发布产物构建器
+├─ verify-pages.mjs                   # Pages 产物本地 HTTP 冒烟测试
+├─ .github/workflows/deploy-pages.yml # 自动构建并部署到 GitHub Pages
 ├─ assets/
-│  ├─ brand/                          # 频率加载矢量标志
+│  ├─ brand/                          # 有点来电品牌标志
 │  └─ covers/                         # 本地节目封面（JPEG / PNG）
 ├─ product-facts.md                   # 参考页面与封面来源记录
 ├─ docs/
 │  ├─ design-reference-analysis.md    # 参考站形式提炼与视觉方向
 │  └─ superpowers/plans/
-│     └─ 2026-07-19-loading-vibe-static-site.md
+│     ├─ 2026-07-19-loading-vibe-static-site.md
+│     └─ 2026-08-04-github-pages-deployment.md
 │                                      # 实施计划与验收标准
 └─ README.md
 ```

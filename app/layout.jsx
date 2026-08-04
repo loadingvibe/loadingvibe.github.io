@@ -1,9 +1,9 @@
 export const metadata = {
-  title: "频率加载 — 八个值得听完的节目",
+  title: "有点来电 — 值得听的，正在来电",
   description:
-    "频率加载精选八档值得花时间听完的中英文深度播客，覆盖科技、商业、投资与生活。",
+    "有点来电精选八档值得花时间听完的中英文深度播客，覆盖科技、商业、投资与生活。",
   icons: {
-    icon: "/assets/brand/frequency-loader.svg",
+    icon: "/assets/brand/you-dian-lai-dian-mark-v1.png",
   },
 };
 

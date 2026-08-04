@@ -71,8 +71,8 @@
     --line: color-mix(in srgb, var(--ink) 19%, transparent);
     --line-light: color-mix(in srgb, var(--paper) 14%, transparent);
     --display: "Bahnschrift Condensed", "DIN Condensed", "Franklin Gothic Condensed", sans-serif;
-    --hero-serif: "Hero Serif", "Songti SC", STSong, "Noto Serif CJK SC", Georgia, serif;
-    --serif: "Songti SC", STSong, "Noto Serif CJK SC", Georgia, serif;
+    --hero-serif: "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", STSong, SimSun, Georgia, serif;
+    --serif: "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", STSong, SimSun, Georgia, serif;
     --sans: Aptos, "Microsoft YaHei", "PingFang SC", sans-serif;
     --mono: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
     --page-gutter: clamp(18px, 3.2vw, 52px);
@@ -239,17 +239,28 @@
   .wordmark {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 11px;
     width: fit-content;
     color: inherit;
     text-decoration: none;
   }
 
   .wordmark__logo {
-    width: clamp(30px, 2.5vw, 36px);
-    height: auto;
+    width: clamp(40px, 3.8vw, 44px);
+    aspect-ratio: 1;
     flex: none;
-    filter: drop-shadow(0 4px 9px rgb(8 124 255 / 16%));
+    object-fit: contain;
+    filter:
+      drop-shadow(0 0 1px rgb(17 17 15 / 62%))
+      drop-shadow(0 5px 12px rgb(12 156 255 / 16%));
+    transition: transform 320ms var(--ease-out), filter 320ms var(--ease-out);
+  }
+
+  .wordmark:hover .wordmark__logo {
+    filter:
+      drop-shadow(0 0 1px rgb(17 17 15 / 58%))
+      drop-shadow(0 7px 16px rgb(12 156 255 / 22%));
+    transform: rotate(-3deg) scale(1.04);
   }
 
   .wordmark__name {
@@ -257,7 +268,7 @@
     align-items: baseline;
     gap: 0.08em;
     font-family: var(--hero-serif);
-    font-size: clamp(19px, 1.45vw, 22px);
+    font-size: clamp(20px, 1.7vw, 24px);
     font-weight: 600;
     font-synthesis: none;
     letter-spacing: -0.035em;
@@ -464,12 +475,14 @@
     grid-column: 1 / -1;
     align-self: center;
     flex-direction: column;
+    gap: clamp(5px, 0.8vw, 12px);
+    padding-top: clamp(18px, 2vw, 28px);
     color: var(--paper-bright);
     font-family: var(--hero-serif);
-    font-size: clamp(72px, 10.6vw, 150px);
+    font-size: clamp(72px, 10.2vw, 144px);
     font-weight: 600;
     font-synthesis: none;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.045em;
     line-height: 0.92;
     isolation: isolate;
     text-shadow: 0 20px 54px rgb(0 0 0 / 24%);
@@ -479,6 +492,32 @@
     position: relative;
     display: block;
     width: fit-content;
+    max-width: 100%;
+    white-space: nowrap;
+  }
+
+  .hero__title-index {
+    position: absolute;
+    top: 0;
+    left: 0.3em;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: color-mix(in srgb, var(--signal) 90%, var(--paper));
+    font-family: var(--mono);
+    font-size: clamp(9px, 0.75vw, 11px);
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    line-height: 1;
+    text-shadow: none;
+    text-transform: uppercase;
+  }
+
+  .hero__title-index::before {
+    width: clamp(24px, 3.2vw, 46px);
+    height: 1px;
+    background: currentColor;
+    content: "";
   }
 
   .hero__title-line::after {
@@ -506,23 +545,14 @@
     content: none;
   }
 
-  .hero__title-line--vibe::before {
-    position: absolute;
-    z-index: -2;
-    right: -0.08em;
-    bottom: 0.04em;
-    width: 58%;
-    height: 0.055em;
-    background: var(--signal);
-    content: "";
-    opacity: 0.92;
-    transform: skewX(-18deg);
-    transform-origin: right;
-  }
-
   .hero__title-word {
     position: relative;
     display: inline-block;
+  }
+
+  .hero__title-word--signal {
+    color: var(--signal);
+    text-shadow: 0 14px 38px rgb(244 81 30 / 18%);
   }
 
   .hero__title-word--outline {
@@ -1288,15 +1318,43 @@
   }
 
   .site-footer__brand-name {
+    display: inline-flex;
     width: fit-content;
+    align-items: center;
+    gap: 14px;
     color: var(--paper-bright);
     font-family: var(--serif);
-    font-size: clamp(28px, 3vw, 42px);
+    font-size: clamp(27px, 2.7vw, 38px);
     font-weight: 700;
     letter-spacing: -0.045em;
     line-height: 1;
     text-decoration: none;
     text-transform: none;
+  }
+
+  .site-footer__brand-logo {
+    width: clamp(48px, 4.6vw, 62px);
+    aspect-ratio: 1;
+    flex: none;
+    object-fit: contain;
+    filter:
+      drop-shadow(0 0 1px rgb(255 253 248 / 56%))
+      drop-shadow(0 7px 18px rgb(18 199 239 / 18%));
+  }
+
+  .site-footer__brand-text {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.08em;
+  }
+
+  .site-footer__brand-text > span {
+    color: color-mix(in srgb, var(--paper) 72%, transparent);
+  }
+
+  .site-footer__brand-text strong {
+    color: var(--paper-bright);
+    font: inherit;
   }
 
   .site-footer p {
@@ -1604,7 +1662,7 @@
     }
 
     .site-header .wordmark__name {
-      font-size: 17px;
+      font-size: 16px;
     }
 
     .wordmark {
@@ -1612,7 +1670,7 @@
     }
 
     .wordmark__logo {
-      width: 27px;
+      width: 31px;
     }
 
     .site-nav {
@@ -1663,12 +1721,15 @@
     .hero__title {
       grid-column: 1 / -1;
       align-self: start;
-      font-size: clamp(66px, 20vw, 132px);
-      line-height: 1.02;
+      gap: 0.1em;
+      padding-top: 22px;
+      font-size: clamp(58px, 17.2vw, 92px);
+      line-height: 0.98;
     }
 
     .hero__title-line--vibe {
       align-self: flex-start;
+      margin-inline-start: clamp(16px, 7vw, 30px);
     }
 
     .hero__statement {
@@ -1849,7 +1910,12 @@
     }
 
     .site-footer__brand-name {
-      font-size: 34px;
+      gap: 12px;
+      font-size: 30px;
+    }
+
+    .site-footer__brand-logo {
+      width: 50px;
     }
 
     .site-footer__brand {
@@ -1863,6 +1929,27 @@
   }
 
   @media (max-width: 460px) {
+    .site-header {
+      gap: 8px;
+    }
+
+    .site-header .wordmark__name {
+      font-size: 15px;
+    }
+
+    .wordmark__logo {
+      width: 30px;
+    }
+
+    .site-nav a {
+      padding-inline: 8px;
+      font-size: 12.5px;
+    }
+
+    .site-nav a::after {
+      left: 8px;
+    }
+
     .hero__source {
       font-size: 11px;
     }

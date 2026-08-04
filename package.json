@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node build.mjs"
+    "build": "node build.mjs",
+    "build:pages": "node build-pages.mjs",
+    "check:pages": "node verify-pages.mjs",
+    "check:syntax": "node --check script.js && node --check editor.js && node --check build-pages.mjs && node --check verify-pages.mjs"
   },
   "engines": {
     "node": ">=22"
