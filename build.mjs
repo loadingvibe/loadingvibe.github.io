@@ -20,7 +20,13 @@ rmSync(output, { recursive: true, force: true });
 rmSync(publicDirectory, { recursive: true, force: true });
 mkdirSync(publicDirectory, { recursive: true });
 
-for (const filename of ["styles.css", "script.js"]) {
+for (const filename of [
+  "styles.css",
+  "script.js",
+  "editor.html",
+  "editor.css",
+  "editor.js",
+]) {
   copyFileSync(
     resolve(root, filename),
     resolve(publicDirectory, filename),
