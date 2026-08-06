@@ -66,6 +66,7 @@ const checks = [
   { path: "/script.js" },
   { path: "/editor.css" },
   { path: "/editor.js" },
+  { path: "/CNAME", contains: "loadingvibe.com" },
   { path: "/assets/brand/frequency-loader.svg" },
   { path: "/assets/hero/listening-archive-desktop-v1.jpg" },
 ];

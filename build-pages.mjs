@@ -14,6 +14,7 @@ import { fileURLToPath } from "node:url";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const output = resolve(root, "_site");
+const customDomain = resolve(root, "public", "CNAME");
 const requiredFiles = [
   "index.html",
   "editor.html",
@@ -41,6 +42,15 @@ function assertNoSymbolicLinks(directory) {
 
 if (dirname(output) !== root || relative(root, output) !== "_site") {
   throw new Error("Refusing to build outside the project root.");
+}
+
+if (!existsSync(customDomain)) {
+  throw new Error("Missing required file: public/CNAME");
+}
+
+const customDomainStats = lstatSync(customDomain);
+if (customDomainStats.isSymbolicLink() || !customDomainStats.isFile()) {
+  throw new Error("public/CNAME must be a regular file.");
 }
 
 for (const filename of requiredFiles) {
@@ -81,18 +91,11 @@ for (const directory of requiredDirectories) {
   });
 }
 
-const customDomain = resolve(root, "CNAME");
-if (existsSync(customDomain)) {
-  const customDomainStats = lstatSync(customDomain);
-  if (customDomainStats.isSymbolicLink() || !customDomainStats.isFile()) {
-    throw new Error("CNAME must be a regular file.");
-  }
-  copyFileSync(customDomain, resolve(output, "CNAME"));
-}
+copyFileSync(customDomain, resolve(output, "CNAME"));
 
 writeFileSync(resolve(output, ".nojekyll"), "", "utf8");
 
-for (const filename of [...requiredFiles, ".nojekyll"]) {
+for (const filename of [...requiredFiles, "CNAME", ".nojekyll"]) {
   const builtFile = resolve(output, filename);
   if (!existsSync(builtFile) || !statSync(builtFile).isFile()) {
     throw new Error(`Pages artifact is incomplete: ${filename}`);

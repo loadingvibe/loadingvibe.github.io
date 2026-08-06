@@ -17,7 +17,6 @@ if (dirname(output) !== root) {
 }
 
 rmSync(output, { recursive: true, force: true });
-rmSync(publicDirectory, { recursive: true, force: true });
 mkdirSync(publicDirectory, { recursive: true });
 
 for (const filename of [
@@ -27,12 +26,14 @@ for (const filename of [
   "editor.css",
   "editor.js",
 ]) {
+  rmSync(resolve(publicDirectory, filename), { force: true });
   copyFileSync(
     resolve(root, filename),
     resolve(publicDirectory, filename),
   );
 }
 
+rmSync(resolve(publicDirectory, "assets"), { recursive: true, force: true });
 cpSync(resolve(root, "assets"), resolve(publicDirectory, "assets"), {
   recursive: true,
 });
