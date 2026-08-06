@@ -4,6 +4,5 @@
 .next/
 node_modules/
 next-env.d.ts
-public/
 dist/
 _site/

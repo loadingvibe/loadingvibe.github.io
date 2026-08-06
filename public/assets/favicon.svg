@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Loading Vibe">
+  <rect width="64" height="64" fill="#11110f"/>
+  <rect x="8" y="8" width="48" height="48" fill="#f4511e"/>
+  <path d="M18 18h7v21h12v7H18V18Zm17 0h8l5 19 5-19h7l-9 28h-8l-8-28Z" fill="#fffdf8"/>
+</svg>
