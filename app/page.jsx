@@ -32,7 +32,7 @@ export default function OnePageSite() {
             opacity={1}
           />
           <div className="opening-section__content">
-            <p className="opening-section__eyebrow">A LIVING ARCHIVE · LUO YIGE · 2026</p>
+            <p className="opening-section__eyebrow">A LIVING ARCHIVE · 2026</p>
             <BrandLockup hero />
             <h1 id="opening-title">
               <span className="opening-title__line opening-title__line--lead">让日常，</span>
@@ -43,11 +43,6 @@ export default function OnePageSite() {
               <span>学习笔记、技巧总结，分享给你…………</span>
             </p>
           </div>
-          <a className="opening-section__scroll-rail" href="#about" aria-label="继续向下阅读关于我">
-            <span>继续向下 · SCROLL</span>
-            <i aria-hidden="true"><b /></i>
-            <small>01 — 04</small>
-          </a>
         </section>
 
         <section className="minimal-resume" id="about" aria-labelledby="about-title">
