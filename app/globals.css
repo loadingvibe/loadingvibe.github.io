@@ -551,10 +551,13 @@ img { display: block; max-width: 100%; }
   bottom: clamp(8px, 1.4vw, 22px);
   left: clamp(18px, 4vw, 68px);
   overflow: hidden;
-  opacity: .88;
+  opacity: 1;
   pointer-events: none;
 }
-.opening-section__stroke .stroke-text__svg { height: clamp(76px, 10vw, 146px); }
+.opening-section__stroke .stroke-text__svg {
+  height: clamp(76px, 10vw, 146px);
+  filter: drop-shadow(0 7px 24px rgb(130 211 255 / 18%));
+}
 .opening-section__stroke .stroke-text__stroke,
 .opening-section__stroke .stroke-text__fill {
   font-family: Inter, "Helvetica Neue", Arial, sans-serif;

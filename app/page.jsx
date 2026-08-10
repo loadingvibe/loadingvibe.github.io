@@ -48,12 +48,12 @@ export default function OnePageSite() {
             <StrokeText
               text="Show Myself to You"
               strokeColor="#ffb21c"
-              fillColor="#dff4ff"
-              strokeWidth={1.65}
-              drawDuration={1.8}
-              fillDelay={0.12}
-              stagger={0.035}
-              trigger="loop"
+              fillColor="#f4f8f6"
+              strokeWidth={2.1}
+              drawDuration={1.35}
+              fillDelay={0.05}
+              stagger={0.025}
+              trigger="mount"
               fillMode="wipe"
               fontSize={118}
               fontWeight={720}
