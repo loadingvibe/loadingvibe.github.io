@@ -537,7 +537,7 @@ img { display: block; max-width: 100%; }
 }
 .opening-section h1::after {
   position: absolute;
-  right: 0;
+  right: 8%;
   bottom: 1px;
   left: 0;
   height: clamp(4px, .42vw, 7px);
@@ -809,7 +809,7 @@ img { display: block; max-width: 100%; }
   .opening-section .ydld-lockup--hero img { width: clamp(106px, 29vw, 124px); height: clamp(106px, 29vw, 124px); }
   .opening-section .ydld-lockup--hero i, .opening-section .ydld-lockup--hero strong { font-size: clamp(47px, 13vw, 56px); }
   .opening-section h1 { width: auto; margin-top: 38px; padding-bottom: 21px; font-size: clamp(33px, 10.7vw, 56px); line-height: 1; transform: translateX(6px); }
-  .opening-section h1::after { right: 0; left: 0; }
+  .opening-section h1::after { right: 8%; left: 0; }
   .opening-section h1::before { right: 1.5%; bottom: -7px; font-size: 14px; }
   .opening-section__intro { max-width: 25em; font-size: 16px; line-height: 1.8; }
   .opening-section__intro span { display: inline; }

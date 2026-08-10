@@ -37,7 +37,7 @@ export default function OnePageSite() {
             <BrandLockup hero />
             <h1 id="opening-title">
               <span className="opening-title__line opening-title__line--lead">让日常，</span>
-              <span className="opening-title__line opening-title__line--accent">有点来电。</span>
+              <span className="opening-title__line opening-title__line--accent">充满灵感！</span>
             </h1>
             <p className="opening-section__intro">
               <span>欢迎观看我的网站，这里有我的生活分享、</span>
