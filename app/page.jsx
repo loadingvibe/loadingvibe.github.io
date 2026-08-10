@@ -19,17 +19,17 @@ export default function OnePageSite() {
         <section className="opening-section" id="intro" aria-labelledby="opening-title">
           <SideRays
             className="opening-rays"
-            speed={0.78}
-            rayColor1="#ffd166"
-            rayColor2="#5ac8f5"
-            intensity={1.28}
-            spread={1.62}
+            speed={2.5}
+            rayColor1="#ffb21c"
+            rayColor2="#82d3ff"
+            intensity={2.25}
+            spread={2}
             origin="top-right"
-            tilt={-9}
-            saturation={1.2}
-            blend={0.6}
-            falloff={1.78}
-            opacity={0.48}
+            tilt={0}
+            saturation={1.5}
+            blend={0.5}
+            falloff={1.6}
+            opacity={1}
           />
           <div className="opening-section__content">
             <p className="opening-section__eyebrow">A LIVING ARCHIVE · LUO YIGE · 2026</p>

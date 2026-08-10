@@ -460,8 +460,8 @@ img { display: block; max-width: 100%; }
   z-index: 1;
   inset: 0;
   background:
-    radial-gradient(circle at 50% 47%, transparent 0 28%, rgb(4 8 7 / 16%) 63%, rgb(4 7 6 / 58%) 100%),
-    linear-gradient(180deg, rgb(4 7 6 / 22%), transparent 34%, rgb(4 7 6 / 52%));
+    radial-gradient(circle at 50% 48%, rgb(4 8 7 / 24%) 0 22%, transparent 58%),
+    linear-gradient(180deg, rgb(4 7 6 / 8%), transparent 55%, rgb(4 7 6 / 32%));
   content: "";
   pointer-events: none;
 }
@@ -471,6 +471,9 @@ img { display: block; max-width: 100%; }
   inset: 0 !important;
   width: auto !important;
   height: auto !important;
+}
+.side-rays-container.opening-rays canvas {
+  filter: brightness(1.12) saturate(1.08);
 }
 .opening-section__content {
   position: relative;
@@ -490,7 +493,7 @@ img { display: block; max-width: 100%; }
   width: min(118%, 1120px);
   height: 112%;
   border-radius: 50%;
-  background: radial-gradient(ellipse, rgb(3 7 5 / 58%) 0%, rgb(3 7 5 / 25%) 50%, transparent 74%);
+  background: radial-gradient(ellipse, rgb(3 7 5 / 30%) 0%, rgb(3 7 5 / 12%) 48%, transparent 74%);
   content: "";
   filter: blur(28px);
   pointer-events: none;
