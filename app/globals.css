@@ -383,11 +383,11 @@ img { display: block; max-width: 100%; }
 .one-page-header nav a {
   position: relative;
   display: grid;
-  min-width: 84px;
+  min-width: 104px;
   place-items: center;
   padding: 0 16px;
   color: #5b5b57;
-  font-size: 13px;
+  font-size: 17px;
   font-weight: 700;
   text-decoration: none;
 }

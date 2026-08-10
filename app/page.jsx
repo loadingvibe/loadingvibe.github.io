@@ -19,7 +19,7 @@ export default function OnePageSite() {
           <a href="#notes">记录</a>
           <a href="#wall">留言墙</a>
         </nav>
-        <a className="one-page-header__studio" href="/studio">写作台 <span aria-hidden="true">↗</span></a>
+        <a className="one-page-header__studio" href="#intro" aria-label="当前语言：中文版">中文版 <span aria-hidden="true">↗</span></a>
       </header>
 
       <main className="one-page-main">
