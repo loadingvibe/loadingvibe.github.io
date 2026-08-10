@@ -19,24 +19,28 @@ export default function OnePageSite() {
         <section className="opening-section" id="intro" aria-labelledby="opening-title">
           <SideRays
             className="opening-rays"
-            speed={1.25}
-            rayColor1="#ffb320"
-            rayColor2="#42bde8"
-            intensity={0.85}
-            spread={1.75}
+            speed={0.78}
+            rayColor1="#ffd166"
+            rayColor2="#5ac8f5"
+            intensity={1.28}
+            spread={1.62}
             origin="top-right"
-            tilt={-6}
-            saturation={1.15}
-            blend={0.62}
-            falloff={1.85}
-            opacity={0.18}
+            tilt={-9}
+            saturation={1.2}
+            blend={0.6}
+            falloff={1.78}
+            opacity={0.48}
           />
           <div className="opening-section__content">
             <p className="opening-section__eyebrow">A LIVING ARCHIVE · LUO YIGE · 2026</p>
             <BrandLockup hero />
-            <h1 id="opening-title">让日常，<br /><span>有点来电。</span></h1>
+            <h1 id="opening-title">
+              <span className="opening-title__line opening-title__line--lead">让日常，</span>
+              <span className="opening-title__line opening-title__line--accent">有点来电。</span>
+            </h1>
             <p className="opening-section__intro">
-              欢迎观看我的网站，这里有我的生活分享、学习笔记、技巧总结，分享给你…………
+              <span>欢迎观看我的网站，这里有我的生活分享、</span>
+              <span>学习笔记、技巧总结，分享给你…………</span>
             </p>
           </div>
           <a className="opening-section__scroll-rail" href="#about" aria-label="继续向下阅读关于我">
