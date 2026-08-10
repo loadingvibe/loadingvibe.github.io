@@ -514,9 +514,9 @@ img { display: block; max-width: 100%; }
   gap: clamp(30px, 3vw, 46px);
   filter: drop-shadow(0 10px 30px rgb(0 0 0 / 28%));
 }
-.opening-section .ydld-lockup--hero img { width: clamp(170px, 13vw, 228px); height: clamp(170px, 13vw, 228px); }
+.opening-section .ydld-lockup--hero img { width: clamp(205px, 15.5vw, 270px); height: clamp(205px, 15.5vw, 270px); }
 .opening-section .ydld-lockup--hero i,
-.opening-section .ydld-lockup--hero strong { font-size: clamp(76px, 7.6vw, 116px); }
+.opening-section .ydld-lockup--hero strong { font-size: clamp(82px, 8vw, 124px); }
 .opening-section h1 {
   position: relative;
   display: flex;
@@ -532,20 +532,19 @@ img { display: block; max-width: 100%; }
   font-weight: 600;
   letter-spacing: -.075em;
   line-height: 1;
+  transform: translateX(clamp(18px, 2vw, 34px));
   white-space: nowrap;
 }
 .opening-section h1::after {
   position: absolute;
-  right: 7%;
+  right: 0;
   bottom: 1px;
-  left: 9%;
+  left: 0;
   height: clamp(4px, .42vw, 7px);
   border-radius: 999px;
   background: linear-gradient(90deg, #ffb21c 0%, #ff7f32 42%, #ffd166 63%, #bfeaff 82%, #82d3ff 100%);
   box-shadow: 0 0 14px rgb(255 178 28 / 38%), 0 0 20px rgb(130 211 255 / 28%);
   content: "";
-  transform: rotate(-1.2deg) skewX(-16deg);
-  transform-origin: center;
 }
 .opening-section h1::before {
   position: absolute;
@@ -806,11 +805,11 @@ img { display: block; max-width: 100%; }
   .ydld-lockup--compact i, .ydld-lockup--compact strong { font-size: 21px; }
   .opening-section { min-height: calc(100svh - 68px); gap: 0; padding: 68px 16px 86px; }
   .opening-section__eyebrow { margin-bottom: 28px; font-size: 9px; }
-  .opening-section .ydld-lockup--hero { gap: 18px; }
-  .opening-section .ydld-lockup--hero img { width: clamp(98px, 27vw, 112px); height: clamp(98px, 27vw, 112px); }
-  .opening-section .ydld-lockup--hero i, .opening-section .ydld-lockup--hero strong { font-size: clamp(48px, 13vw, 54px); }
-  .opening-section h1 { width: auto; margin-top: 38px; padding-bottom: 21px; font-size: clamp(33px, 10.7vw, 56px); line-height: 1; }
-  .opening-section h1::after { right: 5%; left: 6%; }
+  .opening-section .ydld-lockup--hero { gap: clamp(10px, 3.5vw, 18px); }
+  .opening-section .ydld-lockup--hero img { width: clamp(106px, 29vw, 124px); height: clamp(106px, 29vw, 124px); }
+  .opening-section .ydld-lockup--hero i, .opening-section .ydld-lockup--hero strong { font-size: clamp(47px, 13vw, 56px); }
+  .opening-section h1 { width: auto; margin-top: 38px; padding-bottom: 21px; font-size: clamp(33px, 10.7vw, 56px); line-height: 1; transform: translateX(6px); }
+  .opening-section h1::after { right: 0; left: 0; }
   .opening-section h1::before { right: 1.5%; bottom: -7px; font-size: 14px; }
   .opening-section__intro { max-width: 25em; font-size: 16px; line-height: 1.8; }
   .opening-section__intro span { display: inline; }
