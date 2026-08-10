@@ -1,14 +1,6 @@
-import NoteReader from "../../../components/NoteReader";
-import SiteFooter from "../../../components/SiteFooter";
-import SiteHeader from "../../../components/SiteHeader";
+import { redirect } from "next/navigation";
 
-export default async function NotePage({ params }) {
+export default async function NoteRedirect({ params }) {
   const { slug } = await params;
-  return (
-    <>
-      <SiteHeader active="/notes" />
-      <NoteReader slug={slug} />
-      <SiteFooter />
-    </>
-  );
+  redirect(`/#note-${encodeURIComponent(slug)}`);
 }

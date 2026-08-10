@@ -1,12 +1,12 @@
 import Link from "next/link";
 
-export default function LogoLockup({ href = "/home", compact = false }) {
+export default function LogoLockup({ href = "/", compact = false }) {
   return (
     <Link className={`logo-lockup${compact ? " logo-lockup--compact" : ""}`} href={href}>
-      <img src="/assets/brand/yige-notes-logo-v1.png" width="1254" height="1254" alt="" />
+      <img src="/assets/brand/you-dian-lai-dian-mark-v1.png" width="1024" height="1024" alt="" />
       <span>
-        <strong>忆歌手记</strong>
-        {!compact && <small>YIGE NOTES</small>}
+        <strong>有点来电</strong>
+        {!compact && <small>PERSONAL ARCHIVE</small>}
       </span>
     </Link>
   );

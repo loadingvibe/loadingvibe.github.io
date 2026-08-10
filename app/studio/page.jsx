@@ -11,16 +11,16 @@ export default async function StudioPage() {
   if (!isOwnerUserId(user.userId)) {
     return (
       <main className="studio-access">
-        <img src="/assets/brand/yige-notes-logo-v1.png" width="1254" height="1254" alt="" />
+        <img src="/assets/brand/you-dian-lai-dian-mark-v1.png" width="1024" height="1024" alt="" />
         <p className="overline">PRIVATE STUDIO</p>
         <h1>这里是作者的写作台。</h1>
         <p>当前账号 {user.email} 可以阅读网站，但不能修改内容。</p>
         <div className="button-row">
-          <Link className="button button--primary" href="/home">返回首页</Link>
-          <a className="button button--ghost" href={chatGPTSignOutPath("/home")}>切换账号</a>
+          <Link className="button button--primary" href="/">返回首页</Link>
+          <a className="button button--ghost" href={chatGPTSignOutPath("/")}>切换账号</a>
         </div>
       </main>
     );
   }
-  return <StudioEditor displayName={user.displayName} signOutHref={chatGPTSignOutPath("/home")} />;
+  return <StudioEditor displayName={user.displayName} signOutHref={chatGPTSignOutPath("/")} />;
 }

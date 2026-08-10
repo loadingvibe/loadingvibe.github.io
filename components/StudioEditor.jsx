@@ -169,7 +169,7 @@ export default function StudioEditor({ displayName, signOutHref }) {
       <header className="studio__header">
         <LogoLockup compact />
         <nav><button className={tab === "notes" ? "is-active" : ""} onClick={() => setTab("notes")}>写笔记</button><button className={tab === "messages" ? "is-active" : ""} onClick={() => setTab("messages")}>留言管理 <span>{messages.length}</span></button></nav>
-        <div className="studio__account"><span>{displayName}</span><Link href="/home">看网站</Link><a href={signOutHref}>退出</a></div>
+        <div className="studio__account"><span>{displayName}</span><Link href="/">看网站</Link><a href={signOutHref}>退出</a></div>
       </header>
 
       {tab === "messages" ? (

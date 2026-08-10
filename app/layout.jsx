@@ -1,8 +1,8 @@
 import "./globals.css";
 import { headers } from "next/headers";
 
-const title = "忆歌手记 · 罗忆歌的个人空间";
-const description = "罗忆歌的个人空间，记录生活、工作与学习，收藏值得回看的思考。";
+const title = "有点来电 · 罗忆歌的个人网站";
+const description = "罗忆歌的单页个人网站，介绍自己，记录生活、工作与学习，也收下每一位访客的留言。";
 
 export async function generateMetadata() {
   const requestHeaders = await headers();
@@ -11,22 +11,22 @@ export async function generateMetadata() {
   const base = `${protocol}://${host}`;
   return {
     metadataBase: new URL(base),
-    title: { default: title, template: `%s · 忆歌手记` },
+    title: { default: title, template: `%s · 有点来电` },
     description,
-    icons: { icon: "/assets/brand/yige-notes-logo-v1.png" },
+    icons: { icon: "/assets/brand/you-dian-lai-dian-mark-v1.png" },
     openGraph: {
       title,
       description,
       type: "website",
       locale: "zh_CN",
-      images: [{ url: `${base}/og.png`, width: 1200, height: 630, alt: "忆歌手记：把生活、工作与学习，写成可回望的路。" }],
+      images: [{ url: `${base}/og-you-dian-lai-dian-v1.png`, width: 1200, height: 630, alt: "有点来电：罗忆歌的个人记录站。" }],
     },
-    twitter: { card: "summary_large_image", title, description, images: [`${base}/og.png`] },
+    twitter: { card: "summary_large_image", title, description, images: [`${base}/og-you-dian-lai-dian-v1.png`] },
   };
 }
 
 export const viewport = {
-  themeColor: "#f4f0e8",
+  themeColor: "#f7f7f4",
   colorScheme: "light",
 };
 
