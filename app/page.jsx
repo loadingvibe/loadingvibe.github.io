@@ -2,6 +2,7 @@ import BrandLockup from "../components/BrandLockup";
 import MessageWall from "../components/MessageWall";
 import RecordsArchive from "../components/RecordsArchive";
 import SideRays from "../components/SideRays";
+import StrokeText from "../components/StrokeText";
 
 export default function OnePageSite() {
   return (
@@ -42,6 +43,22 @@ export default function OnePageSite() {
               <span>欢迎观看我的网站，这里有我的生活分享、</span>
               <span>学习笔记、技巧总结，分享给你…………</span>
             </p>
+          </div>
+          <div className="opening-section__stroke">
+            <StrokeText
+              text="Show Myself to You"
+              strokeColor="#ffb21c"
+              fillColor="#dff4ff"
+              strokeWidth={1.65}
+              drawDuration={1.8}
+              fillDelay={0.12}
+              stagger={0.035}
+              trigger="loop"
+              fillMode="wipe"
+              fontSize={118}
+              fontWeight={720}
+              letterSpacing={-5}
+            />
           </div>
         </section>
 
