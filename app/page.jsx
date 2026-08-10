@@ -29,24 +29,22 @@ export default function OnePageSite() {
             speed={1.25}
             rayColor1="#ffb320"
             rayColor2="#42bde8"
-            intensity={1.35}
+            intensity={0.85}
             spread={1.75}
             origin="top-right"
             tilt={-6}
             saturation={1.15}
             blend={0.62}
             falloff={1.85}
-            opacity={0.48}
+            opacity={0.18}
           />
           <div className="opening-section__content">
             <p className="opening-section__eyebrow">A LIVING ARCHIVE · LUO YIGE · 2026</p>
             <BrandLockup hero />
             <h1 id="opening-title">让日常，<br /><span>有点来电。</span></h1>
             <p className="opening-section__intro">
-              这里是罗忆歌的个人档案。生活里的微光、学习中的问题、
-              工作与实践的回声，都在这里慢慢接通。
+              欢迎观看我的网站，这里有我的生活分享、学习笔记、技巧总结，分享给你…………
             </p>
-            <a className="opening-section__start" href="#about">沿着光往下 <span aria-hidden="true">↓</span></a>
           </div>
           <aside className="opening-directory" aria-label="页面目录">
             <div className="opening-directory__head"><span>DIRECTORY</span><small>SCROLL TO EXPLORE</small></div>
