@@ -1,145 +1,33 @@
-# 有点来电
+# 忆歌手记
 
-有点来电是一个可直接部署的播客策展静态网站。它收录 8 档中英文节目，并通过分类、搜索和三种目录视图，帮助读者快速找到值得深入收听的内容；项目同时提供一个本地优先的 Markdown 文章写作页。
+罗忆歌的个人网站：一张简洁的个人名片，也是用来记录生活、工作与学习的长期笔记库。
 
-## 本地预览
+## 当前内容
 
-仅预览页面不需要安装依赖或构建。Windows 用户可在 PowerShell 中运行：
+- 欢迎页：初版 Logo、网站名称与入口。
+- 关于我：基于作者简历的简洁介绍，不公开电话、邮箱等敏感信息。
+- 笔记库：按生活、学习、工作、收藏与随笔组织，支持 Markdown 阅读。
+- 写作台：作者登录后可创建草稿或发布笔记，导入、导出 Markdown，上传图片与音频，也可直接录音。
+- 留言墙：访客可公开留言，作者可在写作台管理。
 
-```powershell
-cd D:\loadingvibe.com
-py -m http.server 4173 --bind 127.0.0.1
+## 数据
+
+笔记与留言使用 Sites D1 持久化，图片与录音使用 Sites R2 保存。浏览器存储不作为主数据源。
+
+## 旧站归档
+
+改造前的播客策展站代码保留在 `archive/legacy-podcast-site/`，不会出现在新网站的页面中。原来的八档播客推荐已迁移为笔记库的第一篇内容。
+
+## 本地开发
+
+```bash
+npm install
+npm run dev
 ```
 
-若系统未提供 `py` 命令，请改用：
+生成数据库迁移与部署构建：
 
-```powershell
-python -m http.server 4173 --bind 127.0.0.1
+```bash
+npm run db:generate
+npm run build
 ```
-
-随后打开 [http://127.0.0.1:4173](http://127.0.0.1:4173)。预览结束后，在终端按 `Ctrl+C` 停止服务。
-
-`index.html` 与 `editor.html` 都支持直接双击使用；正式验收仍建议启动本地 HTTP 服务，以便更准确地发现资源路径问题。
-
-部署流程如需独立的发布目录，可运行：
-
-```powershell
-npm.cmd run build
-```
-
-命令会保留原生 HTML/CSS/JS 页面，并通过 Vinext 生成 Sites 可识别的
-`dist/server/index.js` Worker 入口；静态资源位于 `dist/client/`。
-
-## GitHub Pages 自动部署
-
-仓库已提供 `.github/workflows/deploy-pages.yml`。推送到 `main` 分支时，GitHub Actions 会自动：
-
-1. 使用 Node.js 22 执行 `npm run build:pages`；
-2. 检查页面脚本语法，并将首页、Markdown 写作页和本地资源整理到 `_site/`；
-3. 对生成页面执行本地 HTTP 冒烟测试；
-4. 上传专用的 GitHub Pages artifact；
-5. 通过 `github-pages` 环境发布，并在工作流页面显示部署地址。
-
-也可以在 GitHub 的 **Actions → Build and deploy GitHub Pages → Run workflow** 手动重新部署。首次启用时，请在仓库 **Settings → Pages → Build and deployment** 中将 **Source** 设为 **GitHub Actions**。
-
-本地检查 Pages 发布产物：
-
-```powershell
-npm.cmd run build:pages
-npm.cmd run check:pages
-py -m http.server 4173 --bind 127.0.0.1 --directory _site
-```
-
-随后打开 [http://127.0.0.1:4173](http://127.0.0.1:4173)。`_site/` 是生成目录，不应提交到 Git。若仓库根目录存在 `CNAME`，构建脚本会一并复制；自定义域名仍需在 GitHub Pages 设置中确认。
-
-## 文件结构
-
-```text
-loadingvibe.com/
-├─ index.html                         # 语义化页面、8 档节目内容与交互控件
-├─ styles.css                         # 设计变量、响应式布局、三种视图与动效
-├─ script.js                          # 搜索、筛选、视图切换和偏好持久化
-├─ editor.html                        # Markdown 写作工作台
-├─ editor.css                         # 编辑器、预览与移动端布局
-├─ editor.js                          # 安全渲染、草稿、导入与导出
-├─ build-pages.mjs                    # GitHub Pages 静态发布产物构建器
-├─ verify-pages.mjs                   # Pages 产物本地 HTTP 冒烟测试
-├─ .github/workflows/deploy-pages.yml # 自动构建并部署到 GitHub Pages
-├─ assets/
-│  ├─ brand/                          # 有点来电品牌标志
-│  └─ covers/                         # 本地节目封面（JPEG / PNG）
-├─ product-facts.md                   # 参考页面与封面来源记录
-├─ docs/
-│  ├─ design-reference-analysis.md    # 参考站形式提炼与视觉方向
-│  └─ superpowers/plans/
-│     ├─ 2026-07-19-loading-vibe-static-site.md
-│     └─ 2026-08-04-github-pages-deployment.md
-│                                      # 实施计划与验收标准
-└─ README.md
-```
-
-## 添加或更新节目
-
-所有节目内容都写在 `index.html` 中，因此即使 JavaScript 不可用，节目仍应可见、可读、可点击。
-
-添加节目时：
-
-1. 将获得授权或来自节目官方公开页面的方形封面放入 `assets/covers/`，使用简短、稳定的小写文件名。
-2. 在 `index.html` 的 `.catalog` 中复制一篇现有的 `.show-card`，更新节目名称、简介、主持人或语言等元数据、官方链接和图片路径。
-3. 设置准确的 `data-category`、`data-language` 与 `data-search`。`data-search` 应包含节目名、主持人及主要主题关键词，便于中英文搜索。
-4. 为封面填写有意义的 `alt` 文本；外部链接保留 `target="_blank"` 与 `rel="noreferrer"`。
-5. 若引入新分类，同步添加对应的 `[data-filter]` 控件，并检查分类名称与卡片数据完全一致。
-6. 在 `product-facts.md` 中补充节目页面、核验日期和封面来源。
-
-更新现有节目时，直接修改对应 `.show-card` 的可见内容与数据属性；若更换封面或来源链接，也要同步更新 `product-facts.md`。修改后请重新执行下方核对清单。
-
-## Markdown 文章写作
-
-从首页顶栏点击“写文章”，或直接打开 `editor.html`。写作页支持：
-
-- 标题与 Markdown 正文实时预览；
-- 标题、列表、任务项、引用、代码、链接、图片、粗体、斜体和删除线；
-- 320ms 防抖自动保存，以及 `Ctrl/Cmd + S` 手动保存；
-- 通过按钮或拖放导入 UTF-8 `.md` 文件；
-- 将标题和正文导出为标准 `.md` 文件；
-- 本地字词统计与移动端单栏编辑。
-
-草稿存储在当前浏览器的 `localStorage` 中，不会上传到服务器。清除浏览器站点数据会删除本地草稿，因此长期保存请及时导出 `.md` 文件。
-
-## 设计参考摘要
-
-本站没有复刻任何单一参考站，而是将三类形式重新组合：
-
-- **深读编辑部**：借鉴 Dwarkesh Podcast 与硅谷101清晰、克制的内容层级和长阅读感。
-- **媒体海报**：借鉴 20VC 的超大标题、强对比和快速首屏节奏。
-- **节目书架**：借鉴 Acquired、Spotify 与小宇宙以封面为索引、行动路径紧凑的目录体验。
-
-默认的 `Editorial Grid` 强调内容层级；`Cover Wall` 强调封面浏览；`Compact List` 提升信息密度。三种视图改变的是布局与阅读节奏，而不只是颜色。
-
-核心视觉采用暖纸色 `#F2EEE5`、墨色 `#11110F`、朱橙 `#F4511E` 和辅助灰 `#79766F`。中文标题优先使用系统宋体，正文使用系统无衬线字体，不依赖远程字体。桌面端使用 12 栏网格，移动端收束为单栏，封面始终保持 1:1。
-
-更完整的参考拆解见 `docs/design-reference-analysis.md`。
-
-## 图片来源与使用说明
-
-当前封面用于识别节目并链接至其公开页面，项目不主张对这些图片拥有所有权：
-
-- Dwarkesh Podcast、20VC、Acquired：Apple Podcasts 公开节目元数据中的方形封面。
-- 听懂涨声、肥话连篇、面基、OnBoard!：各节目小宇宙公开页面的 `og:image`。
-- 硅谷101：Fireside 公开节目页面的封面。
-
-详细核验记录见 `product-facts.md`。公开部署、商业使用或替换素材前，请再次确认相应授权和平台条款；不要加入来源不明的第三方图片。
-
-## 验证清单
-
-- [ ] 通过本地 HTTP 服务打开页面，控制台无错误，所有本地资源均成功加载。
-- [ ] 禁用 JavaScript 后，8 张 `.show-card` 仍然可见，节目链接和封面替代文本有效。
-- [ ] “全部”及各分类筛选正确，搜索支持节目名和主题关键词，结果计数同步更新。
-- [ ] `Editorial Grid`、`Cover Wall`、`Compact List` 三种视图均可切换。
-- [ ] 切换视图后刷新页面，`loading-vibe-view` 偏好仍然生效。
-- [ ] 在 1440 × 1000 与 390 × 844 视口下无水平滚动，封面保持方形，正文可读。
-- [ ] 移动端按钮和输入控件的可点击区域至少为 44 × 44px，键盘焦点清晰可见。
-- [ ] 系统启用“减少动态效果”后，页面遵循 `prefers-reduced-motion`，内容不会因动效不可见。
-- [ ] 8 个外部节目链接均指向正确来源，并在新标签页安全打开。
-- [ ] `editor.html` 能实时渲染 Markdown，刷新后恢复草稿，并能导入、导出 `.md` 文件。
-- [ ] 写作页在 1440 × 1000 与 390 × 844 下无水平滚动，编辑和预览控件均可访问。

@@ -6,3 +6,8 @@ node_modules/
 next-env.d.ts
 dist/
 _site/
+tmp/
+.wrangler/
+.env
+.env.local
+.dev.vars
