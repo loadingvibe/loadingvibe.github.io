@@ -3,13 +3,6 @@ import MessageWall from "../components/MessageWall";
 import RecordsArchive from "../components/RecordsArchive";
 import SideRays from "../components/SideRays";
 
-const directory = [
-  ["01", "开场", "这个网站是什么", "#intro"],
-  ["02", "关于", "五条信息认识我", "#about"],
-  ["03", "记录", "生活、工作与学习", "#notes"],
-  ["04", "留言", "在照片墙上留下一刻", "#wall"],
-];
-
 export default function OnePageSite() {
   return (
     <>
@@ -46,14 +39,6 @@ export default function OnePageSite() {
               欢迎观看我的网站，这里有我的生活分享、学习笔记、技巧总结，分享给你…………
             </p>
           </div>
-          <aside className="opening-directory" aria-label="页面目录">
-            <div className="opening-directory__head"><span>DIRECTORY</span><small>SCROLL TO EXPLORE</small></div>
-            {directory.map(([number, title, description, href]) => (
-              <a key={number} href={href}>
-                <span>{number}</span><strong>{title}</strong><p>{description}</p><i aria-hidden="true">↘</i>
-              </a>
-            ))}
-          </aside>
           <a className="opening-section__scroll-rail" href="#about" aria-label="继续向下阅读关于我">
             <span>继续向下 · SCROLL</span>
             <i aria-hidden="true"><b /></i>
