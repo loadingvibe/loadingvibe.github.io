@@ -1,6 +1,7 @@
 import BrandLockup from "../components/BrandLockup";
 import MessageWall from "../components/MessageWall";
 import RecordsArchive from "../components/RecordsArchive";
+import SideRays from "../components/SideRays";
 
 const directory = [
   ["01", "开场", "这个网站是什么", "#intro"],
@@ -19,21 +20,33 @@ export default function OnePageSite() {
           <a href="#notes">记录</a>
           <a href="#wall">留言墙</a>
         </nav>
-        <a className="one-page-header__studio" href="#intro" aria-label="当前语言：中文版">中文版 <span aria-hidden="true">↗</span></a>
       </header>
 
       <main className="one-page-main">
         <section className="opening-section" id="intro" aria-labelledby="opening-title">
-          <div className="opening-section__glow" aria-hidden="true" />
+          <SideRays
+            className="opening-rays"
+            speed={1.25}
+            rayColor1="#ffb320"
+            rayColor2="#42bde8"
+            intensity={1.35}
+            spread={1.75}
+            origin="top-right"
+            tilt={-6}
+            saturation={1.15}
+            blend={0.62}
+            falloff={1.85}
+            opacity={0.48}
+          />
           <div className="opening-section__content">
-            <p className="opening-section__eyebrow">WELCOME TO MY PERSONAL ARCHIVE · 2026</p>
+            <p className="opening-section__eyebrow">A LIVING ARCHIVE · LUO YIGE · 2026</p>
             <BrandLockup hero />
-            <h1 id="opening-title">记下所见，<br /><span>也继续向前。</span></h1>
+            <h1 id="opening-title">让日常，<br /><span>有点来电。</span></h1>
             <p className="opening-section__intro">
-              你好，这里是罗忆歌的个人网站。我在这里介绍自己，
-              记录生活里的光、学习中的问题，以及工作与实践中慢慢成形的答案。
+              这里是罗忆歌的个人档案。生活里的微光、学习中的问题、
+              工作与实践的回声，都在这里慢慢接通。
             </p>
-            <a className="opening-section__start" href="#about">开始往下看 <span aria-hidden="true">↓</span></a>
+            <a className="opening-section__start" href="#about">沿着光往下 <span aria-hidden="true">↓</span></a>
           </div>
           <aside className="opening-directory" aria-label="页面目录">
             <div className="opening-directory__head"><span>DIRECTORY</span><small>SCROLL TO EXPLORE</small></div>
@@ -43,7 +56,11 @@ export default function OnePageSite() {
               </a>
             ))}
           </aside>
-          <p className="opening-section__scroll">SCROLL <i aria-hidden="true" /></p>
+          <a className="opening-section__scroll-rail" href="#about" aria-label="继续向下阅读关于我">
+            <span>继续向下 · SCROLL</span>
+            <i aria-hidden="true"><b /></i>
+            <small>01 — 04</small>
+          </a>
         </section>
 
         <section className="minimal-resume" id="about" aria-labelledby="about-title">
