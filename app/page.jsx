@@ -55,9 +55,9 @@ export default function OnePageSite() {
               stagger={0.025}
               trigger="mount"
               fillMode="wipe"
-              fontSize={118}
-              fontWeight={720}
-              letterSpacing={-5}
+              fontSize={132}
+              fontWeight={740}
+              letterSpacing={-6}
             />
           </div>
         </section>
