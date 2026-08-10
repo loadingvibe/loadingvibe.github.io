@@ -34,11 +34,14 @@ export default function OnePageSite() {
           />
           <div className="opening-section__content">
             <p className="opening-section__eyebrow">A LIVING ARCHIVE · 2026</p>
-            <BrandLockup hero />
-            <h1 id="opening-title">
-              <span className="opening-title__line opening-title__line--lead">让日常，</span>
-              <span className="opening-title__line opening-title__line--accent">充满灵感！</span>
-            </h1>
+            <div className="opening-section__feature">
+              <img className="opening-feature__mark" src="/assets/brand/you-dian-lai-dian-mark-v1.png" width="1024" height="1024" alt="" />
+              <p className="opening-feature__name" aria-label="有点来电"><i>有点</i><strong>来电</strong></p>
+              <h1 id="opening-title">
+                <span className="opening-title__line opening-title__line--lead">让日常，</span>
+                <span className="opening-title__line opening-title__line--accent">充满灵感！</span>
+              </h1>
+            </div>
             <p className="opening-section__intro">
               <span>欢迎观看我的网站，这里有我的生活分享、</span>
               <span>学习笔记、技巧总结，分享给你…………</span>
