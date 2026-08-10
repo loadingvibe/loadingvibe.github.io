@@ -19,7 +19,7 @@ export async function generateMetadata() {
       description,
       type: "website",
       locale: "zh_CN",
-      images: [{ url: `${base}/og.png`, width: 1731, height: 909, alt: "忆歌手记：把生活、工作与学习，写成可回望的路。" }],
+      images: [{ url: `${base}/og.png`, width: 1200, height: 630, alt: "忆歌手记：把生活、工作与学习，写成可回望的路。" }],
     },
     twitter: { card: "summary_large_image", title, description, images: [`${base}/og.png`] },
   };
