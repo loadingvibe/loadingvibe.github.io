@@ -3,13 +3,10 @@
 import Link from "next/link";
 import {
   IconChevronDown,
-  IconDatabase,
   IconDots,
   IconFileDescription,
   IconFileImport,
-  IconLayoutBoard,
   IconSearch,
-  IconTable,
 } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -96,9 +93,6 @@ export default function RecordsArchive() {
           </summary>
           <div className="document-create__menu">
             <Link href="/studio/new"><IconFileDescription aria-hidden="true" stroke={1.7} /><span><strong>新建文档</strong><small>支持 Markdown 与实时预览</small></span></Link>
-            <button type="button" disabled><IconTable aria-hidden="true" stroke={1.7} /><span><strong>新建表格</strong><small>即将支持</small></span></button>
-            <button type="button" disabled><IconLayoutBoard aria-hidden="true" stroke={1.7} /><span><strong>新建画板</strong><small>即将支持</small></span></button>
-            <button type="button" disabled><IconDatabase aria-hidden="true" stroke={1.7} /><span><strong>新建数据表</strong><small>即将支持</small></span></button>
             <label className={importing ? "is-busy" : ""}>
               <IconFileImport aria-hidden="true" stroke={1.7} />
               <span><strong>{importing ? "正在导入…" : "导入 Markdown"}</strong><small>创建为可继续编辑的草稿</small></span>
