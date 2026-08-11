@@ -10,7 +10,7 @@
     "db:generate": "drizzle-kit generate",
     "build:pages": "node build-pages.mjs",
     "check:pages": "node verify-pages.mjs",
-    "check:syntax": "node --check script.js && node --check editor.js && node --check build-pages.mjs && node --check verify-pages.mjs"
+    "check:syntax": "node check-conflicts.mjs && node --check script.js && node --check editor.js && node --check build-pages.mjs && node --check verify-pages.mjs"
   },
   "engines": {
     "node": ">=22"
