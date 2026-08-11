@@ -41,6 +41,7 @@ export async function PUT(request, { params }) {
         tags: JSON.stringify(cleanTags(payload.tags)),
         coverUrl: payload.coverUrl ? String(payload.coverUrl).slice(0, 500) : null,
         status: payload.status === "draft" ? "draft" : "published",
+        favorite: Boolean(payload.favorite),
         updatedAt: sql`CURRENT_TIMESTAMP`,
       })
       .where(eq(notes.slug, slug))

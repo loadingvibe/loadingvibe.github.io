@@ -13,6 +13,7 @@ export const notes = sqliteTable(
     tags: text("tags").notNull().default("[]"),
     coverUrl: text("cover_url"),
     status: text("status").notNull().default("published"),
+    favorite: integer("favorite", { mode: "boolean" }).notNull().default(false),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   },

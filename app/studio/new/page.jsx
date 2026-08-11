@@ -21,5 +21,5 @@ export default async function NewDocumentPage() {
       </main>
     );
   }
-  return <DocumentWorkspace isNew canEdit />;
+  return <DocumentWorkspace isNew canEdit isSignedIn />;
 }

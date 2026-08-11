@@ -41,6 +41,7 @@ export async function POST(request) {
       tags: JSON.stringify(cleanTags(payload.tags)),
       coverUrl: payload.coverUrl ? String(payload.coverUrl).slice(0, 500) : null,
       status: payload.status === "draft" ? "draft" : "published",
+      favorite: Boolean(payload.favorite),
     };
     const [note] = await getDb().insert(notes).values(values).returning();
     return Response.json({ note: normalizeNote(note) }, { status: 201 });
