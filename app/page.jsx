@@ -67,22 +67,42 @@ export default function OnePageSite() {
         </section>
 
         <section className="minimal-resume" id="about" aria-labelledby="about-title">
-          <header className="section-intro">
-            <p><span>02</span> ABOUT ME</p>
-            <h2 id="about-title">五条信息，<br />简单认识我。</h2>
+          <header className="about-profile__heading">
+            <p><span>02</span> ABOUT</p>
+            <h2 id="about-title">关于</h2>
           </header>
-          <div className="minimal-resume__name">
-            <p>NAME / 姓名</p>
-            <h3>罗忆歌</h3>
-            <span>LUO YIGE</span>
+          <div className="about-profile">
+            <aside className="about-profile__identity" aria-label="Roy 的个人信息">
+              <figure className="about-profile__portrait">
+                <img src="/assets/about/roy-profile.jpg" width="1800" height="1350" alt="Roy 的个人照片" />
+              </figure>
+              <p className="about-profile__eyebrow">HELLO, I AM</p>
+              <h3>Roy</h3>
+              <p className="about-profile__role">中南大学在读学生</p>
+              <nav className="about-contact" aria-label="联系方式">
+                <a href="mailto:8212230801@csu.edu.cn" aria-label="发送邮件给 Roy" title="8212230801@csu.edu.cn"><span aria-hidden="true">✉</span></a>
+                <a href="https://maps.google.com/?q=Changsha,Hunan" target="_blank" rel="noreferrer" aria-label="Roy 所在地：湖南长沙" title="湖南 · 长沙"><span aria-hidden="true">⌖</span></a>
+                <a href="https://github.com/loadingvibe" target="_blank" rel="noreferrer" aria-label="访问 Roy 的 GitHub" title="GitHub · loadingvibe"><span className="about-contact__github" aria-hidden="true">GH</span></a>
+              </nav>
+              <section className="about-profile__research" aria-labelledby="research-title">
+                <p id="research-title">RESEARCH INTERESTS</p>
+                <ul>
+                  <li>自动驾驶</li>
+                  <li>嵌入式</li>
+                </ul>
+              </section>
+            </aside>
+
+            <article className="about-profile__story">
+              <p className="about-profile__eyebrow">A SHORT INTRODUCTION</p>
+              <h3>About</h3>
+              <p className="about-profile__statement">我是一名普通的大四学生。</p>
+              <div className="about-profile__detail">
+                <p><span>STATUS</span><strong>中南大学在读学生</strong></p>
+                <p><span>FOCUS</span><strong>自动驾驶 · 嵌入式</strong></p>
+              </div>
+            </article>
           </div>
-          <dl className="minimal-resume__facts">
-            <div><dt>01 · 年龄</dt><dd>21 岁</dd><small>2005.04</small></div>
-            <div><dt>02 · 学校</dt><dd>中南大学</dd><small>Central South University</small></div>
-            <div><dt>03 · 所在</dt><dd>湖南·长沙</dd><small>Changsha, Hunan</small></div>
-            <div><dt>04 · 籍贯</dt><dd>湖南·湘潭</dd><small>Xiangtan, Hunan</small></div>
-            <div className="minimal-resume__contact"><dt>05 · 联系</dt><dd><a href="mailto:8212230801@csu.edu.cn">8212230801@csu.edu.cn</a></dd><small>EMAIL ME ↗</small></div>
-          </dl>
         </section>
 
         <section className="records-section" id="notes" aria-labelledby="records-title">
