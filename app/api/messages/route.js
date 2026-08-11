@@ -2,6 +2,7 @@ import { desc, eq } from "drizzle-orm";
 import { messages } from "../../../db/schema";
 import { requireOwnerRequest } from "../../../lib/auth";
 import { getDb, getRawDb } from "../../../lib/db";
+import { getVisitorHash, isOwnerRequest } from "../../../lib/visitor";
 
 const allowedEmoji = new Set(["🌿", "💡", "🌞", "🚂", "🌊", "🌙"]);
 
@@ -17,7 +18,11 @@ export async function GET(request) {
     const rows = scope === "all"
       ? await getDb().select().from(messages).orderBy(desc(messages.createdAt)).limit(limit)
       : await getDb().select().from(messages).where(eq(messages.status, "visible")).orderBy(desc(messages.createdAt)).limit(limit);
-    return Response.json({ messages: rows });
+    const visitorHash = await getVisitorHash(request);
+    const owner = isOwnerRequest(request);
+    return Response.json({
+      messages: rows.map((row) => presentMessage(row, visitorHash, owner)),
+    });
   } catch {
     return Response.json({ error: "留言墙暂时不可用" }, { status: 500 });
   }
@@ -32,8 +37,11 @@ export async function POST(request) {
     const emoji = allowedEmoji.has(payload.emoji) ? payload.emoji : "🌿";
     if (!name || !content) return Response.json({ error: "请填写称呼和留言" }, { status: 400 });
 
-    const ip = request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for")?.split(",")[0] || "anonymous";
-    const visitorHash = await sha256(`yige-wall-v1:${ip}`);
+    const visitorHash = await getVisitorHash(request);
+    if (!visitorHash) return Response.json({ error: "无法确认这张留言的归属，请刷新后重试" }, { status: 400 });
+    const imageUrl = await verifyImageUrl(payload.imageUrl, visitorHash);
+    if (payload.imageUrl && !imageUrl) return Response.json({ error: "图片凭证已失效，请重新选择" }, { status: 400 });
+
     const recent = await getRawDb()
       .prepare("SELECT COUNT(*) AS count FROM messages WHERE visitor_hash = ? AND created_at > datetime('now', '-10 minutes')")
       .bind(visitorHash)
@@ -42,16 +50,27 @@ export async function POST(request) {
       return Response.json({ error: "稍微歇一会儿吧，每 10 分钟最多留下 3 条。" }, { status: 429 });
     }
 
-    const values = { id: crypto.randomUUID(), name, content, emoji, status: "visible", visitorHash };
+    const values = { id: crypto.randomUUID(), name, content, emoji, imageUrl, status: "visible", visitorHash };
     const [message] = await getDb().insert(messages).values(values).returning();
-    return Response.json({ message }, { status: 201 });
+    return Response.json({ message: presentMessage(message, visitorHash, false) }, { status: 201 });
   } catch {
     return Response.json({ error: "留言没有发出，请稍后重试" }, { status: 500 });
   }
 }
 
-async function sha256(value) {
-  const bytes = new TextEncoder().encode(value);
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+function presentMessage(row, visitorHash, owner) {
+  const { visitorHash: _privateVisitorHash, ...message } = row;
+  const belongsToVisitor = Boolean(visitorHash && row.visitorHash === visitorHash);
+  return { ...message, canEdit: belongsToVisitor, canDelete: belongsToVisitor || owner };
+}
+
+async function verifyImageUrl(value, visitorHash) {
+  if (!value) return null;
+  const match = String(value).match(/^\/api\/media\/([0-9a-f-]{36})$/i);
+  if (!match) return null;
+  const row = await getRawDb()
+    .prepare("SELECT id FROM media WHERE id = ? AND visitor_hash = ? AND content_type LIKE 'image/%'")
+    .bind(match[1], visitorHash)
+    .first();
+  return row ? `/api/media/${match[1]}` : null;
 }

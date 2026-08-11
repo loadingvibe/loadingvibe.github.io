@@ -135,10 +135,12 @@ export default function OnePageSite() {
         </section>
 
         <section className="memory-wall-section" id="wall" aria-labelledby="wall-title">
-          <header className="section-intro">
-            <p><span>04</span> MESSAGE WALL</p>
-            <h2 id="wall-title">我们都是<br />短暂经过的光。</h2>
-            <div><p>有些话不必长篇大论。一句问候、一个建议、一点此刻的感悟，都能在这面墙上变成一张不同的照片。</p></div>
+          <header className="memory-wall-heading">
+            <h2 id="wall-title">留言墙</h2>
+            <div>
+              <h3>我们都是短暂经过的光。</h3>
+              <p>一句问候、一个建议、一点此刻的感悟，都能在这里变成一张不同的照片。</p>
+            </div>
           </header>
           <MessageWall />
         </section>

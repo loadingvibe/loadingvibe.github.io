@@ -33,6 +33,7 @@ export const media = sqliteTable(
     filename: text("filename").notNull(),
     contentType: text("content_type").notNull(),
     size: integer("size").notNull(),
+    visitorHash: text("visitor_hash"),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => [
@@ -48,6 +49,7 @@ export const messages = sqliteTable(
     name: text("name").notNull(),
     content: text("content").notNull(),
     emoji: text("emoji").notNull().default("🌿"),
+    imageUrl: text("image_url"),
     status: text("status").notNull().default("visible"),
     visitorHash: text("visitor_hash"),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
