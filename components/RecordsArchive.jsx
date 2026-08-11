@@ -3,10 +3,10 @@
 import Link from "next/link";
 import {
   IconChevronDown,
-  IconDots,
   IconFileDescription,
   IconFileImport,
   IconSearch,
+  IconTrash,
 } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -20,6 +20,7 @@ export default function RecordsArchive() {
   const [sort, setSort] = useState("updated");
   const [notice, setNotice] = useState("");
   const [importing, setImporting] = useState(false);
+  const [deletingSlug, setDeletingSlug] = useState("");
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -82,6 +83,26 @@ export default function RecordsArchive() {
     }
   }
 
+  async function deleteNote(note) {
+    if (deletingSlug || !window.confirm(`确定删除《${note.title}》吗？删除后无法恢复。`)) return;
+    setDeletingSlug(note.slug);
+    setNotice("正在删除文档…");
+    try {
+      const response = await fetch(`/api/notes/${encodeURIComponent(note.slug)}`, { method: "DELETE" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) throw new Error("请先使用作者账号登录，再删除文档。");
+        throw new Error(data.error || "删除失败");
+      }
+      setNotes((current) => current.filter((item) => item.slug !== note.slug));
+      setNotice(`已删除《${note.title}》。`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "删除失败，请稍后重试。");
+    } finally {
+      setDeletingSlug("");
+    }
+  }
+
   return (
     <div className="documents-hub">
       <div className="documents-hub__topbar">
@@ -132,15 +153,31 @@ export default function RecordsArchive() {
       {status === "ready" && filtered.length === 0 && <div className="documents-state">没有找到符合条件的文档。</div>}
 
       <div className="documents-list" aria-label="文档列表">
-        {filtered.map((note) => (
-          <Link className="document-row" href={`/notes/${encodeURIComponent(note.slug)}`} key={note.id}>
-            <IconFileDescription className="document-row__icon" aria-hidden="true" stroke={1.65} />
-            <span className="document-row__title"><strong>{note.title}</strong>{note.status === "draft" && <i>草稿</i>}</span>
-            <span className="document-row__path">Roy&nbsp; / &nbsp;{note.category}</span>
-            <time dateTime={note.updatedAt || note.createdAt}>{formatDateTime(note.updatedAt || note.createdAt)}</time>
-            <IconDots className="document-row__more" aria-hidden="true" stroke={1.8} />
-          </Link>
-        ))}
+        {filtered.map((note) => {
+          const tags = (Array.isArray(note.tags) ? note.tags : []).slice(0, 4);
+          return (
+            <div className="document-row" key={note.id}>
+              <Link className="document-row__open" href={`/notes/${encodeURIComponent(note.slug)}`}>
+                <IconFileDescription className="document-row__icon" aria-hidden="true" stroke={1.65} />
+                <span className="document-row__title"><strong>{note.title}</strong>{note.status === "draft" && <i>草稿</i>}</span>
+                <span className="document-row__tags">
+                  {(tags.length ? tags : [note.category]).map((tag) => <i key={tag}>#{tag}</i>)}
+                </span>
+                <time dateTime={note.updatedAt || note.createdAt}>{formatDateTime(note.updatedAt || note.createdAt)}</time>
+              </Link>
+              <button
+                className="document-row__delete"
+                type="button"
+                disabled={deletingSlug === note.slug}
+                aria-label={`删除文档：${note.title}`}
+                title="删除文档"
+                onClick={() => deleteNote(note)}
+              >
+                <IconTrash aria-hidden="true" stroke={1.8} />
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
