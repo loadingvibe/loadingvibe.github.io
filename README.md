@@ -33,3 +33,25 @@ npm run dev
 npm run db:generate
 npm run build
 ```
+
+## GitHub Pages 发布
+
+推送到 `main` 后，`.github/workflows/deploy-pages.yml` 会检查并构建静态站点，
+再将 `_site/` 的内容同步到 `gh-pages` 分支。也可以在 GitHub 的
+**Actions → Build and publish GitHub Pages → Run workflow** 中手动执行。
+
+仓库的 **Settings → Pages → Build and deployment** 应设置为：
+
+- **Source**：Deploy from a branch
+- **Branch**：`gh-pages` / `(root)`
+
+请勿同时选择 GitHub Actions 作为第二条 Pages 发布路径，否则两次部署会争用同一个
+Pages 环境并出现 `due to in progress deployment` 错误。
+
+提交前可在本地验证 Pages 产物：
+
+```bash
+npm run check:syntax
+npm run build:pages
+npm run check:pages
+```
