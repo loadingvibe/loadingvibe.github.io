@@ -138,7 +138,6 @@ export default function OnePageSite() {
           <header className="memory-wall-heading">
             <h2 id="wall-title">留言墙</h2>
             <div>
-              <h3>我们都是短暂经过的光。</h3>
               <p>一句问候、一个建议、一点此刻的感悟，都能在这里变成一张不同的照片。</p>
             </div>
           </header>

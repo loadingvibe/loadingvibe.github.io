@@ -21,10 +21,15 @@ export default function RecordsArchive() {
   const [notice, setNotice] = useState("");
   const [importing, setImporting] = useState(false);
   const [deletingSlug, setDeletingSlug] = useState("");
+  const [isOwner, setIsOwner] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
     loadNotes();
+    fetch("/api/auth-status")
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data) => setIsOwner(Boolean(data.isOwner)))
+      .catch(() => setIsOwner(false));
   }, []);
 
   async function loadNotes() {
@@ -106,7 +111,7 @@ export default function RecordsArchive() {
   return (
     <div className="documents-hub">
       <div className="documents-hub__topbar">
-        <details className="document-create" ref={menuRef}>
+        {isOwner ? <details className="document-create" ref={menuRef}>
           <summary>
             <span className="document-create__icon"><IconFileDescription aria-hidden="true" stroke={1.7} /></span>
             <span><strong>新建文档</strong><small>文档、导入 Markdown</small></span>
@@ -120,7 +125,7 @@ export default function RecordsArchive() {
               <input type="file" accept=".md,text/markdown" disabled={importing} onChange={(event) => importMarkdown(event.target.files?.[0])} />
             </label>
           </div>
-        </details>
+        </details> : <Link className="document-author-entry" href="/studio/new"><IconFileDescription aria-hidden="true" stroke={1.7} /><span><strong>作者入口</strong><small>登录后新建与管理文档</small></span></Link>}
 
         <label className="documents-search">
           <IconSearch aria-hidden="true" stroke={1.7} />
@@ -165,7 +170,7 @@ export default function RecordsArchive() {
                 </span>
                 <time dateTime={note.updatedAt || note.createdAt}>{formatDateTime(note.updatedAt || note.createdAt)}</time>
               </Link>
-              <button
+              {isOwner && <button
                 className="document-row__delete"
                 type="button"
                 disabled={deletingSlug === note.slug}
@@ -174,7 +179,7 @@ export default function RecordsArchive() {
                 onClick={() => deleteNote(note)}
               >
                 <IconTrash aria-hidden="true" stroke={1.8} />
-              </button>
+              </button>}
             </div>
           );
         })}
