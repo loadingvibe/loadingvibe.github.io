@@ -68,8 +68,7 @@ export default function OnePageSite() {
 
         <section className="minimal-resume" id="about" aria-labelledby="about-title">
           <header className="about-profile__heading">
-            <p><span>02</span> ABOUT</p>
-            <h2 id="about-title">关于</h2>
+            <h2 id="about-title">关于我<span>（-ing）</span></h2>
           </header>
           <div className="about-profile">
             <aside className="about-profile__identity" aria-label="Roy 的个人信息">
@@ -78,7 +77,6 @@ export default function OnePageSite() {
               </figure>
               <p className="about-profile__eyebrow">HELLO, I AM</p>
               <h3>Roy</h3>
-              <p className="about-profile__role">中南大学在读学生</p>
               <nav className="about-contact" aria-label="联系方式">
                 <a href="mailto:8212230801@csu.edu.cn" aria-label="发送邮件给 Roy" title="8212230801@csu.edu.cn"><span aria-hidden="true">✉</span></a>
                 <a href="https://maps.google.com/?q=Changsha,Hunan" target="_blank" rel="noreferrer" aria-label="Roy 所在地：湖南长沙" title="湖南 · 长沙"><span aria-hidden="true">⌖</span></a>
@@ -97,10 +95,6 @@ export default function OnePageSite() {
               <p className="about-profile__eyebrow">A SHORT INTRODUCTION</p>
               <h3>About</h3>
               <p className="about-profile__statement">我是一名普通的大四学生。</p>
-              <div className="about-profile__detail">
-                <p><span>STATUS</span><strong>中南大学在读学生</strong></p>
-                <p><span>FOCUS</span><strong>自动驾驶 · 嵌入式</strong></p>
-              </div>
             </article>
           </div>
         </section>
