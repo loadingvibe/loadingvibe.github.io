@@ -10,7 +10,7 @@ export default async function NewDocumentPage() {
   const user = await requireChatGPTUser("/studio/new");
   if (!isOwnerUserId(user.userId)) {
     return (
-      <main className="studio-access" data-author-candidate={user.userId}>
+      <main className="studio-access">
         <img src="/assets/brand/you-dian-lai-dian-mark-v1.png" width="1024" height="1024" alt="" />
         <p className="overline">PRIVATE STUDIO</p>
         <h1>仅站点作者可新建文档。</h1>
