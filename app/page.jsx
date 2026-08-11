@@ -1,7 +1,6 @@
 import { IconBrandGithub, IconMail, IconMapPin } from "@tabler/icons-react";
 import AccordionGallery from "../components/AccordionGallery";
 import BrandLockup from "../components/BrandLockup";
-import GhostTitle from "../components/GhostTitle";
 import MessageWall from "../components/MessageWall";
 import RecordsArchive from "../components/RecordsArchive";
 import SideRays from "../components/SideRays";
@@ -128,8 +127,8 @@ export default function OnePageSite() {
         </section>
 
         <section className="records-section" id="notes" aria-labelledby="records-title">
-          <header className="section-intro section-intro--records">
-            <GhostTitle id="records-title" text="记录" />
+          <header className="documents-heading">
+            <h2 id="records-title">文档</h2>
           </header>
           <RecordsArchive />
         </section>
