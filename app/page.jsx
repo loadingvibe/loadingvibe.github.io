@@ -1,3 +1,4 @@
+import { IconBrandGithub, IconMail, IconMapPin } from "@tabler/icons-react";
 import BrandLockup from "../components/BrandLockup";
 import MessageWall from "../components/MessageWall";
 import RecordsArchive from "../components/RecordsArchive";
@@ -78,9 +79,9 @@ export default function OnePageSite() {
               <p className="about-profile__eyebrow">HELLO, I AM</p>
               <h3>Roy</h3>
               <nav className="about-contact" aria-label="联系方式">
-                <a href="mailto:8212230801@csu.edu.cn" aria-label="发送邮件给 Roy" title="8212230801@csu.edu.cn"><span aria-hidden="true">✉</span></a>
-                <a href="https://maps.google.com/?q=Changsha,Hunan" target="_blank" rel="noreferrer" aria-label="Roy 所在地：湖南长沙" title="湖南 · 长沙"><span aria-hidden="true">⌖</span></a>
-                <a href="https://github.com/loadingvibe" target="_blank" rel="noreferrer" aria-label="访问 Roy 的 GitHub" title="GitHub · loadingvibe"><span className="about-contact__github" aria-hidden="true">GH</span></a>
+                <a href="mailto:8212230801@csu.edu.cn" aria-label="发送邮件给 Roy" title="8212230801@csu.edu.cn"><IconMail aria-hidden="true" stroke={1.7} /></a>
+                <a href="https://maps.google.com/?q=Changsha,Hunan" target="_blank" rel="noreferrer" aria-label="Roy 所在地：湖南长沙" title="湖南 · 长沙"><IconMapPin aria-hidden="true" stroke={1.7} /></a>
+                <a href="https://github.com/loadingvibe" target="_blank" rel="noreferrer" aria-label="访问 Roy 的 GitHub" title="GitHub · loadingvibe"><IconBrandGithub aria-hidden="true" stroke={1.7} /></a>
               </nav>
               <section className="about-profile__research" aria-labelledby="research-title">
                 <p id="research-title">RESEARCH INTERESTS</p>

@@ -655,9 +655,9 @@ img { display: block; max-width: 100%; }
 .about-profile__identity > h3 { margin: 8px 0 2px; font-family: var(--serif); font-size: clamp(48px, 4.8vw, 70px); font-weight: 600; letter-spacing: -.07em; line-height: 1; }
 .about-contact { display: flex; justify-content: center; gap: 12px; margin-top: 26px; }
 .about-contact a { display: inline-grid; width: 46px; height: 46px; place-items: center; border: 1px solid #c5c5bd; border-radius: 50%; color: #4f504b; font-size: 20px; text-decoration: none; transition: border-color 180ms ease, background 180ms ease, color 180ms ease, transform 180ms ease; }
+.about-contact svg { width: 21px; height: 21px; }
 .about-contact a:hover { border-color: #171816; background: #171816; color: #fff; transform: translateY(-3px); }
 .about-contact a:focus-visible { outline: 2px solid #e29a2f; outline-offset: 4px; }
-.about-contact__github { font-family: var(--mono); font-size: 10px; font-weight: 800; letter-spacing: -.05em; }
 .about-profile__research { margin-top: 34px; padding: 23px 25px 25px; border: 1px solid #dce2e4; border-radius: 8px; background: linear-gradient(135deg, #f2f7f8, #e9eef4); text-align: left; }
 .about-profile__research p { margin: 0 0 16px; color: #60645f; font-family: var(--mono); font-size: 9px; font-weight: 800; letter-spacing: .14em; }
 .about-profile__research ul { display: flex; flex-wrap: wrap; gap: 9px; margin: 0; padding: 0; list-style: none; }

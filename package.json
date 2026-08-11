@@ -16,6 +16,7 @@
     "node": ">=22"
   },
   "dependencies": {
+    "@tabler/icons-react": "^3.46.0",
     "drizzle-orm": "0.45.2",
     "gsap": "^3.13.0",
     "ogl": "^1.0.11",
