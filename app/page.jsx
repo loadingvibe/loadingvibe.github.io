@@ -1,6 +1,7 @@
 import { IconBrandGithub, IconMail, IconMapPin } from "@tabler/icons-react";
 import AccordionGallery from "../components/AccordionGallery";
 import BrandLockup from "../components/BrandLockup";
+import GhostTitle from "../components/GhostTitle";
 import MessageWall from "../components/MessageWall";
 import RecordsArchive from "../components/RecordsArchive";
 import SideRays from "../components/SideRays";
@@ -127,9 +128,9 @@ export default function OnePageSite() {
         </section>
 
         <section className="records-section" id="notes" aria-labelledby="records-title">
-          <header className="section-intro section-intro--light">
+          <header className="section-intro section-intro--records">
             <p><span>03</span> NOTES & RECORDS</p>
-            <h2 id="records-title">所有记录，<br />先收起来。</h2>
+            <GhostTitle id="records-title" text="记录" />
             <div>
               <p>用结构化分类保存日记、学习笔记、工作复盘与收藏。需要时再通过搜索、标签与折叠条目展开细读。</p>
               <a href="/studio">进入写作台 <span aria-hidden="true">↗</span></a>
