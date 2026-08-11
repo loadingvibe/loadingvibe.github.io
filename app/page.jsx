@@ -129,12 +129,7 @@ export default function OnePageSite() {
 
         <section className="records-section" id="notes" aria-labelledby="records-title">
           <header className="section-intro section-intro--records">
-            <p><span>03</span> NOTES & RECORDS</p>
             <GhostTitle id="records-title" text="记录" />
-            <div>
-              <p>用结构化分类保存日记、学习笔记、工作复盘与收藏。需要时再通过搜索、标签与折叠条目展开细读。</p>
-              <a href="/studio">进入写作台 <span aria-hidden="true">↗</span></a>
-            </div>
           </header>
           <RecordsArchive />
         </section>

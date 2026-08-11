@@ -6,16 +6,17 @@ export default function GhostTitle({ id, text }) {
   return (
     <div className="records-ghost-title">
       <GhostCursor
-        trailLength={42}
-        inertia={0.58}
-        grainIntensity={0.03}
-        bloomStrength={0.06}
-        bloomRadius={0.72}
-        brightness={1.3}
-        color="#329ed0"
-        mixBlendMode="multiply"
-        fadeDelayMs={900}
-        fadeDurationMs={1500}
+        trailLength={58}
+        inertia={0.64}
+        grainIntensity={0.045}
+        bloomStrength={0.18}
+        bloomRadius={0.92}
+        brightness={1.85}
+        color="#ff681f"
+        mixBlendMode="normal"
+        edgeIntensity={0.04}
+        fadeDelayMs={1100}
+        fadeDurationMs={1800}
       />
       <h2 id={id}>{text}</h2>
     </div>
