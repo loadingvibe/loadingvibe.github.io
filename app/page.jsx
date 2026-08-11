@@ -52,15 +52,16 @@ export default function OnePageSite() {
               text="Show Myself to You"
               strokeColor="#ffb21c"
               fillColor="#f4f8f6"
-              strokeWidth={2.1}
-              drawDuration={1.35}
-              fillDelay={0.05}
-              stagger={0.025}
-              trigger="mount"
+              strokeWidth={1.8}
+              drawDuration={1.5}
+              fillDelay={0.12}
+              loopDelay={5}
+              stagger={0.03}
+              trigger="loop"
               fillMode="wipe"
-              fontSize={132}
+              fontSize={110}
               fontWeight={740}
-              letterSpacing={-6}
+              letterSpacing={-5}
             />
           </div>
         </section>

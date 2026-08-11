@@ -14,6 +14,7 @@ export default function StrokeText({
   strokeWidth = 1.4,
   drawDuration = 1.6,
   fillDelay = 0.2,
+  loopDelay = 4.5,
   stagger = 0.05,
   ease = "power2.out",
   trigger = "mount",
@@ -108,7 +109,7 @@ export default function StrokeText({
       const timeline = gsap.timeline({
         paused: true,
         repeat: trigger === "loop" ? -1 : 0,
-        repeatDelay: trigger === "loop" ? 0.9 : 0,
+        repeatDelay: trigger === "loop" ? Math.max(0, loopDelay) : 0,
         defaults: { overwrite: "auto" },
       });
       timeline.to(strokes, { strokeDashoffset: 0, duration: drawDuration, ease, stagger: staggerConfig }, 0);
@@ -152,7 +153,7 @@ export default function StrokeText({
       timeline?.kill();
       gsap.killTweensOf(targets);
     };
-  }, [box, dash, drawDuration, fillDelay, stagger, ease, trigger, fillMode, reverse]);
+  }, [box, dash, drawDuration, fillDelay, loopDelay, stagger, ease, trigger, fillMode, reverse]);
 
   const viewBox = box
     ? `${box.x} ${box.y} ${box.width} ${box.height}`

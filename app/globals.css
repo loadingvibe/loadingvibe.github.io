@@ -443,7 +443,7 @@ img { display: block; max-width: 100%; }
   justify-items: center;
   align-items: center;
   gap: 0;
-  padding: clamp(54px, 6vw, 86px) clamp(44px, 7vw, 120px) clamp(166px, 15vw, 220px);
+  padding: clamp(54px, 6vw, 86px) clamp(44px, 7vw, 120px) clamp(130px, 12vw, 178px);
   overflow: hidden;
   border-bottom: 1px solid #292c2a;
   background:
@@ -600,15 +600,17 @@ img { display: block; max-width: 100%; }
 .opening-section__stroke {
   position: absolute;
   z-index: 2;
-  right: clamp(18px, 4vw, 68px);
+  right: auto;
   bottom: clamp(8px, 1.4vw, 22px);
-  left: clamp(18px, 4vw, 68px);
+  left: 50%;
+  width: min(880px, calc(100% - 80px));
   overflow: hidden;
   opacity: 1;
   pointer-events: none;
+  transform: translateX(-50%);
 }
 .opening-section__stroke .stroke-text__svg {
-  height: clamp(92px, 11.5vw, 168px);
+  height: clamp(72px, 8.2vw, 112px);
   filter: drop-shadow(0 7px 24px rgb(130 211 255 / 18%));
 }
 .opening-section__stroke .stroke-text__stroke,
@@ -829,7 +831,7 @@ img { display: block; max-width: 100%; }
   .ydld-lockup--compact { gap: 8px; }
   .ydld-lockup--compact img { width: 44px; height: 44px; }
   .ydld-lockup--compact i, .ydld-lockup--compact strong { font-size: 21px; }
-  .opening-section { min-height: calc(100svh - 68px); gap: 0; padding: 68px 16px 150px; }
+  .opening-section { min-height: calc(100svh - 68px); gap: 0; padding: 68px 16px 124px; }
   .opening-section__eyebrow { margin-bottom: 28px; font-size: 9px; }
   .opening-section__feature { --opening-title-size: clamp(33px, 9.6vw, 50px); --opening-feature-columns: var(--opening-feature-lead-width) max-content; --opening-feature-gap: 0px; }
   .opening-feature__mark { width: 100%; max-width: none; }
@@ -840,8 +842,8 @@ img { display: block; max-width: 100%; }
   .opening-section__intro { max-width: 25em; font-size: 16px; line-height: 1.8; }
   .opening-section__intro span { display: inline; }
   .opening-section__content { transform: translate(0, -46px); }
-  .opening-section__stroke { right: 12px; bottom: 10px; left: 12px; }
-  .opening-section__stroke .stroke-text__svg { height: clamp(64px, 20vw, 96px); }
+  .opening-section__stroke { right: auto; bottom: 10px; left: 50%; width: calc(100% - 32px); }
+  .opening-section__stroke .stroke-text__svg { height: clamp(48px, 14vw, 68px); }
   .minimal-resume, .records-section, .memory-wall-section { padding: 90px 19px; }
   .section-intro { display: block; margin-bottom: 64px; }
   .section-intro h2 { margin-top: 35px; font-size: clamp(48px, 14vw, 68px); }
