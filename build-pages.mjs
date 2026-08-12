@@ -1,10 +1,8 @@
 import {
-  cpSync,
   copyFileSync,
   existsSync,
   lstatSync,
   mkdirSync,
-  readdirSync,
   rmSync,
   statSync,
   writeFileSync,
@@ -14,85 +12,44 @@ import { fileURLToPath } from "node:url";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const output = resolve(root, "_site");
-const requiredFiles = [
-  "index.html",
-  "editor.html",
-  "styles.css",
-  "script.js",
-  "editor.css",
-  "editor.js",
-];
-const requiredDirectories = ["assets"];
-
-function assertNoSymbolicLinks(directory) {
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    const entryPath = resolve(directory, entry.name);
-    if (entry.isSymbolicLink()) {
-      throw new Error(
-        `GitHub Pages artifacts cannot contain symbolic links: ${relative(root, entryPath)}`,
-      );
-    }
-
-    if (entry.isDirectory()) {
-      assertNoSymbolicLinks(entryPath);
-    }
-  }
-}
+const customDomain = resolve(root, "public", "CNAME");
+const destination = "https://loading-vibe-019f7844.fedorczykmarilynn269.chatgpt.site";
+const redirectPage = resolve(root, "redirect.html");
 
 if (dirname(output) !== root || relative(root, output) !== "_site") {
   throw new Error("Refusing to build outside the project root.");
 }
 
-for (const filename of requiredFiles) {
-  const source = resolve(root, filename);
-  if (!existsSync(source)) {
-    throw new Error(`Missing required file: ${filename}`);
-  }
-
-  const sourceStats = lstatSync(source);
-  if (sourceStats.isSymbolicLink() || !sourceStats.isFile()) {
-    throw new Error(`Required file must be a regular file: ${filename}`);
-  }
+if (!existsSync(redirectPage)) {
+  throw new Error("Missing required file: redirect.html");
 }
 
-for (const directory of requiredDirectories) {
-  const source = resolve(root, directory);
-  if (!existsSync(source)) {
-    throw new Error(`Missing required directory: ${directory}`);
-  }
+const redirectStats = lstatSync(redirectPage);
+if (redirectStats.isSymbolicLink() || !redirectStats.isFile()) {
+  throw new Error("redirect.html must be a regular file.");
+}
 
-  const sourceStats = lstatSync(source);
-  if (sourceStats.isSymbolicLink() || !sourceStats.isDirectory()) {
-    throw new Error(`Required directory must be a regular directory: ${directory}`);
-  }
-  assertNoSymbolicLinks(source);
+if (!existsSync(customDomain)) {
+  throw new Error("Missing required file: public/CNAME");
+}
+
+const customDomainStats = lstatSync(customDomain);
+if (customDomainStats.isSymbolicLink() || !customDomainStats.isFile()) {
+  throw new Error("public/CNAME must be a regular file.");
 }
 
 rmSync(output, { recursive: true, force: true });
 mkdirSync(output, { recursive: true });
 
-for (const filename of requiredFiles) {
-  copyFileSync(resolve(root, filename), resolve(output, filename));
-}
-
-for (const directory of requiredDirectories) {
-  cpSync(resolve(root, directory), resolve(output, directory), {
-    recursive: true,
-  });
-}
-
+copyFileSync(redirectPage, resolve(output, "index.html"));
+copyFileSync(customDomain, resolve(output, "CNAME"));
 writeFileSync(resolve(output, ".nojekyll"), "", "utf8");
 
-for (const filename of [...requiredFiles, ".nojekyll"]) {
+for (const filename of ["index.html", "CNAME", ".nojekyll"]) {
   const builtFile = resolve(output, filename);
   if (!existsSync(builtFile) || !statSync(builtFile).isFile()) {
     throw new Error(`Pages artifact is incomplete: ${filename}`);
   }
 }
 
-const builtAssets = resolve(output, "assets");
-if (!existsSync(builtAssets) || !statSync(builtAssets).isDirectory()) {
-  throw new Error("Pages artifact is incomplete: assets");
-}
-
-process.stdout.write("Built GitHub Pages artifact in _site/\n");
+process.stdout.write(`Built GitHub Pages redirect to ${destination}\n`);

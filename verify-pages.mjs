@@ -60,14 +60,8 @@ if (!address || typeof address === "string") {
 
 const baseUrl = `http://127.0.0.1:${address.port}`;
 const checks = [
-  { path: "/", contains: 'class="site-header"' },
-  { path: "/editor.html", contains: 'id="markdown-input"' },
-  { path: "/styles.css" },
-  { path: "/script.js" },
-  { path: "/editor.css" },
-  { path: "/editor.js" },
-  { path: "/assets/brand/frequency-loader.svg" },
-  { path: "/assets/hero/listening-archive-desktop-v1.jpg" },
+  { path: "/", contains: "loading-vibe-019f7844.fedorczykmarilynn269.chatgpt.site" },
+  { path: "/CNAME", contains: "loadingvibe.com" },
 ];
 
 try {
