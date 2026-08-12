@@ -1,0 +1,55 @@
+/* GitHub Pages-only interaction layer. The visual system comes from app/globals.css. */
+.document-create__menu button {
+  display: grid;
+  min-height: 66px;
+  grid-template-columns: 37px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #252a27;
+  text-align: left;
+  cursor: pointer;
+}
+.document-create__menu button:hover { background: #f1f6fa; }
+.pages-document-row__open {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.pages-modal-open { overflow: hidden; }
+.pages-document-overlay {
+  position: fixed;
+  z-index: 200;
+  inset: 0;
+  overflow: auto;
+  background: #f7f7f3;
+  color: #202520;
+}
+.pages-document-workspace { min-height: 100svh; }
+.pages-document-workspace .document-workspace__header { top: 0; }
+.document-workspace__back {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.pages-document-workspace .markdown-content { overflow-wrap: anywhere; }
+.pages-document-workspace .markdown-content img { height: auto; border-radius: 10px; }
+.pages-document-workspace .document-live-preview article > p { color: #59635c; }
+
+@media (max-width: 760px) {
+  .pages-document-workspace .document-workspace__header { position: sticky; z-index: 20; }
+  .pages-document-workspace .document-workspace__actions button { min-width: 36px; min-height: 36px; }
+}
+
+@media (max-width: 460px) {
+  .pages-document-workspace .document-workspace__actions button:not(.is-primary):not(.is-danger) { width: 36px; }
+  .pages-document-workspace .document-workspace__actions button svg { margin: 0; }
+}

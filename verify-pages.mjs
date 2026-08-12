@@ -1,4 +1,4 @@
-import { createReadStream, existsSync, statSync } from "node:fs";
+import { createReadStream, existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { dirname, extname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -60,9 +60,23 @@ if (!address || typeof address === "string") {
 
 const baseUrl = `http://127.0.0.1:${address.port}`;
 const checks = [
-  { path: "/", contains: "loading-vibe-019f7844.fedorczykmarilynn269.chatgpt.site" },
+  { path: "/", contains: "有点来电｜Roy 的生活与笔记" },
   { path: "/CNAME", contains: "loadingvibe.com" },
+  { path: "/assets/brand/you-dian-lai-dian-mark-v1.png" },
 ];
+
+const builtAssets = readdirSync(resolve(siteRoot, "assets"));
+if (!builtAssets.some((filename) => filename.endsWith(".js"))) {
+  throw new Error("Pages artifact is missing the compiled JavaScript bundle.");
+}
+if (!builtAssets.some((filename) => filename.endsWith(".css"))) {
+  throw new Error("Pages artifact is missing the compiled CSS bundle.");
+}
+
+const indexHtml = readFileSync(resolve(siteRoot, "index.html"), "utf8");
+if (indexHtml.includes("chatgpt.site") || indexHtml.includes("http-equiv=\"refresh\"")) {
+  throw new Error("Pages artifact must host the site directly, not redirect to chatgpt.site.");
+}
 
 try {
   for (const check of checks) {

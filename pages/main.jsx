@@ -1,0 +1,11 @@
+import React from "react";
+import { createRoot } from "react-dom/client";
+import "../app/globals.css";
+import "./static-pages.css";
+import App from "./App";
+
+createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);
