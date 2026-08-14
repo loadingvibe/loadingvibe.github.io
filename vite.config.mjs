@@ -13,6 +13,5 @@ export default defineConfig({
   build: {
     outDir: resolve(projectRoot, "_site"),
     emptyOutDir: true,
-    sourcemap: true,
   },
 });

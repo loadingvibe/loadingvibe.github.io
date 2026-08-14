@@ -1,4 +1,4 @@
-/* GitHub Pages-only interaction layer. The visual system comes from app/globals.css. */
+/* Static-page interaction layer. The visual system comes from site.css. */
 .document-create__menu button {
   display: grid;
   min-height: 66px;

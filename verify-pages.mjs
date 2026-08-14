@@ -17,7 +17,7 @@ const mimeTypes = {
 };
 
 if (!existsSync(siteRoot) || !statSync(siteRoot).isDirectory()) {
-  throw new Error("Missing _site/. Run npm run build:pages first.");
+  throw new Error("Missing _site/. Run npm run build first.");
 }
 
 const server = createServer((request, response) => {

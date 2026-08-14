@@ -1,14 +1,7 @@
 .firecrawl/
 .playwright/
 .generated/
-.next/
 node_modules/
-next-env.d.ts
-dist/
 _site/
-tmp/
-.wrangler/
-.vercel/
 .env
 .env.local
-.dev.vars

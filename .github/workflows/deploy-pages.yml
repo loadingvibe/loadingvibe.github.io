@@ -1,20 +1,17 @@
-name: Build and deploy GitHub Pages
+name: Build and deploy static site
 
 on:
   push:
     branches:
       - main
 
-  # 支持 GitHub Actions 页面手动运行
   workflow_dispatch:
 
-# 允许 GitHub Actions 向 gh-pages 分支写入内容
 permissions:
   contents: write
 
-# 防止多个部署任务同时执行
 concurrency:
-  group: github-pages
+  group: gh-pages
   cancel-in-progress: true
 
 jobs:
@@ -24,40 +21,24 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      # 1. 拉取仓库代码
       - name: Checkout
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
 
-      # 2. 配置 Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
           node-version: 22
-          package-manager-cache: false
+          cache: npm
 
-      # 3. 安装依赖
       - name: Install dependencies
         run: npm ci
 
-      # 4. 检查 JavaScript 语法
-      - name: Check JavaScript syntax
-        run: npm run check:syntax
+      - name: Build static site
+        run: npm run build
 
-      # 5. 构建 GitHub Pages
-      - name: Build GitHub Pages
-        env:
-          NODE_OPTIONS: --max_old_space_size=8192
-        run: |
-          npm run build:static
-          touch _site/.nojekyll
-
-      # 6. 检查构建结果
-      - name: Smoke-test Pages artifact
+      - name: Verify artifact
         run: npm run check:pages
-      
-      # 7. 将 _site 自动推送到 gh-pages 分支
+
       - name: Deploy to gh-pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
