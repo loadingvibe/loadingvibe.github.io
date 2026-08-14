@@ -4,7 +4,7 @@ import BrandLockup from "../components/BrandLockup";
 import GhostTitle from "../components/GhostTitle";
 import SideRays from "../components/SideRays";
 import StrokeText from "../components/StrokeText";
-import PagesMessageWall from "./PagesMessageWall";
+import PagesComments from "./PagesComments";
 import PagesRecordsArchive from "./PagesRecordsArchive";
 
 const ABOUT_GALLERY_ITEMS = [
@@ -25,7 +25,7 @@ export default function App() {
           <a href="#about">关于</a>
           <a className="one-page-header__blog" href="/blog/">博客</a>
           <a href="#notes">本地记录</a>
-          <a href="#wall">留言墙</a>
+          <a href="#comments">评论区</a>
         </nav>
       </header>
 
@@ -128,12 +128,18 @@ export default function App() {
           <PagesRecordsArchive />
         </section>
 
-        <section className="memory-wall-section" id="wall" aria-labelledby="wall-title">
-          <header className="memory-wall-heading">
-            <h2 id="wall-title">留言墙</h2>
-            <div><p>一句问候、一个建议、一点此刻的感悟，都能在这里变成一张不同的照片。</p></div>
+        <section className="comments-section" id="comments" aria-labelledby="comments-title">
+          <header className="comments-heading">
+            <div>
+              <p className="comments-heading__eyebrow">COMMUNITY · WALINE</p>
+              <h2 id="comments-title">评论区</h2>
+            </div>
+            <div className="comments-heading__intro">
+              <p>欢迎留下问候、建议或此刻的想法。评论会在审核后公开展示，也可以继续回复交流。</p>
+              <a href="https://comments.loadingvibe.com/ui" target="_blank" rel="noreferrer">管理评论 ↗</a>
+            </div>
           </header>
-          <PagesMessageWall />
+          <PagesComments />
         </section>
       </main>
 

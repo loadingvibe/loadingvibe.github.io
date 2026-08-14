@@ -203,8 +203,8 @@ async function checkAsset(pathname) {
 
 try {
   await checkHtml("/", {
-    html: ["有点来电｜Roy 的生活与学习记录"],
-    text: ["有点来电"],
+    html: ["有点来电｜Roy 的生活与学习记录", "id=\"comments\"", "https://comments.loadingvibe.com/ui"],
+    text: ["有点来电", "评论区"],
   });
   await checkHtml("/blog/", {
     text: ["从梯度下降开始"],
