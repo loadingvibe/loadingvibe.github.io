@@ -1,30 +1,38 @@
-name: Build and deploy to gh-pages
+name: Build and deploy GitHub Pages
 
 on:
   push:
     branches:
       - main
+
+  # 支持 GitHub Actions 页面手动运行
   workflow_dispatch:
 
-# 防止同时运行多个部署任务
+# 允许 GitHub Actions 向 gh-pages 分支写入内容
+permissions:
+  contents: write
+
+# 防止多个部署任务同时执行
 concurrency:
   group: github-pages
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
-    name: Build and deploy static site
+  deploy-gh-pages:
+    name: Build and deploy to gh-pages
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
-      # 1. 拉取 main 分支代码
-      - name: Check out repository
-        uses: actions/checkout@v7
+      # 1. 拉取仓库代码
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       # 2. 配置 Node.js
       - name: Set up Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           package-manager-cache: false
@@ -38,65 +46,20 @@ jobs:
         run: npm run check:syntax
 
       # 5. 构建 GitHub Pages
-      # 根据你的 package.json：
-      # "build:pages": "vite build --config vite.pages.config.mjs"
       - name: Build GitHub Pages
-        run: npm run build:pages
+        env:
+          NODE_OPTIONS: --max_old_space_size=8192
+        run: |
+          npm run build:pages
+          touch _site/.nojekyll
 
       # 6. 检查构建结果
-      # 根据你的 package.json：
-      # "check:pages": "node verify-pages.mjs"
       - name: Smoke-test Pages artifact
         run: npm run check:pages
 
-      # 7. 检查 _site 是否成功生成
-      - name: Check build directory
-        run: |
-          if [ ! -d "_site" ]; then
-            echo "❌ _site directory does not exist"
-            exit 1
-          fi
-
-          echo "✅ _site directory exists"
-          echo "Build files:"
-          ls -lah _site
-
-      # 8. 添加 .nojekyll
-      # 防止 GitHub Pages 使用 Jekyll 处理 Vite 构建文件
-      - name: Add .nojekyll
-        run: touch _site/.nojekyll
-
-      # 9. 将 _site 构建结果推送到 gh-pages 分支
+      # 7. 将 _site 自动推送到 gh-pages 分支
       - name: Deploy to gh-pages
-        env:
-          GH_PAGES_TOKEN: ${{ secrets.GH_PAGES_TOKEN }}
-        run: |
-          echo "🚀 Preparing gh-pages deployment..."
-
-          cd _site
-
-          # 初始化一个全新的 Git 仓库
-          git init
-
-          # 设置 GitHub Actions 提交身份
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          # 创建 gh-pages 分支
-          git checkout -b gh-pages
-
-          # 添加全部构建文件
-          git add -A
-
-          # 创建部署提交
-          git commit -m "Deploy GitHub Pages from ${GITHUB_SHA}"
-
-          # 添加当前 GitHub 仓库作为远程仓库
-          git remote add origin \
-            "https://x-access-token:${GH_PAGES_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-
-          # 强制更新 gh-pages
-          # gh-pages 只保存最新一次构建结果，不保留历史
-          git push --force origin gh-pages
-
-          echo "✅ Successfully deployed to gh-pages"
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: _site
