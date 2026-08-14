@@ -37,10 +37,10 @@ jobs:
         run: npm run build
 
       - name: Verify artifact
-        run: npm run check:pages
+        run: npm run check
 
       - name: Deploy to gh-pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
-          folder: _site
+          folder: dist

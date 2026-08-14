@@ -4,7 +4,7 @@ import { dirname, extname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
-const siteRoot = resolve(projectRoot, "_site");
+const buildRoot = resolve(projectRoot, "dist");
 const mimeTypes = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
@@ -16,8 +16,8 @@ const mimeTypes = {
   ".woff2": "font/woff2",
 };
 
-if (!existsSync(siteRoot) || !statSync(siteRoot).isDirectory()) {
-  throw new Error("Missing _site/. Run npm run build first.");
+if (!existsSync(buildRoot) || !statSync(buildRoot).isDirectory()) {
+  throw new Error("Missing dist/. Run npm run build first.");
 }
 
 const server = createServer((request, response) => {
@@ -25,8 +25,8 @@ const server = createServer((request, response) => {
     const requestUrl = new URL(request.url ?? "/", "http://localhost");
     const pathname = decodeURIComponent(requestUrl.pathname);
     const relativePath = pathname === "/" ? "index.html" : pathname.slice(1);
-    const filePath = resolve(siteRoot, relativePath);
-    const pathFromRoot = relative(siteRoot, filePath);
+    const filePath = resolve(buildRoot, relativePath);
+    const pathFromRoot = relative(buildRoot, filePath);
 
     if (pathFromRoot.startsWith("..") || isAbsolute(pathFromRoot)) {
       response.writeHead(403).end();
@@ -65,17 +65,17 @@ const checks = [
   { path: "/assets/brand/you-dian-lai-dian-mark-v1.png" },
 ];
 
-const builtAssets = readdirSync(resolve(siteRoot, "assets"));
+const builtAssets = readdirSync(resolve(buildRoot, "assets"));
 if (!builtAssets.some((filename) => filename.endsWith(".js"))) {
-  throw new Error("Pages artifact is missing the compiled JavaScript bundle.");
+  throw new Error("Static build is missing the compiled JavaScript bundle.");
 }
 if (!builtAssets.some((filename) => filename.endsWith(".css"))) {
-  throw new Error("Pages artifact is missing the compiled CSS bundle.");
+  throw new Error("Static build is missing the compiled CSS bundle.");
 }
 
-const indexHtml = readFileSync(resolve(siteRoot, "index.html"), "utf8");
+const indexHtml = readFileSync(resolve(buildRoot, "index.html"), "utf8");
 if (indexHtml.includes("chatgpt.site") || indexHtml.includes("http-equiv=\"refresh\"")) {
-  throw new Error("Pages artifact must host the site directly, not redirect to chatgpt.site.");
+  throw new Error("Static build must host the site directly, not redirect elsewhere.");
 }
 
 try {
@@ -100,4 +100,4 @@ try {
   });
 }
 
-process.stdout.write(`Pages smoke test passed (${checks.length} routes).\n`);
+process.stdout.write(`Static build smoke test passed (${checks.length} routes).\n`);

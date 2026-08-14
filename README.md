@@ -41,15 +41,15 @@ pnpm build
 pnpm preview
 ```
 
-构建产物位于 `_site/`。运行构建后，可用 `npm run check:pages` 或 `pnpm check:pages` 检查静态产物。
+构建产物位于标准的 `dist/` 目录。运行构建后，可用 `npm run check` 或 `pnpm check` 检查静态产物。
 
 ## GitHub Pages 部署
 
 推送到 `main` 后，[`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) 会自动：
 
 1. 安装依赖并构建静态站；
-2. 检查 `_site/` 产物；
-3. 将产物推送到 `gh-pages` 分支。
+2. 检查 `dist/` 中的静态文件；
+3. 将 `dist/` 的内容推送到 `gh-pages` 分支根目录。
 
 也可以在 GitHub 的 **Actions → Build and deploy static site → Run workflow** 中手动执行。
 

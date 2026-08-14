@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check:pages": "node verify-pages.mjs"
+    "check": "node verify-build.mjs"
   },
   "engines": {
     "node": ">=22.12.0"
