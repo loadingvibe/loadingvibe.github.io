@@ -3,5 +3,6 @@
 .generated/
 node_modules/
 dist/
+.astro/
 .env
 .env.local

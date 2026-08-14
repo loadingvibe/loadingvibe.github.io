@@ -21,9 +21,10 @@ export default function App() {
     <>
       <header className="one-page-header">
         <BrandLockup compact />
-        <nav aria-label="本页导航">
+        <nav aria-label="网站导航">
           <a href="#about">关于</a>
-          <a href="#notes">记录</a>
+          <a className="one-page-header__blog" href="/blog/">博客</a>
+          <a href="#notes">本地记录</a>
           <a href="#wall">留言墙</a>
         </nav>
       </header>

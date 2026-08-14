@@ -1,0 +1,118 @@
+---
+import BlogLayout from "../../layouts/BlogLayout.astro";
+import {
+  blogCategory,
+  formatBlogDate,
+  getPublishedPosts,
+  groupPostsByDirectory,
+  uniqueBlogTags,
+} from "../../lib/blog";
+
+const posts = await getPublishedPosts();
+const directories = groupPostsByDirectory(posts);
+const tags = uniqueBlogTags(posts);
+const description = "从 Markdown 文件自动构建的文章库，收录 Roy 的学习笔记、技术总结与生活记录。";
+const blogJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  name: "有点来电·文章",
+  description,
+  url: new URL("/blog/", Astro.site || Astro.url).toString(),
+  inLanguage: "zh-CN",
+  author: {
+    "@type": "Person",
+    name: "Roy",
+  },
+  blogPost: posts.map((post) => ({
+    "@type": "BlogPosting",
+    headline: post.title,
+    url: new URL(post.href, Astro.site || Astro.url).toString(),
+    ...(post.date ? { datePublished: post.date.toISOString() } : {}),
+  })),
+};
+---
+
+<BlogLayout
+  title="文章｜有点来电"
+  description={description}
+  canonical="/blog/"
+  image="/og-you-dian-lai-dian-v1.png"
+  jsonLd={blogJsonLd}
+>
+  <main class="blog-index">
+    <section class="blog-hero" aria-labelledby="blog-title">
+      <div>
+        <p class="blog-kicker">MARKDOWN ARCHIVE · BUILD TO PUBLISH</p>
+        <h1 id="blog-title">文章<span>.</span></h1>
+      </div>
+      <div class="blog-hero__intro">
+        <p>这里的每篇文章都从 <code>Blog</code> 文件夹中的 Markdown 生成。写作保持简单，发布交给构建。</p>
+        <dl>
+          <div><dt>POSTS</dt><dd>{posts.length}</dd></div>
+          <div><dt>TOPICS</dt><dd>{tags.length}</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="blog-library" aria-label="文章库">
+      <aside>
+        <p class="blog-section-label">LIBRARY / 目录</p>
+        <nav class="blog-tree" aria-label="文章目录">
+          {
+            directories.map((directory) => (
+              <div class="blog-tree__branch" style={`--depth: ${directory.depth}`}>
+                <p>
+                  {directory.label} <span>{String(directory.posts.length).padStart(2, "0")}</span>
+                </p>
+                {directory.posts.map((post) => (
+                  <a href={post.href}>
+                    <span>└</span> {post.title}
+                  </a>
+                ))}
+              </div>
+            ))
+          }
+        </nav>
+      </aside>
+
+      <div class="blog-list">
+        <header>
+          <p class="blog-section-label">LATEST / 最新发布</p>
+          <h2>全部文章</h2>
+        </header>
+
+        {
+          posts.length ? (
+            posts.map((post, index) => (
+              <article class="blog-card">
+                <a href={post.href} aria-label={`阅读《${post.title}》`} />
+                <span class="blog-card__number">{String(index + 1).padStart(2, "0")}</span>
+                <div>
+                  <p class="blog-card__path">{blogCategory(post)}</p>
+                  <h3>{post.title}</h3>
+                  <p class="blog-card__summary">{post.summary}</p>
+                  {post.tags.length > 0 && (
+                    <div class="blog-card__tags" aria-label="标签">
+                      {post.tags.map((tag) => <span>{tag}</span>)}
+                    </div>
+                  )}
+                </div>
+                <footer>
+                  <time datetime={post.date?.toISOString()}>{formatBlogDate(post.date)}</time>
+                  <span>{post.readingMinutes} MIN READ</span>
+                  <b aria-hidden="true">↗</b>
+                </footer>
+              </article>
+            ))
+          ) : (
+            <div class="blog-empty">
+              <span>00 / EMPTY</span>
+              <h3>还没有已发布的文章</h3>
+              <p>在 Blog 文件夹新建 Markdown 文件，下次构建时它就会出现在这里。</p>
+            </div>
+          )
+        }
+      </div>
+    </section>
+  </main>
+</BlogLayout>

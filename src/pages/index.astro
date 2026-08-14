@@ -1,0 +1,15 @@
+---
+import App from "../../pages/App.jsx";
+import "../../pages/static-pages.css";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const description = "Roy 的个人网站：记录生活分享、学习笔记与技巧总结。";
+---
+
+<BaseLayout
+  title="有点来电｜Roy 的生活与学习记录"
+  description={description}
+  image="/og-you-dian-lai-dian-v1.png"
+>
+  <App client:load />
+</BaseLayout>

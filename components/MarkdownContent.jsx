@@ -1,17 +1,20 @@
 "use client";
 
+import "katex/dist/katex.min.css";
 import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
+import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
+import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
 
 export default function MarkdownContent({ content }) {
   return (
     <div className="markdown-content">
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeRaw, rehypeKatex]}
+        rehypePlugins={[rehypeRaw, rehypeSlug, rehypeKatex, rehypeHighlight]}
         components={{
           a({ href = "", children, ...props }) {
             const label = String(children ?? "");
@@ -24,7 +27,16 @@ export default function MarkdownContent({ content }) {
               );
             }
             const external = /^https?:\/\//.test(href);
-            return <a href={href} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined} {...props}>{children}</a>;
+            return (
+              <a
+                {...props}
+                href={href}
+                target={external ? "_blank" : props.target}
+                rel={external ? "noopener noreferrer" : props.rel}
+              >
+                {children}
+              </a>
+            );
           },
           img({ alt = "", ...props }) {
             return <img loading="lazy" alt={alt} {...props} />;

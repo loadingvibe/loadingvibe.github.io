@@ -1,0 +1,59 @@
+---
+import "katex/dist/katex.min.css";
+import BrandLockup from "../../components/BrandLockup.jsx";
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string | URL;
+  image?: string | URL;
+  type?: "website" | "article";
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  tags?: string[];
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  canonical,
+  image,
+  type,
+  publishedTime,
+  modifiedTime,
+  tags,
+  jsonLd,
+} = Astro.props;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  image={image}
+  type={type}
+  publishedTime={publishedTime}
+  modifiedTime={modifiedTime}
+  tags={tags}
+  jsonLd={jsonLd}
+  bodyClass="blog-site"
+>
+  <header class="blog-header">
+    <BrandLockup compact href="/" />
+    <nav aria-label="文章导航">
+      <a class="is-active" href="/blog/">文章</a>
+      <a href="/rss.xml">RSS</a>
+    </nav>
+    <a class="blog-header__home" href="/">回到主页 ↗</a>
+  </header>
+
+  <slot />
+
+  <footer class="blog-footer">
+    <BrandLockup compact href="/" />
+    <p>把学到的事写下来，把经过的日子留下来。</p>
+    <a href="/rss.xml">RSS FEED ↗</a>
+  </footer>
+</BaseLayout>

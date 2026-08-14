@@ -1,0 +1,105 @@
+---
+import { render } from "astro:content";
+import BlogLayout from "../../layouts/BlogLayout.astro";
+import {
+  blogCategory,
+  formatBlogDate,
+  getPublishedPosts,
+  type BlogPost,
+} from "../../lib/blog";
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: BlogPost;
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post.entry);
+const canonicalUrl = new URL(post.href, Astro.site || Astro.url).toString();
+const coverUrl = post.cover ? new URL(post.cover, Astro.site || Astro.url).toString() : undefined;
+const pageTitle = `${post.title}｜有点来电`;
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: post.title,
+  description: post.summary,
+  url: canonicalUrl,
+  mainEntityOfPage: canonicalUrl,
+  inLanguage: "zh-CN",
+  ...(post.date ? { datePublished: post.date.toISOString() } : {}),
+  ...(post.updated ? { dateModified: post.updated.toISOString() } : {}),
+  ...(coverUrl ? { image: coverUrl } : {}),
+  ...(post.tags.length ? { keywords: post.tags.join(", ") } : {}),
+  author: {
+    "@type": "Person",
+    name: "Roy",
+    url: new URL("/", Astro.site || Astro.url).toString(),
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "有点来电",
+    url: new URL("/", Astro.site || Astro.url).toString(),
+  },
+};
+---
+
+<BlogLayout
+  title={pageTitle}
+  description={post.summary}
+  canonical={post.href}
+  image={post.cover}
+  type="article"
+  publishedTime={post.date}
+  modifiedTime={post.updated}
+  tags={post.tags}
+  jsonLd={articleJsonLd}
+>
+  <main class="blog-reader-page">
+    <nav class="blog-breadcrumb" aria-label="面包屑">
+      <a href="/">首页</a><i>/</i><a href="/blog/">文章</a>
+      {
+        post.slugSegments.slice(0, -1).map((segment) => (
+          <><i>/</i><span>{segment}</span></>
+        ))
+      }
+    </nav>
+
+    <article class="blog-article">
+      <header>
+        <p class="blog-article__path">{blogCategory(post)}</p>
+        <h1>{post.title}</h1>
+        <p class="blog-article__summary">{post.summary}</p>
+        <div class="blog-article__meta">
+          <time datetime={post.date?.toISOString()}>{formatBlogDate(post.date)}</time>
+          <span>{post.readingMinutes} 分钟阅读</span>
+          {post.updated && <span>更新于 {formatBlogDate(post.updated)}</span>}
+          {post.tags.map((tag) => <em>{tag}</em>)}
+        </div>
+      </header>
+
+      {
+        post.cover && (
+          <figure class="blog-article__cover">
+            <img src={post.cover} alt={`${post.title} 的封面`} loading="eager" decoding="async" />
+          </figure>
+        )
+      }
+
+      <div class="markdown-content">
+        <Content />
+      </div>
+
+      <footer class="blog-article__end">
+        <span>END OF NOTE</span>
+        <a href="/blog/">返回全部文章 ↗</a>
+      </footer>
+    </article>
+  </main>
+</BlogLayout>
