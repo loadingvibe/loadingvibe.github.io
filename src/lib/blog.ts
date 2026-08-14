@@ -4,11 +4,11 @@ export type BlogEntry = CollectionEntry<"blog">;
 
 export interface BlogPost {
   entry: BlogEntry;
-  slug: string;
+  routePath: string;
   href: string;
   sourcePath: string;
   directorySegments: string[];
-  slugSegments: string[];
+  routeSegments: string[];
   title: string;
   summary: string;
   tags: string[];
@@ -59,17 +59,6 @@ function sourceId(entry: BlogEntry) {
   return filePath.startsWith("Blog/") ? filePath.slice("Blog/".length) : filePath;
 }
 
-function routeSlug(entry: BlogEntry) {
-  const source = sourceId(entry);
-  const customSlug = entry.data.slug && normalizePath(entry.data.slug);
-
-  if (!customSlug) return source;
-  if (entry.data.slug?.replace(/\\/gu, "/").includes("/")) return customSlug;
-
-  const lastSlash = source.lastIndexOf("/");
-  return lastSlash === -1 ? customSlug : `${source.slice(0, lastSlash)}/${customSlug}`;
-}
-
 function encodeRoutePath(value: string) {
   return value
     .split("/")
@@ -105,17 +94,17 @@ function normalizeCover(value?: string) {
 
 export function toBlogPost(entry: BlogEntry): BlogPost {
   const sourcePath = sourceId(entry);
-  const slug = routeSlug(entry);
+  const routePath = sourcePath;
   const sourceSegments = sourcePath.split("/").filter(Boolean);
   const bodyText = plainBody(entry);
 
   return {
     entry,
-    slug,
-    href: `/blog/${encodeRoutePath(slug)}/`,
+    routePath,
+    href: `/blog/${encodeRoutePath(routePath)}/`,
     sourcePath,
     directorySegments: sourceSegments.slice(0, -1),
-    slugSegments: slug.split("/").filter(Boolean),
+    routeSegments: routePath.split("/").filter(Boolean),
     title: entry.data.title || fallbackTitle(entry),
     summary: entry.data.summary || bodyText.slice(0, 150) || "一篇尚未添加摘要的 Markdown 文章。",
     tags: entry.data.tags,
@@ -135,13 +124,13 @@ export async function getPublishedPosts() {
 
   const seen = new Map<string, string>();
   for (const post of posts) {
-    const existing = seen.get(post.slug);
+    const existing = seen.get(post.routePath);
     if (existing) {
       throw new Error(
-        `Blog route collision: "${existing}" and "${post.sourcePath}" both resolve to /blog/${post.slug}/`,
+        `Blog route collision: "${existing}" and "${post.sourcePath}" both resolve to /blog/${post.routePath}/`,
       );
     }
-    seen.set(post.slug, post.sourcePath);
+    seen.set(post.routePath, post.sourcePath);
   }
 
   return posts;

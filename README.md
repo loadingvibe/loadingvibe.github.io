@@ -24,7 +24,6 @@ summary: 用一个最小例子理解梯度、学习率与迭代更新。
 tags:
   - 数学
   - 机器学习
-slug: gradient-descent
 draft: false
 ---
 ```
@@ -33,10 +32,9 @@ draft: false
 - `date`：发布日期，推荐使用 `YYYY-MM-DD`。
 - `summary`：显示在文章列表和 RSS 中的摘要。
 - `tags`：标签数组，也可以写成 `[数学, 机器学习]`。
-- `slug`：可选的 URL 名称。单段值只替换文件名并保留父目录；含 `/` 的值表示 `blog/` 下的完整自定义路径。
 - `draft`：设为 `true` 时不生成文章页面，也不会进入列表、RSS 或 sitemap。
 
-如果不设置 `slug`，URL 会保留 `Blog/` 下的目录和文件名。例如 `Blog/随笔/春天.md` 对应 `/blog/随笔/春天/`。上面的嵌套示例设置了 `slug: gradient-descent`，因此对应 `/blog/技术与学习/数学/gradient-descent/`。`Blog/README.md` 设置了 `slug: writing-guide`，对应 `/blog/writing-guide/`。
+文章 URL 会始终保留 `Blog/` 下的目录和 Markdown 文件名，只移除 `.md` 后缀。例如 `Blog/随笔/春天.md` 对应 `/blog/随笔/春天/`，`Blog/ai/url-name.md` 对应 `/blog/ai/url-name/`。重命名 Markdown 文件后，它的公开链接也会同步改变。
 
 更完整的 Markdown、数学公式和资源引用示例见 [`Blog/README.md`](Blog/README.md)。
 

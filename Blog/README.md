@@ -5,7 +5,6 @@ summary: Blog 文件夹的写作说明，包含元数据、目录嵌套、资源
 tags:
   - 写作指南
   - Markdown
-slug: writing-guide
 ---
 
 这个网站会自动读取 `Blog` 文件夹中的所有 Markdown 文件。你可以直接新建 `.md` 文件，也可以按主题继续创建任意层级的文件夹；保存后，开发服务器会更新页面，正式构建则会为每篇已发布文章生成静态 HTML。
@@ -22,19 +21,18 @@ summary: 用一两句话介绍文章。
 tags:
   - 技术
   - 随笔
-slug: my-first-post
 draft: false
 ---
 ```
 
-`title`、`date`、`summary` 和 `tags` 会用于文章页、博客列表及订阅源。`slug` 和 `draft` 是可选项：
+`title`、`date`、`summary` 和 `tags` 会用于文章页、博客列表及订阅源。文章链接始终使用文件在 `Blog/` 下的相对路径，并移除 `.md`：
 
-- 不写 `slug` 时，URL 使用文件在 `Blog/` 下的相对路径并移除 `.md`。
-- 单段 `slug` 只替换文件名，父目录保持不变。例如 `Blog/技术/入门.md` 加上 `slug: getting-started` 后，URL 是 `/blog/技术/getting-started/`。
-- 含 `/` 的 `slug` 是 `blog/` 下的完整自定义路径。例如 `slug: notes/getting-started` 对应 `/blog/notes/getting-started/`。
+- `Blog/README.md` 对应 `/blog/README/`。
+- `Blog/技术/入门.md` 对应 `/blog/技术/入门/`。
+- `Blog/ai/url-name.md` 对应 `/blog/ai/url-name/`。
 - `draft: true` 会让文章退出生成结果、博客列表、RSS 和 sitemap；准备发布时删除这一行或改成 `false`。
 
-当前这份文件通过 `slug: writing-guide` 发布到 `/blog/writing-guide/`。
+因此，重命名 Markdown 文件也会改变它的公开链接。
 
 ## 目录与链接
 
@@ -44,10 +42,10 @@ draft: false
 Blog/技术与学习/数学/从梯度下降开始.md
 ```
 
-如果它设置 `slug: gradient-descent`，页面地址就是 `/blog/技术与学习/数学/gradient-descent/`。站内链接推荐直接写最终路径：
+它的页面地址就是 `/blog/技术与学习/数学/从梯度下降开始/`。站内链接推荐直接写最终路径：
 
 ```md
-[阅读梯度下降笔记](/blog/技术与学习/数学/gradient-descent/)
+[阅读梯度下降笔记](/blog/技术与学习/数学/从梯度下降开始/)
 ```
 
 ## 图片与附件

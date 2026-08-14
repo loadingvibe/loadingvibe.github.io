@@ -17,6 +17,7 @@ const blog = defineCollection({
   loader: glob({
     base: "./Blog",
     pattern: "**/*.md",
+    generateId: ({ entry }) => entry.replace(/\.(?:md|mdx)$/iu, ""),
   }),
   schema: z.object({
     title: z.string().trim().min(1).optional(),
@@ -24,7 +25,6 @@ const blog = defineCollection({
     summary: z.string().trim().optional(),
     tags: tagsSchema,
     draft: z.boolean().default(false),
-    slug: z.string().trim().min(1).optional(),
     updated: z.coerce.date().optional(),
     cover: z.string().trim().min(1).optional(),
   }),

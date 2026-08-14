@@ -1,6 +1,5 @@
 ---
 title: url
-slug: gradient-descent11111
 date: 2026-08-12
 summary: 用一个最小例子理解梯度、学习率与迭代更新。
 tags: [数学, 机器学习]

@@ -101,7 +101,7 @@ const sitemapXml = sitemapFiles
 if (!/<(?:urlset|sitemapindex)\b/i.test(sitemapXml)) {
   throw new Error("Discovered sitemap files do not contain a sitemap document.");
 }
-for (const marker of ["writing-guide", "gradient-descent"]) {
+for (const marker of ["README", "url-name", encodeURIComponent("从梯度下降开始")]) {
   if (!sitemapXml.includes(marker)) {
     throw new Error("Sitemap is missing the published route marker: " + marker);
   }
@@ -209,13 +209,17 @@ try {
   await checkHtml("/blog/", {
     text: ["从梯度下降开始"],
   });
-  await checkHtml("/blog/writing-guide/", {
+  await checkHtml("/blog/README/", {
     html: ["markdown-content"],
     text: ["如何在这里写博客", "这个网站会自动读取"],
   });
-  await checkHtml("/blog/技术与学习/数学/gradient-descent/", {
+  await checkHtml("/blog/技术与学习/数学/从梯度下降开始/", {
     html: ["markdown-content"],
     text: ["从梯度下降开始", "当我们希望找到函数"],
+  });
+  await checkHtml("/blog/ai/url-name/", {
+    html: ["markdown-content"],
+    text: ["url", "当我们希望找到函数"],
   });
 
   const rss = await checkText("/rss.xml", ["从梯度下降开始"]);

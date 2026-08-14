@@ -11,7 +11,7 @@ import {
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
   return posts.map((post) => ({
-    params: { slug: post.slug },
+    params: { slug: post.routePath },
     props: { post },
   }));
 }
@@ -65,7 +65,7 @@ const articleJsonLd = {
     <nav class="blog-breadcrumb" aria-label="面包屑">
       <a href="/">首页</a><i>/</i><a href="/blog/">文章</a>
       {
-        post.slugSegments.slice(0, -1).map((segment) => (
+        post.routeSegments.slice(0, -1).map((segment) => (
           <><i>/</i><span>{segment}</span></>
         ))
       }
