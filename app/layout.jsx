@@ -1,4 +1,5 @@
 import "./globals.css";
+import "katex/dist/katex.min.css";
 import { headers } from "next/headers";
 
 const title = "有点来电 · 罗忆歌的个人网站";

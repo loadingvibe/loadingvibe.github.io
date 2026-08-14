@@ -24,6 +24,7 @@ export default function OnePageSite() {
         <nav aria-label="本页导航">
           <a href="#about">关于</a>
           <a href="#notes">记录</a>
+          <a href="/blog">博客</a>
           <a href="#wall">留言墙</a>
         </nav>
       </header>

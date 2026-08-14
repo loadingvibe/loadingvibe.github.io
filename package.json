@@ -19,15 +19,19 @@
     "@tabler/icons-react": "^3.46.0",
     "drizzle-orm": "0.45.2",
     "gsap": "^3.13.0",
+    "katex": "^0.18.4",
     "ogl": "^1.0.11",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-markdown": "^10.1.0",
     "react-server-dom-webpack": "^19.2.7",
+    "rehype-katex": "^7.0.1",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
     "three": "^0.185.1",
-    "vinext": "^1.0.0-beta.2"
+    "vinext": "^1.0.0-beta.2",
+    "yaml": "^2.9.0"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",
