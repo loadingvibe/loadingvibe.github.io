@@ -27,18 +27,29 @@ npm install
 npm run dev
 ```
 
-生成数据库迁移与部署构建：
+项目有两种产物：
 
 ```bash
-npm run db:generate
-npm run build
+npm run build:static  # 通用静态站，输出到 _site/
+npm run build:sites   # 带 D1/R2 的 Sites 动态版，输出到 dist/
+npm run build         # 同时构建两种产物
 ```
 
-## GitHub Pages 发布
+静态站使用浏览器本地存储保存文档和留言，适用于 GitHub Pages、Vercel 和纯静态 Cloudflare Worker。Sites 动态版使用 D1 和 R2。
+
+一次验证三个部署入口：
+
+```bash
+npm run check:deploy
+```
+
+## 部署
+
+### GitHub Pages
 
 推送到 `main` 后，`.github/workflows/deploy-pages.yml` 会检查并构建静态站点，
 再将 `_site/` 的内容同步到 `gh-pages` 分支。也可以在 GitHub 的
-**Actions → Build and publish GitHub Pages → Run workflow** 中手动执行。
+**Actions → Build and deploy GitHub Pages → Run workflow** 中手动执行。
 
 仓库的 **Settings → Pages → Build and deployment** 应设置为：
 
@@ -48,10 +59,27 @@ npm run build
 请勿同时选择 GitHub Actions 作为第二条 Pages 发布路径，否则两次部署会争用同一个
 Pages 环境并出现 `due to in progress deployment` 错误。
 
-提交前可在本地验证 Pages 产物：
+### Vercel
+
+`vercel.json` 已将框架固定为 **Other**，并强制 Vercel 执行 `npm run build:static`、只发布 `_site/`。这会覆盖控制台里旧的构建命令和输出目录，避免再把仓库根目录的历史入口当成成品。
+
+Vercel 项目只需确认：
+
+- Production Branch 是 `main`
+- Root Directory 留空（仓库根目录）
+
+推送这些修改后重新部署即可。如果生产域名仍指向更旧的 Deployment，在 Vercel 中将最新的 `main` Deployment 设为 Production。
+
+### Cloudflare Workers
+
+`wrangler.jsonc` 已配置 Workers Static Assets 和 SPA 回退。Cloudflare 的 Git 构建可使用：
+
+- Build command：`npm run build:static`
+- Deploy command：`npx wrangler deploy --config wrangler.jsonc --autoconfig=false`
+- Root directory：`/`
+
+也可在已登录 Wrangler 的本机直接执行：
 
 ```bash
-npm run check:syntax
-npm run build:pages
-npm run check:pages
+npm run deploy:cloudflare
 ```

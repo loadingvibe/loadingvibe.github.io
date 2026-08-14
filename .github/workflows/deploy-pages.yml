@@ -50,7 +50,7 @@ jobs:
         env:
           NODE_OPTIONS: --max_old_space_size=8192
         run: |
-          npm run build:pages
+          npm run build:static
           touch _site/.nojekyll
 
       # 6. 检查构建结果

@@ -6,7 +6,7 @@ import { defineConfig } from "vite";
 const projectRoot = fileURLToPath(new URL(".", import.meta.url));
 
 export default defineConfig({
-  root: resolve(projectRoot, "pages"),
+  root: projectRoot,
   base: "/",
   publicDir: resolve(projectRoot, "public"),
   plugins: [react()],
