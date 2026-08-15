@@ -1,0 +1,112 @@
+---
+import BookLayout from "../../layouts/BookLayout.astro";
+
+const leaves = [
+  {
+    number: "L-001",
+    title: "信号从哪里来",
+    status: "散页",
+    revision: "REV.01",
+    target: "作者页 / 自述",
+    body: "从代码、道路和日常里接收信号。不急着把它们解释完，先记下它们在什么时候让我停了一下。",
+  },
+  {
+    number: "L-002",
+    title: "关于记录",
+    status: "修订中",
+    revision: "REV.02",
+    target: "正文 / 生活",
+    body: "记录是为了回望，也是为了再次出发。一段经验只要被认真命名，就有可能在之后的日子里变成一条路。",
+  },
+  {
+    number: "L-003",
+    title: "把学到的事留下来",
+    status: "待编入",
+    revision: "REV.01",
+    target: "正文 / 学习笔记",
+    body: "把学到的事写下来，把经过的日子留下来。理解一件事不只是得到答案，也包括保留当时走过的那条路。",
+  },
+];
+const description = "经过选择并主动公开的短札、片段与阶段性记录；这里不包含任何私密的本地草稿。";
+const leavesJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "未装订散页",
+  description,
+  url: new URL("/leaves/", Astro.site || Astro.url).toString(),
+  hasPart: leaves.map((leaf) => ({
+    "@type": "CreativeWork",
+    identifier: leaf.number,
+    name: leaf.title,
+    abstract: leaf.body,
+  })),
+};
+---
+
+<BookLayout
+  title="未装订散页｜一册未装订的生活"
+  description={description}
+  canonical="/leaves/"
+  jsonLd={leavesJsonLd}
+  page="leaves"
+>
+  <main id="main-content" class="book-page book-page--leaves">
+    <header class="book-page__hero leaf-hero" aria-labelledby="leaf-title">
+      <div class="leaf-hero__copy">
+        <p class="leaf-hero__kicker">UNBOUND / SELECTED FRAGMENTS</p>
+        <h1 id="leaf-title">未装订散页</h1>
+        <p>
+          这些是经过选择、愿意暂时以不完整形态公开的短札。它们可能继续修订，也可能在之后被编入一篇完整正文。
+        </p>
+      </div>
+      <dl class="leaf-register">
+        <div class="leaf-register__item">
+          <dt>PUBLIC LEAVES</dt>
+          <dd>{String(leaves.length).padStart(2, "0")}</dd>
+        </div>
+        <div class="leaf-register__item">
+          <dt>PRIVATE DRAFTS</dt>
+          <dd>NOT EXPOSED</dd>
+        </div>
+      </dl>
+    </header>
+
+    <aside class="leaf-privacy" aria-labelledby="leaf-privacy-title">
+      <p>PUBLICATION BOUNDARY</p>
+      <h2 id="leaf-privacy-title">这不是私密草稿目录</h2>
+      <p>
+        本页只展示作者主动挑选并确认可公开的片段。未发布的本地草稿、私人记录和其他敏感内容不会被这个页面读取，也不应进入公开站点的构建产物。
+      </p>
+    </aside>
+
+    <section class="leaf-section" aria-labelledby="leaf-section-title">
+      <header class="leaf-section__heading">
+        <p>PUBLIC REGISTER / 2026</p>
+        <h2 id="leaf-section-title">已选散页</h2>
+      </header>
+      <ol class="leaf-stack" role="list">
+        {leaves.map((leaf) => (
+          <li class="leaf-sheet">
+            <article class="leaf-sheet__article" aria-labelledby={`${leaf.number}-title`}>
+              <header class="leaf-sheet__header">
+                <p>{leaf.number} / {leaf.revision}</p>
+                <p class="leaf-sheet__status">{leaf.status}</p>
+              </header>
+              <h3 id={`${leaf.number}-title`}>{leaf.title}</h3>
+              <p class="leaf-sheet__body">{leaf.body}</p>
+              <footer class="leaf-sheet__footer">
+                <span>目标去向</span>
+                <strong>{leaf.target}</strong>
+              </footer>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <nav class="leaf-next" aria-label="继续阅读">
+      <p>当散页的结构逐渐稳定，它会获得正文编号并进入目录。</p>
+      <a href="/blog/">前往已编入的正文 <span aria-hidden="true">→</span></a>
+    </nav>
+  </main>
+</BookLayout>

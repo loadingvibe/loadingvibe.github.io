@@ -1,9 +1,11 @@
 ---
 import { render } from "astro:content";
+import "katex/dist/katex.min.css";
 import ArticleOutline from "../../../components/ArticleOutline.astro";
 import BlogArchiveTree, {
   type ArchiveTreeNode,
 } from "../../../components/BlogArchiveTree.astro";
+import PagesComments from "../../../pages/PagesComments.jsx";
 import BlogLayout from "../../layouts/BlogLayout.astro";
 import "../../styles/article-reader.css";
 import {
@@ -41,6 +43,7 @@ const currentIndex = posts.findIndex((item) => item.routePath === post.routePath
 const previousPost = currentIndex >= 0 ? posts[currentIndex + 1] : undefined;
 const nextPost = currentIndex > 0 ? posts[currentIndex - 1] : undefined;
 const outlineHeadings = headings.filter((heading) => heading.depth >= 1 && heading.depth <= 3);
+const commentPath = `/marginalia/${post.catalogNo.toLowerCase()}/`;
 
 function createArchiveTree(items: BlogPost[]): ArchiveTreeNode {
   const root: ArchiveTreeNode = {
@@ -98,6 +101,7 @@ const articleJsonLd = {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   headline: post.title,
+  identifier: post.catalogNo,
   description: post.summary,
   url: canonicalUrl,
   mainEntityOfPage: canonicalUrl,
@@ -130,9 +134,9 @@ const articleJsonLd = {
   tags={post.tags}
   jsonLd={articleJsonLd}
 >
-  <main class="blog-reader-page article-reader">
+  <main id="main-content" class="blog-reader-page article-reader">
     <nav class="blog-breadcrumb" aria-label="面包屑">
-      <a href="/">首页</a><i aria-hidden="true">/</i><a href="/blog/">文章档案</a>
+      <a href="/">首页</a><i aria-hidden="true">/</i><a href="/blog/">博客</a>
       {
         post.directorySegments.map((segment, index) => {
           const directory = post.directorySegments.slice(0, index + 1).join("/");
@@ -173,10 +177,11 @@ const articleJsonLd = {
 
       <article class="blog-article">
         <header id="article-top">
-          <p class="blog-article__path">{blogCategory(post)}</p>
+          <p class="blog-article__path">{post.catalogNo} / {blogCategory(post)}</p>
           <h1>{post.title}</h1>
           <p class="blog-article__summary">{post.summary}</p>
           <div class="blog-article__meta">
+            <span>{post.catalogNo} · REV.01</span>
             <time datetime={post.date?.toISOString()}>{formatBlogDate(post.date)}</time>
             <span>{post.readingMinutes} 分钟阅读</span>
             {post.updated && <span>更新于 {formatBlogDate(post.updated)}</span>}
@@ -213,8 +218,59 @@ const articleJsonLd = {
           </nav>
         )}
 
+        {import.meta.env.DEV && <details class="article-author-tools">
+          <summary>
+            <span>AUTHOR TOOLS · 仅仓库作者</span>
+            <strong>管理这篇 Markdown</strong>
+            <b aria-hidden="true">+</b>
+          </summary>
+          <div class="article-author-tools__panel">
+            <div>
+              <p>源文件</p>
+              <code>{post.sourceFilePath}</code>
+              <small id="author-delete-note">
+                删除链接只会打开 GitHub 的确认页；需要登录、仓库权限和最后的提交确认，不会在网站中直接删除。
+              </small>
+            </div>
+            <nav aria-label="作者文件操作">
+              <a href={post.githubManageUrl} target="_blank" rel="noreferrer nofollow">
+                查看源文件 <span aria-hidden="true">↗</span>
+              </a>
+              <a
+                class="article-author-tools__delete"
+                href={post.githubDeleteUrl}
+                target="_blank"
+                rel="noreferrer nofollow"
+                aria-describedby="author-delete-note"
+              >
+                在 GitHub 删除 <span aria-hidden="true">↗</span>
+              </a>
+            </nav>
+          </div>
+        </details>}
+
+        <section class="article-marginalia" aria-labelledby="article-marginalia-title">
+          <header class="article-marginalia__header">
+            <div>
+              <p>MARGINALIA / 页边批注</p>
+              <h2 id="article-marginalia-title">留下你的批注</h2>
+            </div>
+            <p>
+              这里的留言只属于本篇文章。欢迎记下疑问、补充、异议，或阅读时闪过的念头。
+            </p>
+          </header>
+          <PagesComments
+            client:visible
+            path={commentPath}
+            label="ARTICLE MARGINALIA"
+            title={`FOLIO / ${post.catalogNo}`}
+            loadingText="正在翻开本页批注…"
+            errorText="本页批注暂时无法加载，请稍后重试。"
+          />
+        </section>
+
         <a class="article-reader__back" href="/blog/">
-          <span>END OF NOTE · 返回文章档案</span>
+          <span>END OF NOTE · 返回博客目录</span>
           <span aria-hidden="true">↗</span>
         </a>
       </article>

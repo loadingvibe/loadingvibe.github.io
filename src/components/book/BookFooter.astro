@@ -1,0 +1,33 @@
+---
+interface Props {
+  folios?: number;
+  plates?: number;
+}
+
+const { folios, plates = 6 } = Astro.props;
+const buildDate = new Intl.DateTimeFormat("zh-CN", {
+  dateStyle: "medium",
+  timeZone: "Asia/Shanghai",
+}).format(new Date());
+---
+
+<footer class="book-colophon">
+  <div class="book-colophon__title">
+    <p>COLOPHON / END</p>
+    <h2>本册仍在继续。</h2>
+  </div>
+  <dl>
+    <div><dt>EDITION</dt><dd>01 · 2026—ONGOING</dd></div>
+    {typeof folios === "number" && <div><dt>FOLIOS</dt><dd>{String(folios).padStart(2, "0")}</dd></div>}
+    <div><dt>PLATES</dt><dd>{String(plates).padStart(2, "0")}</dd></div>
+    <div><dt>LAST BUILD</dt><dd>{buildDate}</dd></div>
+  </dl>
+  <nav aria-label="版本与订阅">
+    <a href="/rss.xml">RSS</a>
+    <a href="https://github.com/loadingvibe" target="_blank" rel="noreferrer">GitHub</a>
+    <a href="mailto:8212230801@csu.edu.cn">Email</a>
+    <a href="#main-content">回到本页顶部 ↑</a>
+  </nav>
+  <p class="book-colophon__note">文字、图像与尚未完成的想法，在这里持续编页，但不急着装订。</p>
+</footer>
+

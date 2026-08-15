@@ -1,14 +1,12 @@
 ---
-title: 从梯度下降开始
-slug: gradient-descent-intro
-catalogNo: F-002
+title: url
+slug: url-name
+catalogNo: F-003
 date: 2026-08-12
 summary: 用一个最小例子理解梯度、学习率与迭代更新。
 category: 笔记
 tags: [数学, 机器学习]
-aliases:
-  - 技术与学习/数学/从梯度下降开始
-featured: true
+featured: false
 ---
 
 当我们希望找到函数 $f(x)$ 的最小值时，可以沿着梯度的反方向移动。

@@ -1,0 +1,80 @@
+---
+import BookLayout from "../../layouts/BookLayout.astro";
+import PagesComments from "../../../pages/PagesComments.jsx";
+const description = "《一册未装订的生活》的全站旁批簿：留下问候、建议、异议或正在形成的想法。";
+const marginaliaJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "页边批注",
+  description,
+  url: new URL("/marginalia/", Astro.site || Astro.url).toString(),
+};
+---
+
+<BookLayout
+  title="页边批注｜一册未装订的生活"
+  description={description}
+  canonical="/marginalia/"
+  jsonLd={marginaliaJsonLd}
+  page="marginalia"
+>
+  <main id="main-content" class="book-page book-page--marginalia">
+    <header class="book-page__hero marginalia-hero" aria-labelledby="marginalia-title">
+      <div class="marginalia-hero__copy">
+        <p class="marginalia-hero__kicker">OPEN CONVERSATION / M-01</p>
+        <h1 id="marginalia-title">页边批注</h1>
+        <p>
+          一本持续增加页面的书，也需要留出一块给回应的空白。欢迎写下问候、建议、异议，或一个还没有想完的念头。
+        </p>
+      </div>
+      <dl class="marginalia-register">
+        <div class="marginalia-register__item">
+          <dt>REGISTER</dt>
+          <dd>M-01</dd>
+        </div>
+        <div class="marginalia-register__item">
+          <dt>THREAD</dt>
+          <dd>/</dd>
+        </div>
+        <div class="marginalia-register__item">
+          <dt>STATUS</dt>
+          <dd>OPEN</dd>
+        </div>
+      </dl>
+    </header>
+
+    <section class="marginalia-guide" aria-labelledby="marginalia-guide-title">
+      <div class="marginalia-guide__heading">
+        <p>BEFORE WRITING</p>
+        <h2 id="marginalia-guide-title">在页边写下一笔</h2>
+      </div>
+      <ol class="marginalia-guide__list">
+        <li>
+          <span>01</span>
+          <p>可以留下全站问候，也可以指向某张图版、某篇正文或某张散页。</p>
+        </li>
+        <li>
+          <span>02</span>
+          <p>清晰的不同意见很珍贵；请同时保留对具体的事和具体的人的尊重。</p>
+        </li>
+        <li>
+          <span>03</span>
+          <p>请不要留下自己或他人的私密信息；公开页边会被所有访客看到。</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="marginalia-thread" aria-labelledby="marginalia-thread-title">
+      <header class="marginalia-thread__heading">
+        <div>
+          <p>M-01 / OPEN NOTES</p>
+          <h2 id="marginalia-thread-title">全站旁批簿</h2>
+        </div>
+        <p>此处是独立的全站讨论；针对单篇文章的回应，仍建议留在对应正文的页边。</p>
+      </header>
+      <div class="marginalia-thread__comments">
+        <PagesComments path="/" client:visible />
+      </div>
+    </section>
+  </main>
+</BookLayout>

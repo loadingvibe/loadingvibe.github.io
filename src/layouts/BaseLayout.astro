@@ -18,7 +18,7 @@ const {
   title,
   description,
   canonical,
-  image,
+  image = "/assets/brand/optimized/og-unbound-edition-v1.jpg",
   type = "website",
   publishedTime,
   modifiedTime,
@@ -54,7 +54,7 @@ const safeStructuredData = JSON.stringify(structuredData).replaceAll("<", "\\u00
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
     <link rel="alternate" type="application/rss+xml" title="有点来电·文章 RSS" href={rssUrl} />
-    <link rel="icon" type="image/png" href="/assets/brand/you-dian-lai-dian-mark-v1.png" />
+    <link rel="icon" type="image/png" href="/assets/brand/optimized/favicon-64.png" />
 
     <meta property="og:locale" content="zh_CN" />
     <meta property="og:type" content={type} />
@@ -74,6 +74,7 @@ const safeStructuredData = JSON.stringify(structuredData).replaceAll("<", "\\u00
     <script is:inline type="application/ld+json" set:html={safeStructuredData}></script>
   </head>
   <body class={bodyClass}>
+    <a class="site-skip-link" href="#main-content">跳到正文</a>
     <slot />
   </body>
 </html>

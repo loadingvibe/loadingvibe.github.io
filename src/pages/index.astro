@@ -1,30 +1,145 @@
 ---
-import App from "../../pages/App.jsx";
-import BaseLayout from "../layouts/BaseLayout.astro";
-import { getPublishedPosts } from "../lib/blog";
+import BookLayout from "../layouts/BookLayout.astro";
+import { formatBlogDate, getPublishedPosts } from "../lib/blog";
 
-const description = "Roy 的公开 Markdown 档案：记录生活、工作、学习笔记与长期收藏。";
-const publishedPosts = await getPublishedPosts();
-const archivePosts = publishedPosts.map((post) => ({
-  title: post.title,
-  summary: post.summary,
-  category: post.category,
-  tags: post.tags,
-  href: post.href,
-  sourcePath: post.sourcePath,
-  routePath: post.routePath,
-  readingMinutes: post.readingMinutes,
-  date: post.date?.toISOString(),
-  updated: post.updated?.toISOString(),
-  cover: post.cover,
-  featured: post.featured,
-}));
+const posts = await getPublishedPosts();
+const latestPost = posts[0];
+const featuredPosts = [...posts]
+  .sort((left, right) => Number(right.featured) - Number(left.featured))
+  .slice(0, 3);
+const description = "Roy 持续编写的一册数字艺术书：收录生活、技术学习、照片、散页与页边批注。";
+const coverJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "一册未装订的生活｜有点来电",
+  alternateName: "UNBOUND EDITION",
+  description,
+  url: new URL("/", Astro.site || Astro.url).toString(),
+  inLanguage: "zh-CN",
+  author: {
+    "@type": "Person",
+    name: "Roy",
+    sameAs: ["https://github.com/loadingvibe"],
+  },
+};
 ---
 
-<BaseLayout
-  title="有点来电｜Roy 的生活与学习记录"
+<BookLayout
+  title="一册未装订的生活｜有点来电"
   description={description}
-  image="/og-you-dian-lai-dian-v1.png"
+  canonical="/"
+  image="/assets/brand/optimized/og-unbound-edition-v1.jpg"
+  jsonLd={coverJsonLd}
+  page="cover"
+  folios={posts.length}
+  plates={6}
 >
-  <App posts={archivePosts} client:load />
-</BaseLayout>
+  <main id="main-content" class="book-cover-page">
+    <section class="book-cover" aria-labelledby="cover-title">
+      <div class="book-cover__spine" aria-hidden="true"><span>有点来电 · 2026</span></div>
+      <div class="book-cover__edition">
+        <p>有点来电 <span>PRESENTS</span></p>
+        <p>EDITION 01 · 2026—ONGOING</p>
+      </div>
+
+      <div class="book-cover__title-block">
+        <p class="book-cover__kicker">A GROWING DIGITAL ART BOOK</p>
+        <h1 id="cover-title">一册未装订的生活</h1>
+        <p class="book-cover__english" lang="en">UNBOUND EDITION</p>
+        <p class="book-cover__byline">ROY · 长沙</p>
+      </div>
+
+      <div class="book-cover__mark" aria-hidden="true">
+        <img src="/assets/brand/optimized/mark-192.avif" width="192" height="192" alt="" />
+      </div>
+
+      <div class="book-cover__lower">
+        <dl>
+          <div><dt>FOLIOS</dt><dd>{String(posts.length).padStart(2, "0")}</dd></div>
+          <div><dt>PLATES</dt><dd>06</dd></div>
+          <div><dt>LAST REVISED</dt><dd>{latestPost ? formatBlogDate(latestPost.date) : "待编页"}</dd></div>
+        </dl>
+        <nav aria-label="打开本册">
+          <a class="book-button book-button--light" href="#inside-cover">翻开本册 <span aria-hidden="true">↓</span></a>
+          {latestPost && <a class="book-button book-button--ghost" href={latestPost.href}>阅读最近一篇 <span aria-hidden="true">↗</span></a>}
+        </nav>
+      </div>
+    </section>
+
+    <section id="inside-cover" class="inside-cover" aria-labelledby="inside-title">
+      <span id="about" class="book-legacy-anchor" aria-hidden="true"></span>
+      <header class="book-section-heading">
+        <div>
+          <p>INSIDE COVER / 内折页</p>
+          <h2 id="inside-title">生活还没有装订，<br />就先这样留下。</h2>
+        </div>
+        <p>
+          我是 Roy，正在学习自动驾驶与嵌入式。这里保存我从代码、道路与日常里接收到的信号，也收下那些尚未成为完整文章的片段。
+        </p>
+      </header>
+
+      <div class="inside-cover__grid">
+        <article class="inside-cover__author">
+          <div class="inside-cover__label"><span>AUTHOR</span><b>A-01</b></div>
+          <img src="/assets/about/optimized/roy-profile-960.avif" width="720" height="960" alt="Roy 的个人照片" loading="lazy" decoding="async" />
+          <div>
+            <p>关于作者</p>
+            <h3>一名仍在学习，也仍在记录的大四学生。</h3>
+            <a href="/about/">打开作者页 ↗</a>
+          </div>
+        </article>
+
+        <article class="inside-cover__plates">
+          <div class="inside-cover__label"><span>CONTACT SHEET</span><b>P-001—006</b></div>
+          <div class="inside-cover__plate-strip" aria-label="第一卷照片预览">
+            <figure><img src="/assets/about/optimized/mist-gorge-960.avif" width="720" height="960" alt="雾中的峡谷" loading="lazy" decoding="async" /><figcaption>P-001 / 雾峡</figcaption></figure>
+            <figure><img src="/assets/about/optimized/cloud-meadow-960.avif" width="960" height="676" alt="蓝天下的高山草地" loading="lazy" decoding="async" /><figcaption>P-002 / 云野</figcaption></figure>
+            <figure><img src="/assets/about/optimized/moon-peak-960.avif" width="723" height="960" alt="白日月亮与山峰" loading="lazy" decoding="async" /><figcaption>P-006 / 月峰</figcaption></figure>
+          </div>
+          <a href="/photos/">查看完整接触印样 ↗</a>
+        </article>
+
+        <article class="inside-cover__leaf">
+          <div class="inside-cover__label"><span>LOOSE LEAF</span><b>L-001</b></div>
+          <p class="inside-cover__leaf-copy">“有些念头还不够成为一篇正文，但已经值得拥有一张纸。”</p>
+          <p>公开散页只存放经过选择的片段；真正的本地草稿仍留在书桌上。</p>
+          <a href="/leaves/">拾起一张散页 ↗</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="cover-contents" aria-labelledby="contents-title">
+      <header class="book-section-heading book-section-heading--compact">
+        <div>
+          <p>BOUND FOLIOS / 已编入正文</p>
+          <h2 id="contents-title">最近编页</h2>
+        </div>
+        <a href="/blog/">打开全书目录 ↗</a>
+      </header>
+      {
+        featuredPosts.length > 0 ? (
+          <ol class="cover-contents__list">
+            {featuredPosts.map((post) => (
+              <li>
+                <a href={post.href}>
+                  <span>{post.catalogNo}</span>
+                  <div><small>{post.category}</small><h3>{post.title}</h3><p>{post.summary}</p></div>
+                  <time datetime={post.date?.toISOString()}>{formatBlogDate(post.date)}</time>
+                  <b aria-hidden="true">↗</b>
+                </a>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p class="book-empty-state">第一篇正文仍在编写中。</p>
+        )
+      }
+    </section>
+
+    <aside id="comments" class="cover-marginalia-link" aria-label="旧评论入口">
+      <span>MARGINALIA / M-001</span>
+      <p>原来的“回声”已经移到本册的页边，欢迎继续留下问候、建议或此刻的想法。</p>
+      <a href="/marginalia/">打开旁批簿 ↗</a>
+    </aside>
+  </main>
+</BookLayout>

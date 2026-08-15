@@ -4,6 +4,8 @@ export type BlogEntry = CollectionEntry<"blog">;
 export type BlogCategory = BlogEntry["data"]["category"];
 
 export const BLOG_CATEGORIES: readonly BlogCategory[] = ["生活", "工作", "笔记", "收藏"];
+export const BLOG_GITHUB_REPOSITORY_URL = "https://github.com/loadingvibe/loadingvibe.github.io";
+export const BLOG_GITHUB_BRANCH = "main";
 
 export interface BlogPost {
   entry: BlogEntry;
@@ -12,9 +14,13 @@ export interface BlogPost {
   href: string;
   aliases: string[];
   sourcePath: string;
+  sourceFilePath: string;
+  githubManageUrl: string;
+  githubDeleteUrl: string;
   directorySegments: string[];
   routeSegments: string[];
   title: string;
+  catalogNo: string;
   summary: string;
   category: BlogCategory;
   tags: string[];
@@ -73,6 +79,12 @@ function encodeRoutePath(value: string) {
     .join("/");
 }
 
+function githubFileUrl(action: "blob" | "delete", sourceFilePath: string) {
+  const encodedBranch = encodeURIComponent(BLOG_GITHUB_BRANCH);
+  const encodedSourcePath = encodeRoutePath(sourceFilePath);
+  return `${BLOG_GITHUB_REPOSITORY_URL}/${action}/${encodedBranch}/${encodedSourcePath}`;
+}
+
 function plainBody(entry: BlogEntry) {
   return (entry.body || "")
     .replace(/```[\s\S]*?```/gu, " ")
@@ -96,6 +108,7 @@ function normalizeCover(value?: string) {
 
 export function toBlogPost(entry: BlogEntry): BlogPost {
   const sourcePath = sourceId(entry);
+  const sourceFilePath = `Blog/${sourcePath}.md`;
   const routePath = entry.data.slug;
   const sourceSegments = sourcePath.split("/").filter(Boolean);
 
@@ -106,9 +119,13 @@ export function toBlogPost(entry: BlogEntry): BlogPost {
     href: `/blog/${encodeRoutePath(routePath)}/`,
     aliases: entry.data.aliases,
     sourcePath,
+    sourceFilePath,
+    githubManageUrl: githubFileUrl("blob", sourceFilePath),
+    githubDeleteUrl: githubFileUrl("delete", sourceFilePath),
     directorySegments: sourceSegments.slice(0, -1),
     routeSegments: routePath.split("/").filter(Boolean),
     title: entry.data.title,
+    catalogNo: entry.data.catalogNo,
     summary: entry.data.summary,
     category: entry.data.category,
     tags: entry.data.tags,
@@ -122,19 +139,32 @@ export function toBlogPost(entry: BlogEntry): BlogPost {
 
 export async function getPublishedPosts() {
   const entries = await getCollection("blog");
+  // One Markdown file is always one content entry. Body text is deliberately never hashed or deduplicated:
+  // two files with identical prose remain two posts as long as their public URL claims are distinct.
   const allPosts = entries.map(toBlogPost);
 
-  const seen = new Map<string, string>();
+  const seen = new Map<string, { claim: "slug" | "alias"; sourceFilePath: string }>();
+  const seenCatalogNumbers = new Map<string, string>();
   for (const post of allPosts) {
-    for (const route of [post.routePath, ...post.aliases]) {
+    const existingCatalogSource = seenCatalogNumbers.get(post.catalogNo);
+    if (existingCatalogSource) {
+      throw new Error(
+        `Blog catalog collision: "${existingCatalogSource}" and "${post.sourceFilePath}" both use ${post.catalogNo}.`,
+      );
+    }
+    seenCatalogNumbers.set(post.catalogNo, post.sourceFilePath);
+
+    for (const [index, route] of [post.routePath, ...post.aliases].entries()) {
+      const claim = index === 0 ? "slug" : "alias";
       const existing = seen.get(route);
       if (existing) {
         throw new Error(
-          `Blog route collision: "${existing}" and "${post.sourcePath}" both claim /blog/${route}/. ` +
-            "Every slug and alias must be globally unique.",
+          `Blog URL collision: "${existing.sourceFilePath}" (${existing.claim}) and ` +
+            `"${post.sourceFilePath}" (${claim}) both claim /blog/${route}/. ` +
+            "No article was removed: give every slug and alias a globally unique value.",
         );
       }
-      seen.set(route, post.sourcePath);
+      seen.set(route, { claim, sourceFilePath: post.sourceFilePath });
     }
   }
 

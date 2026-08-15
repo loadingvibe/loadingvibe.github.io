@@ -48,6 +48,10 @@ const blogEntrySchema = z
         /^[a-z0-9]+(?:-[a-z0-9]+)*$/u,
         "slug 只能使用小写英文字母、数字和单个连字号，例如 my-first-note",
       ),
+    catalogNo: z
+      .string()
+      .trim()
+      .regex(/^F-\d{3}$/u, "catalogNo 必须使用 F-001 形式的永久书目编号"),
     date: z.coerce.date({ error: "date 必须是有效日期，建议使用 YYYY-MM-DD" }),
     summary: z
       .string()

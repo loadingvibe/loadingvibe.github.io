@@ -1,0 +1,221 @@
+---
+import BookLayout from "../../layouts/BookLayout.astro";
+
+const personas = [
+  {
+    id: "P-01",
+    name: "AUTHOR",
+    title: "作者",
+    image: "/assets/about/optimized/roy-profile-960.avif",
+    description: "用于作者页、署名与正式介绍的主形象。",
+  },
+  {
+    id: "P-02",
+    name: "CIRCUIT BUILDER",
+    title: "电路搭建者",
+    image: "/assets/about/optimized/roy-profile-960.avif",
+    description: "用于嵌入式、代码与技术笔记。",
+  },
+  {
+    id: "P-03",
+    name: "ROAD OBSERVER",
+    title: "道路观察者",
+    image: "/assets/about/optimized/roy-profile-960.avif",
+    description: "用于自动驾驶、出行与道路观察。",
+  },
+  {
+    id: "P-04",
+    name: "FIELD RECORDER",
+    title: "现场记录者",
+    image: "/assets/about/optimized/roy-profile-960.avif",
+    description: "用于摄影、旅行与生活片段。",
+  },
+  {
+    id: "P-05",
+    name: "NIGHT EDITOR",
+    title: "夜间编辑",
+    image: "/assets/about/optimized/roy-profile-960.avif",
+    description: "用于阅读、写作、散页与深夜修订。",
+  },
+];
+const description = "认识《一册未装订的生活》的作者 Roy：正在学习的方向、所在的城市、写作线索与个人 IP 角色规划。";
+const aboutJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  name: "关于 Roy",
+  description,
+  url: new URL("/about/", Astro.site || Astro.url).toString(),
+  mainEntity: {
+    "@type": "Person",
+    name: "Roy",
+    homeLocation: "湖南长沙",
+    knowsAbout: ["自动驾驶", "嵌入式", "写作", "摄影"],
+    sameAs: ["https://github.com/loadingvibe"],
+  },
+};
+---
+
+<BookLayout
+  title="关于 Roy｜一册未装订的生活"
+  description={description}
+  canonical="/about/"
+  image="/assets/about/optimized/roy-profile-960.avif"
+  jsonLd={aboutJsonLd}
+  page="about"
+>
+  <main id="main-content" class="book-page book-page--author">
+    <header class="book-page__hero author-hero" aria-labelledby="author-title">
+      <div class="author-hero__copy">
+        <p class="author-hero__kicker">A SHORT INTRODUCTION</p>
+        <h1 id="author-title">关于作者</h1>
+        <p class="author-hero__lead">
+          我是 Roy，一名正在学习自动驾驶与嵌入式的大四学生。这里不是完成版的简历，而是一页会随生活继续修订的作者说明。
+        </p>
+      </div>
+
+      <figure class="author-portrait">
+        <img
+          src="/assets/about/optimized/roy-profile-960.avif"
+          width="720"
+          height="960"
+          alt="Roy 的个人照片"
+          fetchpriority="high"
+          decoding="async"
+        />
+        <figcaption>
+          <span>PORTRAIT / A-01</span>
+          <span>Roy · Changsha</span>
+        </figcaption>
+      </figure>
+    </header>
+
+    <section class="author-profile" aria-labelledby="author-profile-title">
+      <div class="author-profile__heading">
+        <p>AUTHOR FILE</p>
+        <h2 id="author-profile-title">此刻的我</h2>
+      </div>
+      <dl class="author-facts">
+        <div class="author-facts__item">
+          <dt>身份</dt>
+          <dd>学生与持续学习者</dd>
+        </div>
+        <div class="author-facts__item">
+          <dt>所在</dt>
+          <dd>湖南·长沙</dd>
+        </div>
+        <div class="author-facts__item">
+          <dt>关注</dt>
+          <dd>自动驾驶、嵌入式、写作与摄影</dd>
+        </div>
+        <div class="author-facts__item">
+          <dt>版本</dt>
+          <dd><time datetime="2026">2026—持续更新</time></dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="author-statement" aria-labelledby="author-statement-title">
+      <div class="author-statement__heading">
+        <p>NOW / NOTES IN PROGRESS</p>
+        <h2 id="author-statement-title">写在此刻</h2>
+      </div>
+      <div class="author-statement__body">
+        <p>
+          我把从代码、道路和日常中接收到的信号收进这里。有些会成为完整文章，有些会保留为图片、短句或一页尚未装订的笔记。
+        </p>
+        <p>
+          网站会和作者一起生长：已经想清楚的内容进入正文，仍在试探的内容留在散页，而照片负责记住文字之外的现场。
+        </p>
+      </div>
+    </section>
+
+    <section class="author-interests" aria-labelledby="author-interests-title">
+      <div class="author-interests__heading">
+        <p>FIELDS OF INTEREST</p>
+        <h2 id="author-interests-title">正在追踪的线索</h2>
+      </div>
+      <div class="author-interests__grid">
+        <article class="author-interest">
+          <p>01 / ROAD</p>
+          <h3>自动驾驶</h3>
+          <p>从感知、决策到真实道路，记录课程、项目与理解发生变化的时刻。</p>
+        </article>
+        <article class="author-interest">
+          <p>02 / CIRCUIT</p>
+          <h3>嵌入式</h3>
+          <p>关心软硬件如何在资源、时序与现实限制里协同工作。</p>
+        </article>
+        <article class="author-interest">
+          <p>03 / DAILY LIFE</p>
+          <h3>写作与摄影</h3>
+          <p>用长文结构知识，也用照片保留尚不需要解释的光、山和城市片段。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="persona-section" aria-labelledby="persona-title">
+      <header class="persona-section__heading">
+        <div>
+          <p>PERSONA PLATES / TEMPORARY</p>
+          <h2 id="persona-title">人物图版</h2>
+        </div>
+        <p>以下图像暂由同一张作者照片占位，待个人 IP 定稿后逐张替换；角色名称与使用场景会保留。</p>
+      </header>
+      <ol class="persona-shelf" role="list">
+        {personas.map((persona) => (
+          <li class="persona-card">
+            <figure class="persona-card__figure">
+              <div class="persona-card__image">
+                <img
+                  src={persona.image}
+                  width="720"
+                  height="960"
+                  alt={`Roy 的个人照片，暂作「${persona.title}」角色图版占位图`}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span class="persona-card__placeholder">临时占位图</span>
+              </div>
+              <figcaption class="persona-card__caption">
+                <span>{persona.id} / {persona.name}</span>
+                <h3>{persona.title}</h3>
+                <p>{persona.description}</p>
+              </figcaption>
+            </figure>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="contact-section" aria-labelledby="contact-title">
+      <div class="contact-section__heading">
+        <p>CONTACT / OPEN CHANNELS</p>
+        <h2 id="contact-title">保持联系</h2>
+      </div>
+      <address class="contact-links">
+        <a class="contact-links__item" href="mailto:8212230801@csu.edu.cn">
+          <span>Email</span>
+          <strong>8212230801@csu.edu.cn</strong>
+        </a>
+        <a
+          class="contact-links__item"
+          href="https://github.com/loadingvibe"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <span>GitHub</span>
+          <strong>@loadingvibe <span aria-hidden="true">↗</span></strong>
+        </a>
+        <a
+          class="contact-links__item"
+          href="https://maps.google.com/?q=Changsha,Hunan"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <span>Location</span>
+          <strong>湖南·长沙 <span aria-hidden="true">↗</span></strong>
+        </a>
+      </address>
+    </section>
+  </main>
+</BookLayout>

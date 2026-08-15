@@ -24,6 +24,7 @@ Blog/
 ---
 title: 从梯度下降开始
 slug: gradient-descent-intro
+catalogNo: F-002
 date: 2026-08-12
 summary: 用一个最小例子理解梯度、学习率与迭代更新。
 category: 笔记
@@ -35,8 +36,9 @@ featured: false
 ---
 ```
 
-- `title`、`date`、`summary`、`slug` 和 `category` 是必填字段。
+- `title`、`date`、`summary`、`slug`、`catalogNo` 和 `category` 是必填字段。
 - `slug` 只能使用小写 ASCII 字母、数字与单个连字号，并且在全站唯一。
+- `catalogNo` 是发布后不再更改的永久正文编号，使用 `F-001` 形式，并且在全站唯一。
 - `category` 只能是 `生活`、`工作`、`笔记` 或 `收藏`。
 - `tags` 是最多 8 个标签的数组，也可以写成 `[数学, 机器学习]`。
 - `draft`：设为 `true` 时不生成文章页面，也不会进入列表、RSS 或 sitemap。

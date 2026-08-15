@@ -6,7 +6,10 @@ import { fileURLToPath } from "node:url";
 const projectRoot = dirname(fileURLToPath(import.meta.url));
 const buildRoot = resolve(projectRoot, "dist");
 const blogRoot = resolve(projectRoot, "Blog");
+const blogGithubRepositoryUrl = "https://github.com/loadingvibe/loadingvibe.github.io";
+const blogGithubBranch = "main";
 const mimeTypes = {
+  ".avif": "image/avif",
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
   ".ico": "image/x-icon",
@@ -79,6 +82,20 @@ function frontmatterList(frontmatter, key) {
     .filter(Boolean);
 }
 
+function encodePathSegments(value) {
+  return value
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+}
+
+function githubFileUrl(action, sourceFilePath) {
+  return (
+    `${blogGithubRepositoryUrl}/${action}/${encodeURIComponent(blogGithubBranch)}/` +
+    encodePathSegments(sourceFilePath)
+  );
+}
+
 function loadBlogSources() {
   if (!existsSync(blogRoot) || !statSync(blogRoot).isDirectory()) {
     throw new Error("Missing Blog/ author content directory.");
@@ -94,11 +111,17 @@ function loadBlogSources() {
       const contents = readFileSync(resolve(blogRoot, sourcePath), "utf8");
       const frontmatter = frontmatterBlock(contents, sourcePath);
       const slug = frontmatterScalar(frontmatter, "slug", sourcePath);
+      const catalogNo = frontmatterScalar(frontmatter, "catalogNo", sourcePath);
       const draftMatch = frontmatter.match(/^draft:[\t ]*(true|false)[\t ]*$/imu);
+      const sourceFilePath = `Blog/${sourcePath}`;
 
       return {
         sourcePath,
+        sourceFilePath,
+        githubManageUrl: githubFileUrl("blob", sourceFilePath),
+        githubDeleteUrl: githubFileUrl("delete", sourceFilePath),
         slug,
+        catalogNo,
         aliases: frontmatterList(frontmatter, "aliases"),
         draft: draftMatch?.[1].toLowerCase() === "true",
       };
@@ -146,6 +169,33 @@ const sitemapFiles = builtFiles.filter((relativePath) => {
   return filename && /^sitemap.*\.xml$/i.test(filename);
 });
 
+const claimedBlogRoutes = new Map();
+const claimedCatalogNumbers = new Map();
+for (const source of blogSources) {
+  const existingCatalogSource = claimedCatalogNumbers.get(source.catalogNo);
+  if (existingCatalogSource) {
+    throw new Error(
+      `Blog catalog collision: ${existingCatalogSource} and ${source.sourceFilePath} both use ${source.catalogNo}.`,
+    );
+  }
+  claimedCatalogNumbers.set(source.catalogNo, source.sourceFilePath);
+
+  // Claims are keyed only by public URLs, never by Markdown body text. Identical prose in two
+  // different source files must therefore remain two independently verified posts.
+  for (const [index, route] of [source.slug, ...source.aliases].entries()) {
+    const claim = index === 0 ? "slug" : "alias";
+    const existing = claimedBlogRoutes.get(route);
+    if (existing) {
+      throw new Error(
+        `Blog URL collision: ${existing.sourceFilePath} (${existing.claim}) and ` +
+          `${source.sourceFilePath} (${claim}) both claim /blog/${route}/. ` +
+          "No source was discarded; assign a unique slug or alias and rebuild.",
+      );
+    }
+    claimedBlogRoutes.set(route, { claim, sourceFilePath: source.sourceFilePath });
+  }
+}
+
 if (!builtFiles.includes("index.html")) {
   throw new Error("Static build is missing dist/index.html.");
 }
@@ -185,9 +235,15 @@ for (const source of publishedBlogSources) {
   }
 }
 
-for (const removedRoute of ["/blog/README/", "/blog/ai/url-name/"]) {
+for (const removedRoute of ["/blog/README/"]) {
   if (sitemapXml.includes(removedRoute)) {
-    throw new Error(`Sitemap still contains removed internal or duplicate content: ${removedRoute}`);
+    throw new Error(`Sitemap contains internal author documentation: ${removedRoute}`);
+  }
+}
+
+for (const route of ["/about/", "/photos/", "/leaves/", "/marginalia/"]) {
+  if (!sitemapXml.includes(route)) {
+    throw new Error(`Sitemap is missing the book route ${route}.`);
   }
 }
 
@@ -285,6 +341,25 @@ async function checkAsset(pathname) {
   }
 }
 
+function checkPublishedImagePrivacy() {
+  const publicImageRoot = resolve(buildRoot, "assets/about");
+  const unsafeMetadataMarkers = [
+    "GPSLatitude",
+    "GPSLongitude",
+    "DateTimeOriginal",
+    "LensModel",
+    "Apple iPhone",
+  ].map((value) => Buffer.from(value, "utf8"));
+
+  for (const relativePath of listFiles(publicImageRoot)) {
+    if (!/\.(?:avif|jpe?g)$/iu.test(relativePath)) continue;
+    const contents = readFileSync(resolve(publicImageRoot, relativePath));
+    if (unsafeMetadataMarkers.some((marker) => contents.includes(marker))) {
+      throw new Error(`Published image still contains private capture metadata: ${relativePath}`);
+    }
+  }
+}
+
 async function checkStatus(pathname, expectedStatus) {
   const response = await fetch(baseUrl + pathname, { redirect: "manual" });
   checkedRoutes += 1;
@@ -299,22 +374,41 @@ async function checkStatus(pathname, expectedStatus) {
 try {
   await checkHtml("/", {
     html: [
-      "有点来电｜Roy 的生活与学习记录",
-      "id=\"archive\"",
+      "一册未装订的生活｜有点来电",
+      "id=\"main-content\"",
+      "id=\"inside-cover\"",
+      "id=\"about\"",
       "id=\"comments\"",
-      "class=\"archive-explorer\"",
-      "role=\"search\"",
-      "type=\"search\"",
+      "book-cover",
+      "href=\"/about/\"",
+      "href=\"/photos/\"",
+      "href=\"/leaves/\"",
     ],
-    text: ["有点来电", "文章档案", "滑动，读取我的记录", "回声"],
+    text: ["一册未装订的生活", "UNBOUND EDITION", "生活还没有装订", "最近编页"],
+  });
+  await checkHtml("/about/", {
+    html: ["id=\"main-content\"", "author-portrait", "persona-shelf", "临时占位图"],
+    text: ["关于作者", "此刻的我", "人物图版"],
+  });
+  await checkHtml("/photos/", {
+    html: ["id=\"main-content\"", "contact-sheet", "P-001", "P-006"],
+    text: ["接触印样", "ROLL 001", "山野、建筑与光"],
+  });
+  await checkHtml("/leaves/", {
+    html: ["id=\"main-content\"", "leaf-stack", "PRIVATE DRAFTS"],
+    text: ["未装订散页", "这不是私密草稿目录", "已选散页"],
+  });
+  await checkHtml("/marginalia/", {
+    html: ["id=\"main-content\"", "marginalia-thread", "comments-panel"],
+    text: ["页边批注", "全站旁批簿"],
   });
   await checkHtml("/blog/", {
     html: [
-      "class=\"archive-explorer\"",
+      "book-catalog",
       "role=\"search\"",
       ...publishedBlogSources.map((source) => `href="/blog/${source.slug}/"`),
     ],
-    text: ["搜索一条信号", "全部文章"],
+    text: ["全书目录", "检索本册正文", "全部正文"],
   });
 
   for (const source of publishedBlogSources) {
@@ -325,7 +419,11 @@ try {
         "article-reader__rail--outline",
         "reader-mobile-tools",
         "<span aria-hidden=\"true\">H1</span>",
+        "article-marginalia",
+        source.catalogNo,
+        `/marginalia/${source.catalogNo.toLowerCase()}/`,
       ],
+      text: ["留下你的批注", "页边批注"],
     });
 
     for (const alias of source.aliases) {
@@ -340,7 +438,10 @@ try {
   }
 
   await checkStatus("/blog/README/", 404);
-  await checkStatus("/blog/ai/url-name/", 404);
+  await checkHtml("/blog/url-name/", {
+    html: ["markdown-content"],
+    text: ["url", "当我们希望找到函数"],
+  });
 
   const rss = await checkText(
     "/rss.xml",
@@ -353,7 +454,10 @@ try {
   await checkText("/robots.txt", ["User-agent:", "Sitemap:"]);
   await checkText("/CNAME", ["loadingvibe.com"]);
   await checkAsset("/assets/brand/you-dian-lai-dian-mark-v1.png");
-  await checkAsset("/og-you-dian-lai-dian-v1.png");
+  await checkAsset("/assets/brand/optimized/mark-192.avif");
+  await checkAsset("/assets/about/optimized/roy-profile-960.avif");
+  await checkAsset("/assets/brand/optimized/og-unbound-edition-v1.jpg");
+  checkPublishedImagePrivacy();
 
   for (const sitemapFile of sitemapFiles) {
     await fetchOk("/" + sitemapFile);

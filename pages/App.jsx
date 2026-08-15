@@ -1,4 +1,12 @@
-import { IconBrandGithub, IconMail, IconMapPin } from "@tabler/icons-react";
+import {
+  IconBook2,
+  IconBrandGithub,
+  IconMail,
+  IconMapPin,
+  IconMessageCircle,
+  IconUser,
+} from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 import AccordionGallery from "../components/AccordionGallery";
 import ArchiveExplorer from "../components/ArchiveExplorer";
 import BrandLockup from "../components/BrandLockup";
@@ -7,13 +15,41 @@ import StrokeText from "../components/StrokeText";
 import PagesComments from "./PagesComments";
 
 const ABOUT_GALLERY_ITEMS = [
-  { image: "/assets/about/gallery/mist-gorge.jpg", label: "雾峡", alt: "云雾缭绕的峡谷与山间建筑" },
-  { image: "/assets/about/gallery/cloud-meadow.jpg", label: "云野", alt: "蓝天白云下的高山草地" },
-  { image: "/assets/about/gallery/quiet-corner.jpg", label: "静室", alt: "老建筑内安静的光影与玻璃地面" },
-  { image: "/assets/about/gallery/sunset-gorge.jpg", label: "暮色", alt: "峡谷之间被夕阳染亮的云层" },
-  { image: "/assets/about/gallery/lake-birds.jpg", label: "鸥影", alt: "湖面上飞过亭子的鸟群" },
-  { image: "/assets/about/gallery/moon-peak.jpg", label: "月峰", alt: "白日月亮悬在奇峰之上" },
+  { image: "/assets/about/optimized/mist-gorge-960.avif", label: "雾峡", alt: "云雾缭绕的峡谷与山间建筑" },
+  { image: "/assets/about/optimized/cloud-meadow-960.avif", label: "云野", alt: "蓝天白云下的高山草地" },
+  { image: "/assets/about/optimized/quiet-corner-960.avif", label: "静室", alt: "老建筑内安静的光影与玻璃地面" },
+  { image: "/assets/about/optimized/sunset-gorge-960.avif", label: "暮色", alt: "峡谷之间被夕阳染亮的云层" },
+  { image: "/assets/about/optimized/lake-birds-960.avif", label: "鸥影", alt: "湖面上飞过亭子的鸟群" },
+  { image: "/assets/about/optimized/moon-peak-960.avif", label: "月峰", alt: "白日月亮悬在奇峰之上" },
 ];
+
+const PRIMARY_NAV_ITEMS = [
+  { key: "about", label: "关于", href: "/#about", Icon: IconUser },
+  { key: "blog", label: "博客", href: "/blog/", Icon: IconBook2 },
+  { key: "comments", label: "评论", href: "/#comments", Icon: IconMessageCircle },
+];
+
+/**
+ * @typedef {"about" | "blog" | "comments"} PrimaryNavKey
+ */
+
+/** @param {{ activeItem: PrimaryNavKey | null, className: string, label: string }} props */
+function PrimaryNavigation({ activeItem, className, label }) {
+  return (
+    <nav className={className} aria-label={label}>
+      {PRIMARY_NAV_ITEMS.map(({ key, label: itemLabel, href, Icon }) => (
+        <a
+          key={key}
+          href={href}
+          aria-current={activeItem === key ? "location" : undefined}
+        >
+          <Icon aria-hidden="true" stroke={1.8} />
+          <span>{itemLabel}</span>
+        </a>
+      ))}
+    </nav>
+  );
+}
 
 /**
  * @typedef {Object} ArchivePost
@@ -34,27 +70,59 @@ const ABOUT_GALLERY_ITEMS = [
 /** @param {{ posts?: ArchivePost[] }} props */
 export default function App({ posts = [] }) {
   const latestPost = posts[0];
+  const [activeNav, setActiveNav] = useState(/** @type {PrimaryNavKey | null} */ (null));
+
+  useEffect(() => {
+    const sections = [
+      { key: /** @type {PrimaryNavKey} */ ("about"), element: document.querySelector("#about") },
+      { key: /** @type {PrimaryNavKey} */ ("blog"), element: document.querySelector("#archive") },
+      { key: /** @type {PrimaryNavKey} */ ("comments"), element: document.querySelector("#comments") },
+    ].filter((item) => item.element instanceof HTMLElement);
+    let frame = 0;
+
+    const updateActiveItem = () => {
+      frame = 0;
+      const readingLine = window.scrollY + window.innerHeight * 0.42;
+      let nextItem = /** @type {PrimaryNavKey | null} */ (null);
+
+      for (const section of sections) {
+        if (section.element.offsetTop <= readingLine) nextItem = section.key;
+      }
+
+      setActiveNav((current) => (current === nextItem ? current : nextItem));
+    };
+
+    const scheduleUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateActiveItem);
+    };
+
+    updateActiveItem();
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+
+    return () => {
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, []);
 
   return (
     <>
       <header className="one-page-header">
         <BrandLockup compact />
-        <nav aria-label="网站导航">
-          <a href="#about">关于</a>
-          <a className="one-page-header__blog" href="#archive">文章档案</a>
-          <a href="#comments">回声</a>
-        </nav>
-        <details className="mobile-site-menu">
-          <summary aria-label="打开网站导航">菜单 <span aria-hidden="true">+</span></summary>
-          <nav aria-label="移动端网站导航">
-            <a href="#intro">首页</a>
-            <a href="#about">关于</a>
-            <a href="#archive">文章档案</a>
-            <a href="#comments">回声</a>
-            <a href="/blog/">全部文章</a>
-          </nav>
-        </details>
+        <PrimaryNavigation
+          activeItem={activeNav}
+          className="site-primary-nav site-primary-nav--desktop"
+          label="主导航"
+        />
       </header>
+
+      <PrimaryNavigation
+        activeItem={activeNav}
+        className="mobile-tab-bar"
+        label="移动端主导航"
+      />
 
       <main className="one-page-main">
         <section className="opening-section" id="intro" aria-labelledby="opening-title">
@@ -85,7 +153,7 @@ export default function App({ posts = [] }) {
               <span>这里保存我从代码、道路与日常里接收到的信号。</span>
             </p>
             <div className="opening-section__actions" aria-label="快速入口">
-              <a href="#archive">进入文章档案 <span aria-hidden="true">↓</span></a>
+              <a href="#archive">浏览首页博客 <span aria-hidden="true">↓</span></a>
               {latestPost && <a href={latestPost.href}>最近一篇 <span aria-hidden="true">↗</span></a>}
             </div>
           </div>
@@ -115,7 +183,7 @@ export default function App({ posts = [] }) {
           <div className="about-profile">
             <aside className="about-profile__identity" aria-label="Roy 的个人信息">
               <figure className="about-profile__portrait">
-                <img src="/assets/about/roy-profile.jpg" width="1800" height="1350" alt="Roy 的个人照片" />
+                <img src="/assets/about/optimized/roy-profile-960.avif" width="720" height="960" alt="Roy 的个人照片" />
               </figure>
               <p className="about-profile__eyebrow">HELLO, I AM</p>
               <h3>Roy</h3>
@@ -154,21 +222,21 @@ export default function App({ posts = [] }) {
           </div>
         </section>
 
-        <section className="archive-section" id="archive" aria-label="Roy 的文章档案">
+        <section className="archive-section" id="archive" aria-label="Roy 的博客">
           <ArchiveExplorer
             posts={posts}
-            eyebrow="03 / SIGNALS · 文章档案"
+            eyebrow="03 / SIGNALS · 博客"
             heading="滑动，读取我的记录"
             description="生活、工作、学习与收藏都来自同一个 Markdown 档案。你可以搜索、按分类筛选，再进入文章的完整阅读页。"
             archiveHref="/blog/"
-            archiveLabel="打开全部文章"
+            archiveLabel="打开博客目录"
           />
         </section>
 
         <section className="comments-section" id="comments" aria-labelledby="comments-title">
           <header className="comments-heading">
             <div>
-              <p className="comments-heading__eyebrow">05 / ECHO · WALINE</p>
+              <p className="comments-heading__eyebrow">04 / ECHO · 评论</p>
               <h2 id="comments-title">回声</h2>
             </div>
             <div className="comments-heading__intro">

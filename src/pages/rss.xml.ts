@@ -13,6 +13,7 @@ export async function GET(context: { site?: URL }) {
       title: post.title,
       description: post.summary,
       link: post.href,
+      customData: `<guid isPermaLink="false">loadingvibe:${post.catalogNo}</guid>`,
       ...(post.date ? { pubDate: post.date } : {}),
       ...(post.tags.length ? { categories: post.tags } : {}),
     })),

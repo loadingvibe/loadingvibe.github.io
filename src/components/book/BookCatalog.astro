@@ -1,0 +1,209 @@
+---
+interface CatalogPost {
+  title: string;
+  catalogNo: string;
+  summary: string;
+  category: string;
+  tags: string[];
+  href: string;
+  sourcePath?: string;
+  readingMinutes: number;
+  date?: string;
+  featured?: boolean;
+}
+
+interface Props {
+  posts: CatalogPost[];
+}
+
+const { posts } = Astro.props;
+const categoryOrder = ["生活", "工作", "笔记", "收藏"];
+const categoryCounts = new Map<string, number>();
+posts.forEach((post) => categoryCounts.set(post.category, (categoryCounts.get(post.category) || 0) + 1));
+const categories = [...categoryCounts.entries()].sort((left, right) => {
+  const leftIndex = categoryOrder.indexOf(left[0]);
+  const rightIndex = categoryOrder.indexOf(right[0]);
+  return (leftIndex < 0 ? 99 : leftIndex) - (rightIndex < 0 ? 99 : rightIndex) || left[0].localeCompare(right[0], "zh-CN");
+});
+const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
+  day: "2-digit",
+  month: "2-digit",
+  timeZone: "Asia/Shanghai",
+  year: "numeric",
+});
+const formatDate = (value?: string) => value
+  ? dateFormatter.format(new Date(value)).replaceAll("/", " · ")
+  : "日期待补";
+---
+
+<section class="book-catalog" data-book-catalog aria-labelledby="book-catalog-title">
+  <header class="book-catalog__header">
+    <div>
+      <p>INDEX / 全部正文</p>
+      <h2 id="book-catalog-title">检索本册正文</h2>
+    </div>
+    <div>
+      <p>按标题、摘要、索引词或原始目录检索，再使用章节与时间顺序收窄结果。</p>
+      <a href="/rss.xml">订阅正文 RSS ↗</a>
+    </div>
+  </header>
+
+  <form class="book-catalog__controls" role="search" data-catalog-form>
+    <label class="book-catalog__search">
+      <span class="sr-only">检索正文</span>
+      <i aria-hidden="true"></i>
+      <input type="search" placeholder="输入标题、摘要或索引词……" autocomplete="off" data-catalog-query aria-keyshortcuts="/" />
+      <kbd aria-hidden="true">/</kbd>
+    </label>
+    <div class="book-catalog__chapters" aria-label="按章节筛选正文">
+      <button type="button" data-category="" aria-pressed="true">全部 <span>{posts.length}</span></button>
+      {categories.map(([category, count]) => (
+        <button type="button" data-category={category} aria-pressed="false">{category} <span>{count}</span></button>
+      ))}
+    </div>
+    <label class="book-catalog__sort">
+      <span>排序</span>
+      <select data-catalog-sort>
+        <option value="newest">最新编入</option>
+        <option value="oldest">最早编入</option>
+        <option value="title">标题 A–Z</option>
+        <option value="folio">正文编号</option>
+      </select>
+    </label>
+  </form>
+
+  <div class="book-catalog__status" aria-live="polite" aria-atomic="true">
+    <strong data-catalog-count>{String(posts.length).padStart(2, "0")}</strong>
+    <span>篇正文收入本册</span>
+  </div>
+
+  {
+    posts.length > 0 ? (
+      <ol class="book-catalog__list" data-catalog-list>
+        {posts.map((post) => (
+          <li
+            data-catalog-entry
+            data-category={post.category}
+            data-date={post.date || ""}
+            data-title={post.title}
+            data-folio={post.catalogNo}
+            data-search={[post.title, post.summary, post.category, post.sourcePath, ...post.tags].filter(Boolean).join(" ")}
+          >
+            <article>
+              <a href={post.href} aria-label={`打开正文《${post.title}》`}>
+                <span class="book-catalog__folio">{post.catalogNo}</span>
+                <div class="book-catalog__entry-copy">
+                  <p>{post.featured ? "FEATURED / " : ""}{post.category}{post.tags.length ? ` · ${post.tags.slice(0, 3).join(" / ")}` : ""}</p>
+                  <h3>{post.title}</h3>
+                  <p>{post.summary}</p>
+                </div>
+                <dl>
+                  <div><dt>DATE</dt><dd><time datetime={post.date}>{formatDate(post.date)}</time></dd></div>
+                  <div><dt>READ</dt><dd>{post.readingMinutes} MIN</dd></div>
+                </dl>
+                <b aria-hidden="true">↗</b>
+              </a>
+            </article>
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <div class="book-catalog__empty"><p>第一篇正文仍在编写中。</p></div>
+    )
+  }
+
+  <div class="book-catalog__no-results" data-catalog-empty hidden>
+    <p>索引里暂时没有匹配的正文。</p>
+    <button type="button" data-catalog-reset>清除筛选</button>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll("[data-book-catalog]").forEach((catalog) => {
+    if (!(catalog instanceof HTMLElement) || catalog.dataset.ready === "true") return;
+    catalog.dataset.ready = "true";
+
+    const form = catalog.querySelector("[data-catalog-form]");
+    const queryInput = catalog.querySelector("[data-catalog-query]");
+    const sortSelect = catalog.querySelector("[data-catalog-sort]");
+    const list = catalog.querySelector("[data-catalog-list]");
+    const count = catalog.querySelector("[data-catalog-count]");
+    const empty = catalog.querySelector("[data-catalog-empty]");
+    const reset = catalog.querySelector("[data-catalog-reset]");
+    const categoryButtons = [...catalog.querySelectorAll("[data-category]")];
+    const entries = [...catalog.querySelectorAll("[data-catalog-entry]")];
+    let category = "";
+
+    if (!(form instanceof HTMLFormElement) || !(queryInput instanceof HTMLInputElement) ||
+        !(sortSelect instanceof HTMLSelectElement) || !(list instanceof HTMLOListElement) ||
+        !(count instanceof HTMLElement) || !(empty instanceof HTMLElement)) return;
+
+    const normalize = (value: unknown) => String(value || "")
+      .normalize("NFKC")
+      .toLocaleLowerCase("zh-CN")
+      .replace(/\s+/gu, " ")
+      .trim();
+
+    const render = () => {
+      const terms = normalize(queryInput.value).split(" ").filter(Boolean);
+      const mode = sortSelect.value;
+      entries.sort((left, right) => {
+        if (!(left instanceof HTMLElement) || !(right instanceof HTMLElement)) return 0;
+        if (mode === "title") return String(left.dataset.title).localeCompare(String(right.dataset.title), "zh-CN");
+        if (mode === "folio") return String(left.dataset.folio).localeCompare(String(right.dataset.folio), "en");
+        const difference = Date.parse(right.dataset.date || "") - Date.parse(left.dataset.date || "");
+        return mode === "oldest" ? -difference : difference;
+      });
+      entries.forEach((entry) => list.append(entry));
+
+      let visible = 0;
+      entries.forEach((entry) => {
+        if (!(entry instanceof HTMLElement)) return;
+        const categoryMatches = !category || entry.dataset.category === category;
+        const search = normalize(entry.dataset.search);
+        const queryMatches = terms.every((term) => search.includes(term));
+        entry.hidden = !(categoryMatches && queryMatches);
+        if (!entry.hidden) visible += 1;
+      });
+      count.textContent = String(visible).padStart(2, "0");
+      empty.hidden = visible !== 0;
+    };
+
+    form.addEventListener("submit", (event) => event.preventDefault());
+    queryInput.addEventListener("input", render);
+    queryInput.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && queryInput.value) {
+        queryInput.value = "";
+        render();
+      }
+    });
+    sortSelect.addEventListener("change", render);
+    categoryButtons.forEach((button) => button.addEventListener("click", () => {
+      category = button.getAttribute("data-category") || "";
+      categoryButtons.forEach((candidate) => candidate.setAttribute("aria-pressed", String(candidate === button)));
+      render();
+    }));
+    reset?.addEventListener("click", () => {
+      category = "";
+      queryInput.value = "";
+      sortSelect.value = "newest";
+      categoryButtons.forEach((button) => button.setAttribute("aria-pressed", String(!button.getAttribute("data-category"))));
+      render();
+      queryInput.focus();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.target instanceof HTMLElement && event.target.closest("input, textarea, select, [contenteditable='true']")) return;
+      event.preventDefault();
+      queryInput.focus();
+    });
+
+    const directory = new URLSearchParams(window.location.search).get("directory");
+    if (directory) {
+      const categoryButton = categoryButtons.find((button) => normalize(button.getAttribute("data-category")) === normalize(directory));
+      if (categoryButton instanceof HTMLButtonElement) categoryButton.click();
+      else queryInput.value = directory;
+    }
+    render();
+  });
+</script>

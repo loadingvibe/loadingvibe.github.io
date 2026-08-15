@@ -1,0 +1,61 @@
+---
+interface Props {
+  page?: "cover" | "about" | "photos" | "leaves" | "blog" | "marginalia";
+}
+
+const { page = "cover" } = Astro.props;
+const navItems = [
+  { key: "cover", label: "封面", meta: "00", href: "/" },
+  { key: "about", label: "作者", meta: "A", href: "/about/" },
+  { key: "photos", label: "印样", meta: "P", href: "/photos/" },
+  { key: "leaves", label: "散页", meta: "L", href: "/leaves/" },
+  { key: "blog", label: "目录", meta: "F", href: "/blog/" },
+  { key: "marginalia", label: "旁批", meta: "M", href: "/marginalia/" },
+] as const;
+---
+
+<header class="book-header">
+  <div class="book-header__inner">
+    <a class="book-imprint" href="/" aria-label="有点来电，一册未装订的生活首页">
+      <img
+        src="/assets/brand/optimized/mark-192.avif"
+        width="192"
+        height="192"
+        alt=""
+      />
+      <span>
+        <strong>有点来电</strong>
+        <small>UNBOUND EDITION</small>
+      </span>
+    </a>
+
+    <nav class="book-nav" aria-label="全书目录">
+      {
+        navItems.map((item) => (
+          <a href={item.href} aria-current={page === item.key ? "page" : undefined}>
+            <small>{item.meta}</small>
+            <span>{item.label}</span>
+          </a>
+        ))
+      }
+    </nav>
+
+    <details class="book-menu">
+      <summary>
+        <span>目录</span>
+        <b aria-hidden="true">+</b>
+      </summary>
+      <nav aria-label="移动端全书目录">
+        {
+          navItems.map((item) => (
+            <a href={item.href} aria-current={page === item.key ? "page" : undefined}>
+              <small>{item.meta}</small>
+              <span>{item.label}</span>
+              <i aria-hidden="true">↗</i>
+            </a>
+          ))
+        }
+      </nav>
+    </details>
+  </div>
+</header>

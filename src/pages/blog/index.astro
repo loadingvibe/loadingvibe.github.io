@@ -1,5 +1,5 @@
 ---
-import ArchiveExplorer from "../../../components/ArchiveExplorer.jsx";
+import BookCatalog from "../../components/book/BookCatalog.astro";
 import BlogLayout from "../../layouts/BlogLayout.astro";
 import {
   getPublishedPosts,
@@ -12,6 +12,7 @@ const tags = uniqueBlogTags(posts);
 const categories = uniqueBlogCategories(posts);
 const archivePosts = posts.map((post) => ({
   title: post.title,
+  catalogNo: post.catalogNo,
   summary: post.summary,
   category: post.category,
   tags: post.tags,
@@ -28,7 +29,7 @@ const description = "Roy 的公开 Markdown 文章档案，收录生活、工作
 const blogJsonLd = {
   "@context": "https://schema.org",
   "@type": "Blog",
-  name: "有点来电·文章",
+  name: "有点来电·博客",
   description,
   url: new URL("/blog/", Astro.site || Astro.url).toString(),
   inLanguage: "zh-CN",
@@ -46,20 +47,20 @@ const blogJsonLd = {
 ---
 
 <BlogLayout
-  title="文章｜有点来电"
+  title="全书目录｜一册未装订的生活"
   description={description}
   canonical="/blog/"
-  image="/og-you-dian-lai-dian-v1.png"
+  image="/assets/brand/optimized/og-unbound-edition-v1.jpg"
   jsonLd={blogJsonLd}
 >
-  <main class="blog-index">
+  <main id="main-content" class="blog-index">
     <section class="blog-hero" aria-labelledby="blog-title">
       <div>
-        <p class="blog-kicker">PUBLIC ARCHIVE · SIGNALS</p>
-        <h1 id="blog-title">档案<span>.</span></h1>
+        <p class="blog-kicker">CONTENTS / BOUND FOLIOS</p>
+        <h1 id="blog-title">全书目录<span>.</span></h1>
       </div>
       <div class="blog-hero__intro">
-        <p>这是我的公开写作与生活档案。搜索一个关键词，或沿着分类读取不同频率的记录。</p>
+        <p>已经想清楚的内容在这里获得永久编号并编入正文。你可以沿章节阅读，也可以从索引中寻找一个词。</p>
         <dl>
           <div><dt>POSTS</dt><dd>{posts.length}</dd></div>
           <div><dt>CATEGORIES</dt><dd>{categories.length}</dd></div>
@@ -69,15 +70,7 @@ const blogJsonLd = {
     </section>
 
     <section class="blog-archive-index" aria-label="全部文章">
-      <ArchiveExplorer
-        posts={archivePosts}
-        eyebrow="LIBRARY / 全部文章"
-        heading="搜索一条信号"
-        description="只有作者通过 Markdown 写入内容，读者在这里搜索、筛选与阅读。"
-        archiveHref="/rss.xml"
-        archiveLabel="订阅 RSS"
-        client:load
-      />
+      <BookCatalog posts={archivePosts} />
     </section>
   </main>
 </BlogLayout>

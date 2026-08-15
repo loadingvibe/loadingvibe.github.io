@@ -4,6 +4,12 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import "./ArchiveExplorer.css";
 
 const ALL_CATEGORIES = "__all__";
+const SORT_OPTIONS = new Set(["newest", "oldest", "title"]);
+const SORT_LABELS = {
+  newest: "最新优先",
+  oldest: "最早优先",
+  title: "标题 A–Z",
+};
 const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
   day: "2-digit",
   month: "2-digit",
@@ -80,9 +86,31 @@ function scrollBehavior() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 }
 
+function sortPosts(posts, sortMode) {
+  return [...posts].sort((left, right) => {
+    if (sortMode === "title") {
+      return categoryCollator.compare(left.title, right.title) || right.timestamp - left.timestamp;
+    }
+
+    if (left.timestamp && !right.timestamp) return -1;
+    if (!left.timestamp && right.timestamp) return 1;
+    if (sortMode === "oldest") {
+      return left.timestamp - right.timestamp || left.sourceIndex - right.sourceIndex;
+    }
+    return right.timestamp - left.timestamp || left.sourceIndex - right.sourceIndex;
+  });
+}
+
+function railSelection(posts, limit) {
+  const featured = posts.filter((post) => post.featured);
+  const recent = posts.filter((post) => !post.featured);
+  return [...featured, ...recent].slice(0, limit);
+}
+
 /**
  * @typedef {Object} ArchiveExplorerPost
  * @property {string} title
+ * @property {string} [catalogNo]
  * @property {string} summary
  * @property {string} category
  * @property {string[]} tags
@@ -110,6 +138,10 @@ function scrollBehavior() {
  * @property {string} [archiveHref]
  * @property {string} [archiveLabel]
  * @property {string} [className]
+ * @property {"rail" | "catalog"} [mode]
+ * @property {number} [railLimit]
+ * @property {number} [pageSize]
+ * @property {"newest" | "oldest" | "title"} [initialSort]
  */
 
 /** @param {ArchiveExplorerProps} props */
@@ -122,14 +154,26 @@ export default function ArchiveExplorer({
   archiveHref = "/blog/",
   archiveLabel = "查看全部档案",
   className = "",
+  mode = "rail",
+  railLimit = 8,
+  pageSize = 12,
+  initialSort = "newest",
 }) {
   const headingId = useId();
   const searchId = useId();
+  const listId = useId();
+  const sortId = useId();
   const railRef = useRef(null);
   const searchRef = useRef(null);
   const directoryQueryAppliedRef = useRef(false);
+  const isCatalog = mode === "catalog";
+  const batchSize = Math.max(1, Math.floor(Number(pageSize) || 12));
+  const signalLimit = Math.max(1, Math.floor(Number(railLimit) || 8));
+  const defaultSort = SORT_OPTIONS.has(initialSort) ? initialSort : "newest";
   const [query, setQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORIES);
+  const [sortMode, setSortMode] = useState(defaultSort);
+  const [visibleCount, setVisibleCount] = useState(batchSize);
   const [scrollState, setScrollState] = useState({ backward: false, forward: false });
 
   const preparedPosts = useMemo(() => preparePosts(posts), [posts]);
@@ -152,6 +196,18 @@ export default function ArchiveExplorer({
     });
   }, [preparedPosts, query, selectedCategory]);
 
+  const orderedPosts = useMemo(
+    () => sortPosts(filteredPosts, isCatalog ? sortMode : "newest"),
+    [filteredPosts, isCatalog, sortMode],
+  );
+  const visiblePosts = useMemo(
+    () => (isCatalog
+      ? orderedPosts.slice(0, visibleCount)
+      : railSelection(orderedPosts, signalLimit)),
+    [isCatalog, orderedPosts, signalLimit, visibleCount],
+  );
+  const remainingCount = Math.max(0, orderedPosts.length - visiblePosts.length);
+
   useEffect(() => {
     if (directoryQueryAppliedRef.current || typeof window === "undefined") return;
     directoryQueryAppliedRef.current = true;
@@ -171,6 +227,10 @@ export default function ArchiveExplorer({
       setSelectedCategory(ALL_CATEGORIES);
     }
   }, [categories, selectedCategory]);
+
+  useEffect(() => {
+    if (isCatalog) setVisibleCount(batchSize);
+  }, [batchSize, isCatalog, query, selectedCategory, sortMode]);
 
   useEffect(() => {
     const rail = railRef.current;
@@ -201,14 +261,14 @@ export default function ArchiveExplorer({
       rail.removeEventListener("scroll", updateScrollState);
       resizeObserver?.disconnect();
     };
-  }, [filteredPosts.length]);
+  }, [isCatalog, visiblePosts.length]);
 
   useEffect(() => {
     const rail = railRef.current;
     if (!rail) return undefined;
     const frame = requestAnimationFrame(() => rail.scrollTo({ left: 0, behavior: "auto" }));
     return () => cancelAnimationFrame(frame);
-  }, [query, selectedCategory]);
+  }, [query, selectedCategory, visiblePosts.length]);
 
   useEffect(() => {
     const handleShortcut = (event) => {
@@ -226,7 +286,24 @@ export default function ArchiveExplorer({
   const resetFilters = () => {
     setQuery("");
     setSelectedCategory(ALL_CATEGORIES);
+    setSortMode(defaultSort);
+    setVisibleCount(batchSize);
     searchRef.current?.focus();
+  };
+
+  const chooseCategory = (category) => {
+    setSelectedCategory(category);
+    if (isCatalog) setVisibleCount(batchSize);
+  };
+
+  const changeQuery = (value) => {
+    setQuery(value);
+    if (isCatalog) setVisibleCount(batchSize);
+  };
+
+  const changeSort = (value) => {
+    setSortMode(SORT_OPTIONS.has(value) ? value : "newest");
+    setVisibleCount(batchSize);
   };
 
   const moveRail = (direction) => {
@@ -240,7 +317,7 @@ export default function ArchiveExplorer({
 
   return (
     <section
-      className={`archive-explorer${className ? ` ${className}` : ""}`}
+      className={`archive-explorer archive-explorer--${isCatalog ? "catalog" : "rail"}${className ? ` ${className}` : ""}`}
       aria-labelledby={headingId}
     >
       <span className="archive-explorer__current" aria-hidden="true" />
@@ -272,23 +349,23 @@ export default function ArchiveExplorer({
             placeholder={searchPlaceholder}
             autoComplete="off"
             aria-keyshortcuts="/"
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => changeQuery(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === "Escape" && query) {
                 event.preventDefault();
-                setQuery("");
+                changeQuery("");
               }
             }}
           />
           <kbd aria-hidden="true">/</kbd>
         </form>
 
-        <div className="archive-explorer__filters" aria-label="按目录筛选文章">
+        <div className="archive-explorer__filters" aria-label="按分类筛选文章">
           <button
             type="button"
             className={selectedCategory === ALL_CATEGORIES ? "is-active" : undefined}
             aria-pressed={selectedCategory === ALL_CATEGORIES}
-            onClick={() => setSelectedCategory(ALL_CATEGORIES)}
+            onClick={() => chooseCategory(ALL_CATEGORIES)}
           >
             全部 <span>{preparedPosts.length}</span>
           </button>
@@ -298,42 +375,64 @@ export default function ArchiveExplorer({
               type="button"
               className={selectedCategory === category ? "is-active" : undefined}
               aria-pressed={selectedCategory === category}
-              onClick={() => setSelectedCategory(category)}
+              onClick={() => chooseCategory(category)}
             >
               {category} <span>{count}</span>
             </button>
           ))}
         </div>
+        {isCatalog && (
+          <div className="archive-explorer__sort">
+            <label htmlFor={sortId}>排序</label>
+            <select id={sortId} value={sortMode} onChange={(event) => changeSort(event.target.value)}>
+              <option value="newest">最新优先</option>
+              <option value="oldest">最早优先</option>
+              <option value="title">标题 A–Z</option>
+            </select>
+          </div>
+        )}
       </div>
 
       <div className="archive-explorer__status-row">
         <p aria-live="polite" aria-atomic="true">
-          <strong>{String(filteredPosts.length).padStart(2, "0")}</strong>
-          <span>{query || selectedCategory !== ALL_CATEGORIES ? " 条匹配信号" : " 条信号 · 最新优先"}</span>
+          <strong>{String(orderedPosts.length).padStart(2, "0")}</strong>
+          <span>
+            {isCatalog
+              ? ` 条结果 · 已显示 ${String(visiblePosts.length).padStart(2, "0")} · ${SORT_LABELS[sortMode]}`
+              : ` 条信号 · 展示 ${String(visiblePosts.length).padStart(2, "0")} 条精选 / 最近`}
+          </span>
         </p>
-        <div className="archive-explorer__rail-controls" aria-label="滑动文章列表">
-          <button
-            type="button"
-            aria-label="向前浏览文章"
-            disabled={!scrollState.backward}
-            onClick={() => moveRail(-1)}
-          >
-            <span aria-hidden="true">←</span>
-          </button>
-          <button
-            type="button"
-            aria-label="向后浏览文章"
-            disabled={!scrollState.forward}
-            onClick={() => moveRail(1)}
-          >
-            <span aria-hidden="true">→</span>
-          </button>
-        </div>
+        {!isCatalog && (
+          <div className="archive-explorer__rail-controls" aria-label="滑动文章列表">
+            <button
+              type="button"
+              aria-label="向前浏览文章"
+              disabled={!scrollState.backward}
+              onClick={() => moveRail(-1)}
+            >
+              <span aria-hidden="true">←</span>
+            </button>
+            <button
+              type="button"
+              aria-label="向后浏览文章"
+              disabled={!scrollState.forward}
+              onClick={() => moveRail(1)}
+            >
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        )}
       </div>
 
-      {filteredPosts.length ? (
-        <ol ref={railRef} className="archive-explorer__rail" aria-label="文章列表">
-          {filteredPosts.map((post, index) => (
+      {orderedPosts.length ? (
+        <>
+        <ol
+          ref={isCatalog ? undefined : railRef}
+          id={listId}
+          className={isCatalog ? "archive-explorer__catalog" : "archive-explorer__rail"}
+          aria-label={isCatalog ? "文章目录结果" : "文章滑动列表"}
+        >
+          {visiblePosts.map((post, index) => (
             <li key={post.href}>
               <article className="archive-signal-card">
                 {post.cover ? (
@@ -352,7 +451,7 @@ export default function ArchiveExplorer({
                 )}
                 <div className="archive-signal-card__body">
                   <div className="archive-signal-card__meta">
-                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <span>{post.catalogNo || `F-${String(index + 1).padStart(3, "0")}`}</span>
                     <span>{post.featured ? "精选 · " : ""}{post.category}</span>
                   </div>
                   <h3>{post.title}</h3>
@@ -368,12 +467,34 @@ export default function ArchiveExplorer({
                   </footer>
                 </div>
                 <a className="archive-signal-card__link" href={post.href} aria-label={`阅读《${post.title}》`}>
-                  <span>读取信号</span><b aria-hidden="true">↗</b>
+                  <span>打开正文</span><b aria-hidden="true">↗</b>
                 </a>
               </article>
             </li>
           ))}
         </ol>
+        {isCatalog && (
+          <div className="archive-explorer__pagination">
+            <div>
+              <span>阅读进度</span>
+              <progress aria-label="已显示文章比例" value={visiblePosts.length} max={orderedPosts.length}>
+                {visiblePosts.length} / {orderedPosts.length}
+              </progress>
+            </div>
+            <p>已显示 {visiblePosts.length} / {orderedPosts.length} 篇</p>
+            <button
+              type="button"
+              aria-controls={listId}
+              disabled={remainingCount === 0}
+              onClick={() => setVisibleCount((count) => Math.min(count + batchSize, orderedPosts.length))}
+            >
+              {remainingCount > 0
+                ? <>加载更多 <span>+{Math.min(batchSize, remainingCount)}</span></>
+                : "已显示全部"}
+            </button>
+          </div>
+        )}
+        </>
       ) : (
         <div className="archive-explorer__empty" role="status">
           <span aria-hidden="true">NO SIGNAL</span>
