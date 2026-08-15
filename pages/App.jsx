@@ -15,12 +15,12 @@ import StrokeText from "../components/StrokeText";
 import PagesComments from "./PagesComments";
 
 const ABOUT_GALLERY_ITEMS = [
-  { image: "/assets/about/optimized/mist-gorge-960.avif", label: "雾峡", alt: "云雾缭绕的峡谷与山间建筑" },
-  { image: "/assets/about/optimized/cloud-meadow-960.avif", label: "云野", alt: "蓝天白云下的高山草地" },
-  { image: "/assets/about/optimized/quiet-corner-960.avif", label: "静室", alt: "老建筑内安静的光影与玻璃地面" },
-  { image: "/assets/about/optimized/sunset-gorge-960.avif", label: "暮色", alt: "峡谷之间被夕阳染亮的云层" },
-  { image: "/assets/about/optimized/lake-birds-960.avif", label: "鸥影", alt: "湖面上飞过亭子的鸟群" },
-  { image: "/assets/about/optimized/moon-peak-960.avif", label: "月峰", alt: "白日月亮悬在奇峰之上" },
+  { image: "/assets/about/gallery/mist-gorge.jpg", label: "雾峡", alt: "云雾缭绕的峡谷与山间建筑" },
+  { image: "/assets/about/gallery/cloud-meadow.jpg", label: "云野", alt: "蓝天白云下的高山草地" },
+  { image: "/assets/about/gallery/quiet-corner.jpg", label: "静室", alt: "老建筑内安静的光影与玻璃地面" },
+  { image: "/assets/about/gallery/sunset-gorge.jpg", label: "暮色", alt: "峡谷之间被夕阳染亮的云层" },
+  { image: "/assets/about/gallery/lake-birds.jpg", label: "鸥影", alt: "湖面上飞过亭子的鸟群" },
+  { image: "/assets/about/gallery/moon-peak.jpg", label: "月峰", alt: "白日月亮悬在奇峰之上" },
 ];
 
 const PRIMARY_NAV_ITEMS = [
@@ -183,7 +183,7 @@ export default function App({ posts = [] }) {
           <div className="about-profile">
             <aside className="about-profile__identity" aria-label="Roy 的个人信息">
               <figure className="about-profile__portrait">
-                <img src="/assets/about/optimized/roy-profile-960.avif" width="720" height="960" alt="Roy 的个人照片" />
+                <img src="/assets/about/roy-profile.jpg" width="1800" height="1350" alt="Roy 的个人照片" />
               </figure>
               <p className="about-profile__eyebrow">HELLO, I AM</p>
               <h3>Roy</h3>

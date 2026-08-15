@@ -6,7 +6,7 @@ const plates = [
     number: "P-001",
     title: "雾峡",
     src: "/assets/about/optimized/mist-gorge-960.avif",
-    fullSrc: "/assets/about/optimized/mist-gorge-1600.avif",
+    fullSrc: "/assets/about/gallery/mist-gorge.jpg",
     width: 720,
     height: 960,
     alt: "云雾缭绕的峡谷与山间建筑",
@@ -19,9 +19,9 @@ const plates = [
     number: "P-002",
     title: "云野",
     src: "/assets/about/optimized/cloud-meadow-960.avif",
-    fullSrc: "/assets/about/optimized/cloud-meadow-1600.avif",
+    fullSrc: "/assets/about/gallery/cloud-meadow.jpg",
     width: 960,
-    height: 676,
+    height: 675,
     alt: "蓝天白云下的高山草地",
     date: "2024.08",
     dateTime: "2024-08",
@@ -32,9 +32,9 @@ const plates = [
     number: "P-003",
     title: "静室",
     src: "/assets/about/optimized/quiet-corner-960.avif",
-    fullSrc: "/assets/about/optimized/quiet-corner-1600.avif",
-    width: 720,
-    height: 960,
+    fullSrc: "/assets/about/gallery/quiet-corner.jpg",
+    width: 960,
+    height: 720,
     alt: "老建筑内安静的光影与玻璃地面",
     date: "2024.11",
     dateTime: "2024-11",
@@ -45,9 +45,9 @@ const plates = [
     number: "P-004",
     title: "暮色",
     src: "/assets/about/optimized/sunset-gorge-960.avif",
-    fullSrc: "/assets/about/optimized/sunset-gorge-1600.avif",
-    width: 720,
-    height: 960,
+    fullSrc: "/assets/about/gallery/sunset-gorge.jpg",
+    width: 960,
+    height: 720,
     alt: "峡谷之间被夕阳染亮的云层",
     date: "2025.10",
     dateTime: "2025-10",
@@ -58,9 +58,9 @@ const plates = [
     number: "P-005",
     title: "鸥影",
     src: "/assets/about/optimized/lake-birds-960.avif",
-    fullSrc: "/assets/about/optimized/lake-birds-1600.avif",
-    width: 720,
-    height: 960,
+    fullSrc: "/assets/about/gallery/lake-birds.jpg",
+    width: 960,
+    height: 720,
     alt: "湖面上飞过亭子的鸟群",
     date: "2026.02",
     dateTime: "2026-02",
@@ -71,7 +71,7 @@ const plates = [
     number: "P-006",
     title: "月峰",
     src: "/assets/about/optimized/moon-peak-960.avif",
-    fullSrc: "/assets/about/optimized/moon-peak-1600.avif",
+    fullSrc: "/assets/about/gallery/moon-peak.jpg",
     width: 723,
     height: 960,
     alt: "白日月亮悬在奇峰之上",
@@ -111,7 +111,7 @@ const photosJsonLd = {
         <p class="contact-hero__kicker">ROLL 001 / FIELD NOTES</p>
         <h1 id="contact-title">接触印样</h1>
         <p>
-          六张来自山野、建筑与光线的底片，组成本册的第一卷图版。点击照片可查看已移除原始拍摄信息的高清版；日期与地点不完整的部分会在之后的整理中补齐。
+          六张来自山野、建筑与光线的底片，组成本册的第一卷图版。点击照片可查看原图；日期与地点不完整的部分会在之后的整理中补齐。
         </p>
       </div>
       <dl class="contact-roll">
@@ -143,7 +143,7 @@ const photosJsonLd = {
               <a
                 class="contact-plate__image"
                 href={plate.fullSrc}
-                aria-label={`查看《${plate.title}》高清版`}
+                aria-label={`查看《${plate.title}》原图`}
               >
                 <img
                   src={plate.src}

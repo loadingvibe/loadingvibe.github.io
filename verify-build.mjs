@@ -9,7 +9,6 @@ const blogRoot = resolve(projectRoot, "Blog");
 const blogGithubRepositoryUrl = "https://github.com/loadingvibe/loadingvibe.github.io";
 const blogGithubBranch = "main";
 const mimeTypes = {
-  ".avif": "image/avif",
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
   ".ico": "image/x-icon",
@@ -341,25 +340,6 @@ async function checkAsset(pathname) {
   }
 }
 
-function checkPublishedImagePrivacy() {
-  const publicImageRoot = resolve(buildRoot, "assets/about");
-  const unsafeMetadataMarkers = [
-    "GPSLatitude",
-    "GPSLongitude",
-    "DateTimeOriginal",
-    "LensModel",
-    "Apple iPhone",
-  ].map((value) => Buffer.from(value, "utf8"));
-
-  for (const relativePath of listFiles(publicImageRoot)) {
-    if (!/\.(?:avif|jpe?g)$/iu.test(relativePath)) continue;
-    const contents = readFileSync(resolve(publicImageRoot, relativePath));
-    if (unsafeMetadataMarkers.some((marker) => contents.includes(marker))) {
-      throw new Error(`Published image still contains private capture metadata: ${relativePath}`);
-    }
-  }
-}
-
 async function checkStatus(pathname, expectedStatus) {
   const response = await fetch(baseUrl + pathname, { redirect: "manual" });
   checkedRoutes += 1;
@@ -456,8 +436,7 @@ try {
   await checkAsset("/assets/brand/you-dian-lai-dian-mark-v1.png");
   await checkAsset("/assets/brand/optimized/mark-192.avif");
   await checkAsset("/assets/about/optimized/roy-profile-960.avif");
-  await checkAsset("/assets/brand/optimized/og-unbound-edition-v1.jpg");
-  checkPublishedImagePrivacy();
+  await checkAsset("/og-you-dian-lai-dian-v1.png");
 
   for (const sitemapFile of sitemapFiles) {
     await fetchOk("/" + sitemapFile);

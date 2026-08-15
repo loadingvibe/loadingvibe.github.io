@@ -6,35 +6,30 @@ const personas = [
     id: "P-01",
     name: "AUTHOR",
     title: "作者",
-    image: "/assets/about/optimized/roy-profile-960.avif",
     description: "用于作者页、署名与正式介绍的主形象。",
   },
   {
     id: "P-02",
     name: "CIRCUIT BUILDER",
     title: "电路搭建者",
-    image: "/assets/about/optimized/roy-profile-960.avif",
     description: "用于嵌入式、代码与技术笔记。",
   },
   {
     id: "P-03",
     name: "ROAD OBSERVER",
     title: "道路观察者",
-    image: "/assets/about/optimized/roy-profile-960.avif",
     description: "用于自动驾驶、出行与道路观察。",
   },
   {
     id: "P-04",
     name: "FIELD RECORDER",
     title: "现场记录者",
-    image: "/assets/about/optimized/roy-profile-960.avif",
     description: "用于摄影、旅行与生活片段。",
   },
   {
     id: "P-05",
     name: "NIGHT EDITOR",
     title: "夜间编辑",
-    image: "/assets/about/optimized/roy-profile-960.avif",
     description: "用于阅读、写作、散页与深夜修订。",
   },
 ];
@@ -76,8 +71,8 @@ const aboutJsonLd = {
       <figure class="author-portrait">
         <img
           src="/assets/about/optimized/roy-profile-960.avif"
-          width="720"
-          height="960"
+          width="960"
+          height="720"
           alt="Roy 的个人照片"
           fetchpriority="high"
           decoding="async"
@@ -167,9 +162,9 @@ const aboutJsonLd = {
             <figure class="persona-card__figure">
               <div class="persona-card__image">
                 <img
-                  src={persona.image}
-                  width="720"
-                  height="960"
+                  src="/assets/about/optimized/roy-profile-960.avif"
+                  width="960"
+                  height="720"
                   alt={`Roy 的个人照片，暂作「${persona.title}」角色图版占位图`}
                   loading="lazy"
                   decoding="async"
