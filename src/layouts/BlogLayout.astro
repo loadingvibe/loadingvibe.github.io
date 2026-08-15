@@ -42,11 +42,25 @@ const {
 >
   <header class="blog-header">
     <BrandLockup compact href="/" />
-    <nav aria-label="文章导航">
-      <a class="is-active" href="/blog/">文章</a>
-      <a href="/rss.xml">RSS</a>
+    <nav aria-label="网站导航">
+      <a href="/#about">关于</a>
+      <a class="is-active" href="/blog/">文章档案</a>
+      <a href="/#comments">回声</a>
     </nav>
-    <a class="blog-header__home" href="/">回到主页 ↗</a>
+    <div class="blog-header__actions">
+      <a href="/rss.xml">RSS</a>
+      <a class="blog-header__home" href="/">回到主页 ↗</a>
+    </div>
+    <details class="mobile-site-menu">
+      <summary aria-label="打开网站导航">菜单 <span aria-hidden="true">+</span></summary>
+      <nav aria-label="移动端网站导航">
+        <a href="/">首页</a>
+        <a href="/#about">关于</a>
+        <a aria-current="page" href="/blog/">文章档案</a>
+        <a href="/#comments">回声</a>
+        <a href="/rss.xml">RSS</a>
+      </nav>
+    </details>
   </header>
 
   <slot />

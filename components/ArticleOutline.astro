@@ -1,0 +1,38 @@
+---
+interface OutlineHeading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: OutlineHeading[];
+  articleTitle: string;
+}
+
+const { headings, articleTitle } = Astro.props;
+---
+
+<nav class="article-outline" aria-label="本文大纲">
+  <a class="article-outline__top" href="#article-top">
+    <span aria-hidden="true">H1</span>
+    <strong>{articleTitle}</strong>
+  </a>
+
+  {
+    headings.length ? (
+      <ol>
+        {headings.map((heading) => (
+          <li style={`--heading-depth: ${heading.depth}`}>
+            <a href={`#${heading.slug}`}>
+              <span class="article-outline__level" aria-hidden="true">H{heading.depth}</span>
+              <span class="article-outline__text">{heading.text}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <p class="article-outline__empty">这篇文章没有额外的一至三级标题。</p>
+    )
+  }
+</nav>

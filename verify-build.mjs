@@ -1,10 +1,11 @@
 import { createReadStream, existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { createServer } from "node:http";
-import { dirname, extname, isAbsolute, join, relative, resolve } from "node:path";
+import { basename, dirname, extname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
 const buildRoot = resolve(projectRoot, "dist");
+const blogRoot = resolve(projectRoot, "Blog");
 const mimeTypes = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
@@ -35,6 +36,73 @@ function listFiles(directory, prefix = "") {
 
     return entry.isFile() ? [relativePath.replaceAll("\\", "/")] : [];
   });
+}
+
+function frontmatterBlock(contents, sourcePath) {
+  const match = contents.match(/^---[\t ]*\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/u);
+  if (!match) {
+    throw new Error(`Blog source is missing YAML frontmatter: ${sourcePath}`);
+  }
+  return match[1];
+}
+
+function frontmatterScalar(frontmatter, key, sourcePath) {
+  const match = frontmatter.match(new RegExp(`^${key}:[\\t ]*(.*?)[\\t ]*$`, "mu"));
+  if (!match || !match[1]) {
+    throw new Error(`Blog source is missing required frontmatter field "${key}": ${sourcePath}`);
+  }
+
+  const value = match[1].trim();
+  const quote = value.at(0);
+  if ((quote === '"' || quote === "'") && value.at(-1) === quote) {
+    return value.slice(1, -1);
+  }
+  return value;
+}
+
+function frontmatterList(frontmatter, key) {
+  const inline = frontmatter.match(new RegExp(`^${key}:[\\t ]*\\[([^\\]]*)\\][\\t ]*$`, "mu"));
+  if (inline) {
+    return inline[1]
+      .split(",")
+      .map((value) => value.trim().replace(/^(["'])(.*)\1$/u, "$2"))
+      .filter(Boolean);
+  }
+
+  const block = frontmatter.match(new RegExp(`^${key}:[\\t ]*\\r?\\n((?:[\\t ]+-[\\t ]*[^\\r\\n]+(?:\\r?\\n|$))*)`, "mu"));
+  if (!block) return [];
+
+  return block[1]
+    .split(/\r?\n/u)
+    .map((line) => line.match(/^[\t ]+-[\t ]*(.+?)[\t ]*$/u)?.[1] || "")
+    .map((value) => value.replace(/^(["'])(.*)\1$/u, "$2"))
+    .filter(Boolean);
+}
+
+function loadBlogSources() {
+  if (!existsSync(blogRoot) || !statSync(blogRoot).isDirectory()) {
+    throw new Error("Missing Blog/ author content directory.");
+  }
+
+  return listFiles(blogRoot)
+    .filter((sourcePath) => sourcePath.toLowerCase().endsWith(".md"))
+    .filter((sourcePath) => {
+      const segments = sourcePath.split("/");
+      return basename(sourcePath).toLowerCase() !== "readme.md" && !segments.some((part) => part.startsWith("_"));
+    })
+    .map((sourcePath) => {
+      const contents = readFileSync(resolve(blogRoot, sourcePath), "utf8");
+      const frontmatter = frontmatterBlock(contents, sourcePath);
+      const slug = frontmatterScalar(frontmatter, "slug", sourcePath);
+      const draftMatch = frontmatter.match(/^draft:[\t ]*(true|false)[\t ]*$/imu);
+
+      return {
+        sourcePath,
+        slug,
+        aliases: frontmatterList(frontmatter, "aliases"),
+        draft: draftMatch?.[1].toLowerCase() === "true",
+      };
+    });
 }
 
 function resolveRequestFile(pathname) {
@@ -71,6 +139,8 @@ function resolveRequestFile(pathname) {
 }
 
 const builtFiles = listFiles(buildRoot);
+const blogSources = loadBlogSources();
+const publishedBlogSources = blogSources.filter((source) => !source.draft);
 const sitemapFiles = builtFiles.filter((relativePath) => {
   const filename = relativePath.split("/").at(-1);
   return filename && /^sitemap.*\.xml$/i.test(filename);
@@ -101,9 +171,23 @@ const sitemapXml = sitemapFiles
 if (!/<(?:urlset|sitemapindex)\b/i.test(sitemapXml)) {
   throw new Error("Discovered sitemap files do not contain a sitemap document.");
 }
-for (const marker of ["README", "url-name", encodeURIComponent("从梯度下降开始")]) {
-  if (!sitemapXml.includes(marker)) {
-    throw new Error("Sitemap is missing the published route marker: " + marker);
+for (const source of publishedBlogSources) {
+  const route = `/blog/${source.slug}/`;
+  if (!sitemapXml.includes(route)) {
+    throw new Error(`Sitemap is missing ${route} generated from Blog/${source.sourcePath}.`);
+  }
+
+  for (const alias of source.aliases) {
+    const aliasUrl = new URL(`/blog/${alias}/`, "https://loadingvibe.com").toString();
+    if (sitemapXml.includes(aliasUrl)) {
+      throw new Error(`Sitemap contains noindex compatibility alias instead of only canonical URLs: ${aliasUrl}`);
+    }
+  }
+}
+
+for (const removedRoute of ["/blog/README/", "/blog/ai/url-name/"]) {
+  if (sitemapXml.includes(removedRoute)) {
+    throw new Error(`Sitemap still contains removed internal or duplicate content: ${removedRoute}`);
   }
 }
 
@@ -201,28 +285,67 @@ async function checkAsset(pathname) {
   }
 }
 
+async function checkStatus(pathname, expectedStatus) {
+  const response = await fetch(baseUrl + pathname, { redirect: "manual" });
+  checkedRoutes += 1;
+
+  if (response.status !== expectedStatus) {
+    throw new Error(
+      `Smoke test failed for ${pathname}: expected HTTP ${expectedStatus}, received ${response.status}`,
+    );
+  }
+}
+
 try {
   await checkHtml("/", {
-    html: ["有点来电｜Roy 的生活与学习记录", "id=\"comments\"", "https://comments.loadingvibe.com/ui"],
-    text: ["有点来电", "评论区"],
+    html: [
+      "有点来电｜Roy 的生活与学习记录",
+      "id=\"archive\"",
+      "id=\"comments\"",
+      "class=\"archive-explorer\"",
+      "role=\"search\"",
+      "type=\"search\"",
+    ],
+    text: ["有点来电", "文章档案", "滑动，读取我的记录", "回声"],
   });
   await checkHtml("/blog/", {
-    text: ["从梯度下降开始"],
-  });
-  await checkHtml("/blog/README/", {
-    html: ["markdown-content"],
-    text: ["如何在这里写博客", "这个网站会自动读取"],
-  });
-  await checkHtml("/blog/技术与学习/数学/从梯度下降开始/", {
-    html: ["markdown-content"],
-    text: ["从梯度下降开始", "当我们希望找到函数"],
-  });
-  await checkHtml("/blog/ai/url-name/", {
-    html: ["markdown-content"],
-    text: ["url", "当我们希望找到函数"],
+    html: [
+      "class=\"archive-explorer\"",
+      "role=\"search\"",
+      ...publishedBlogSources.map((source) => `href="/blog/${source.slug}/"`),
+    ],
+    text: ["搜索一条信号", "全部文章"],
   });
 
-  const rss = await checkText("/rss.xml", ["从梯度下降开始"]);
+  for (const source of publishedBlogSources) {
+    await checkHtml(`/blog/${source.slug}/`, {
+      html: [
+        "markdown-content",
+        "article-reader__rail--archive",
+        "article-reader__rail--outline",
+        "reader-mobile-tools",
+        "<span aria-hidden=\"true\">H1</span>",
+      ],
+    });
+
+    for (const alias of source.aliases) {
+      await checkHtml(`/blog/${alias}/`, {
+        html: [
+          "http-equiv=\"refresh\"",
+          "name=\"robots\" content=\"noindex\"",
+          `href=\"https://loadingvibe.com/blog/${source.slug}/\"`,
+        ],
+      });
+    }
+  }
+
+  await checkStatus("/blog/README/", 404);
+  await checkStatus("/blog/ai/url-name/", 404);
+
+  const rss = await checkText(
+    "/rss.xml",
+    publishedBlogSources.map((source) => `/blog/${source.slug}/`),
+  );
   if (!/<(?:rss|feed)\b/i.test(rss)) {
     throw new Error("Smoke test failed for /rss.xml: RSS or Atom root element missing");
   }

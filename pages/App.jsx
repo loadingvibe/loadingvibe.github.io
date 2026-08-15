@@ -1,11 +1,10 @@
 import { IconBrandGithub, IconMail, IconMapPin } from "@tabler/icons-react";
 import AccordionGallery from "../components/AccordionGallery";
+import ArchiveExplorer from "../components/ArchiveExplorer";
 import BrandLockup from "../components/BrandLockup";
-import GhostTitle from "../components/GhostTitle";
 import SideRays from "../components/SideRays";
 import StrokeText from "../components/StrokeText";
 import PagesComments from "./PagesComments";
-import PagesRecordsArchive from "./PagesRecordsArchive";
 
 const ABOUT_GALLERY_ITEMS = [
   { image: "/assets/about/gallery/mist-gorge.jpg", label: "雾峡", alt: "云雾缭绕的峡谷与山间建筑" },
@@ -16,17 +15,45 @@ const ABOUT_GALLERY_ITEMS = [
   { image: "/assets/about/gallery/moon-peak.jpg", label: "月峰", alt: "白日月亮悬在奇峰之上" },
 ];
 
-export default function App() {
+/**
+ * @typedef {Object} ArchivePost
+ * @property {string} title
+ * @property {string} summary
+ * @property {string} category
+ * @property {string[]} tags
+ * @property {string} href
+ * @property {string} sourcePath
+ * @property {string} routePath
+ * @property {number} readingMinutes
+ * @property {string | undefined} date
+ * @property {string | undefined} updated
+ * @property {string | undefined} cover
+ * @property {boolean} featured
+ */
+
+/** @param {{ posts?: ArchivePost[] }} props */
+export default function App({ posts = [] }) {
+  const latestPost = posts[0];
+
   return (
     <>
       <header className="one-page-header">
         <BrandLockup compact />
         <nav aria-label="网站导航">
           <a href="#about">关于</a>
-          <a className="one-page-header__blog" href="/blog/">博客</a>
-          <a href="#notes">本地记录</a>
-          <a href="#comments">评论区</a>
+          <a className="one-page-header__blog" href="#archive">文章档案</a>
+          <a href="#comments">回声</a>
         </nav>
+        <details className="mobile-site-menu">
+          <summary aria-label="打开网站导航">菜单 <span aria-hidden="true">+</span></summary>
+          <nav aria-label="移动端网站导航">
+            <a href="#intro">首页</a>
+            <a href="#about">关于</a>
+            <a href="#archive">文章档案</a>
+            <a href="#comments">回声</a>
+            <a href="/blog/">全部文章</a>
+          </nav>
+        </details>
       </header>
 
       <main className="one-page-main">
@@ -44,7 +71,7 @@ export default function App() {
             falloff={1.6}
           />
           <div className="opening-section__content">
-            <p className="opening-section__eyebrow">A LIVING ARCHIVE · 2026</p>
+            <p className="opening-section__eyebrow">THE LIVING CIRCUIT · 2026</p>
             <div className="opening-section__feature">
               <img className="opening-feature__mark" src="/assets/brand/you-dian-lai-dian-mark-v1.png" width="1024" height="1024" alt="" />
               <p className="opening-feature__name" aria-label="有点来电"><i>有点</i><strong>来电</strong></p>
@@ -54,9 +81,13 @@ export default function App() {
               </h1>
             </div>
             <p className="opening-section__intro">
-              <span>欢迎观看我的网站，这里有我的生活分享、</span>
-              <span>学习笔记、技巧总结，分享给你…………</span>
+              <span>我是 Roy，正在学习自动驾驶与嵌入式。</span>
+              <span>这里保存我从代码、道路与日常里接收到的信号。</span>
             </p>
+            <div className="opening-section__actions" aria-label="快速入口">
+              <a href="#archive">进入文章档案 <span aria-hidden="true">↓</span></a>
+              {latestPost && <a href={latestPost.href}>最近一篇 <span aria-hidden="true">↗</span></a>}
+            </div>
           </div>
           <div className="opening-section__stroke">
             <StrokeText
@@ -123,20 +154,25 @@ export default function App() {
           </div>
         </section>
 
-        <section className="records-section" id="notes" aria-labelledby="records-title">
-          <header className="section-intro section-intro--records"><GhostTitle id="records-title" text="记录" /></header>
-          <PagesRecordsArchive />
+        <section className="archive-section" id="archive" aria-label="Roy 的文章档案">
+          <ArchiveExplorer
+            posts={posts}
+            eyebrow="03 / SIGNALS · 文章档案"
+            heading="滑动，读取我的记录"
+            description="生活、工作、学习与收藏都来自同一个 Markdown 档案。你可以搜索、按分类筛选，再进入文章的完整阅读页。"
+            archiveHref="/blog/"
+            archiveLabel="打开全部文章"
+          />
         </section>
 
         <section className="comments-section" id="comments" aria-labelledby="comments-title">
           <header className="comments-heading">
             <div>
-              <p className="comments-heading__eyebrow">COMMUNITY · WALINE</p>
-              <h2 id="comments-title">评论区</h2>
+              <p className="comments-heading__eyebrow">05 / ECHO · WALINE</p>
+              <h2 id="comments-title">回声</h2>
             </div>
             <div className="comments-heading__intro">
-              <p>欢迎留下问候、建议或此刻的想法。评论会在审核后公开展示，也可以继续回复交流。</p>
-              <a href="https://comments.loadingvibe.com/ui" target="_blank" rel="noreferrer">管理评论 ↗</a>
+              <p>欢迎留下问候、建议或此刻的想法。这里是全站留言簿，也是一次信号的回流。</p>
             </div>
           </header>
           <PagesComments />

@@ -1,6 +1,8 @@
 # 有点来电
 
-「有点来电」是使用 [Astro](https://astro.build/) 构建的静态个人网站与 Markdown 博客。文章放在仓库根目录的 `Blog/` 中，构建后会生成可直接部署到 GitHub Pages 的 HTML、RSS 和 sitemap，不需要数据库或服务端运行环境。
+「有点来电」是使用 [Astro](https://astro.build/) 构建的静态个人网站与 Markdown 档案。`Blog/` 是唯一的作者内容源：作者在仓库中编辑 Markdown，访客在网站上阅读和搜索。网页不再提供基于浏览器本地存储的发布编辑器，因此不会把访客的本地数据误表述为公开文章。
+
+构建会为每篇已发布文章生成静态 HTML，并同步到列表、搜索数据、RSS 和 sitemap，不需要数据库或服务端运行环境。
 
 ## 写一篇文章
 
@@ -8,35 +10,41 @@
 
 ```text
 Blog/
-├── README.md
-└── 技术与学习/
-    └── 数学/
-        └── 从梯度下降开始.md
+├── 技术与学习/
+│   └── 数学/
+│       └── 从梯度下降开始.md
+└── 收藏/
+    └── 播客/
+        └── 八档值得长期收听的播客.md
 ```
 
-构建会递归读取 `Blog/**/*.md`。推荐在文章开头填写 frontmatter：
+构建会递归读取 `Blog/**/*.md`，并且不会发布 `README.md`、下划线开头的文件或目录。每篇文章必须提供完整 frontmatter：
 
 ```yaml
 ---
 title: 从梯度下降开始
+slug: gradient-descent-intro
 date: 2026-08-12
 summary: 用一个最小例子理解梯度、学习率与迭代更新。
+category: 笔记
 tags:
   - 数学
   - 机器学习
 draft: false
+featured: false
 ---
 ```
 
-- `title`：文章标题。
-- `date`：发布日期，推荐使用 `YYYY-MM-DD`。
-- `summary`：显示在文章列表和 RSS 中的摘要。
-- `tags`：标签数组，也可以写成 `[数学, 机器学习]`。
+- `title`、`date`、`summary`、`slug` 和 `category` 是必填字段。
+- `slug` 只能使用小写 ASCII 字母、数字与单个连字号，并且在全站唯一。
+- `category` 只能是 `生活`、`工作`、`笔记` 或 `收藏`。
+- `tags` 是最多 8 个标签的数组，也可以写成 `[数学, 机器学习]`。
 - `draft`：设为 `true` 时不生成文章页面，也不会进入列表、RSS 或 sitemap。
+- `featured`：设为 `true` 后可作为首页精选内容。
 
-文章 URL 会始终保留 `Blog/` 下的目录和 Markdown 文件名，只移除 `.md` 后缀。例如 `Blog/随笔/春天.md` 对应 `/blog/随笔/春天/`，`Blog/ai/url-name.md` 对应 `/blog/ai/url-name/`。重命名 Markdown 文件后，它的公开链接也会同步改变。
+文章 URL 由 `slug` 唯一决定，与 Markdown 文件名和目录无关。例如上面的文章始终使用 `/blog/gradient-descent-intro/`；移动或重命名文件不会破坏公开链接。如果必须更换 `slug`，先把旧的 blog 相对路径加入 `aliases`。
 
-更完整的 Markdown、数学公式和资源引用示例见 [`Blog/README.md`](Blog/README.md)。
+完整的写作、校验、Markdown 和资源引用说明见 [`docs/AUTHORING.md`](docs/AUTHORING.md)。写作文档放在 `docs/` 而非 `Blog/`，避免被误发布。
 
 ## 图片与其他静态资源
 
@@ -72,7 +80,9 @@ npm run check
 
 ## GitHub Pages 发布
 
-推送到 `main` 后，[部署工作流](.github/workflows/deploy-pages.yml) 会安装依赖、执行构建与产物检查，再将 `dist/` 发布到 `gh-pages` 分支。也可以在 GitHub 的 **Actions → Build and deploy static site → Run workflow** 中手动触发。
+新增或修改 Markdown 后，把更改提交并推送到 `main`。[部署工作流](.github/workflows/deploy-pages.yml) 会自动安装依赖、校验元数据、构建与检查产物，然后将 `dist/` 发布到 `gh-pages` 分支。只把文件放进本地文件夹不会自动上传；`git push origin main` 才是自动上线流程的触发点。
+
+也可以在 GitHub 的 **Actions → Build and deploy static site → Run workflow** 中手动触发。
 
 仓库的 **Settings → Pages → Build and deployment** 应设置为：
 

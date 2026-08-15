@@ -1,9 +1,24 @@
 ---
 import App from "../../pages/App.jsx";
-import "../../pages/static-pages.css";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getPublishedPosts } from "../lib/blog";
 
-const description = "Roy 的个人网站：记录生活分享、学习笔记与技巧总结。";
+const description = "Roy 的公开 Markdown 档案：记录生活、工作、学习笔记与长期收藏。";
+const publishedPosts = await getPublishedPosts();
+const archivePosts = publishedPosts.map((post) => ({
+  title: post.title,
+  summary: post.summary,
+  category: post.category,
+  tags: post.tags,
+  href: post.href,
+  sourcePath: post.sourcePath,
+  routePath: post.routePath,
+  readingMinutes: post.readingMinutes,
+  date: post.date?.toISOString(),
+  updated: post.updated?.toISOString(),
+  cover: post.cover,
+  featured: post.featured,
+}));
 ---
 
 <BaseLayout
@@ -11,5 +26,5 @@ const description = "Roy 的个人网站：记录生活分享、学习笔记与�
   description={description}
   image="/og-you-dian-lai-dian-v1.png"
 >
-  <App client:load />
+  <App posts={archivePosts} client:load />
 </BaseLayout>

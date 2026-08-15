@@ -1,17 +1,24 @@
 import { getCollection, type CollectionEntry } from "astro:content";
 
 export type BlogEntry = CollectionEntry<"blog">;
+export type BlogCategory = BlogEntry["data"]["category"];
+
+export const BLOG_CATEGORIES: readonly BlogCategory[] = ["生活", "工作", "笔记", "收藏"];
 
 export interface BlogPost {
   entry: BlogEntry;
+  slug: string;
   routePath: string;
   href: string;
+  aliases: string[];
   sourcePath: string;
   directorySegments: string[];
   routeSegments: string[];
   title: string;
   summary: string;
+  category: BlogCategory;
   tags: string[];
+  featured: boolean;
   readingMinutes: number;
   date?: Date;
   updated?: Date;
@@ -66,11 +73,6 @@ function encodeRoutePath(value: string) {
     .join("/");
 }
 
-function fallbackTitle(entry: BlogEntry) {
-  const leaf = sourceId(entry).split("/").at(-1) || "未命名文章";
-  return leaf.replace(/[-_]+/gu, " ");
-}
-
 function plainBody(entry: BlogEntry) {
   return (entry.body || "")
     .replace(/```[\s\S]*?```/gu, " ")
@@ -94,20 +96,23 @@ function normalizeCover(value?: string) {
 
 export function toBlogPost(entry: BlogEntry): BlogPost {
   const sourcePath = sourceId(entry);
-  const routePath = sourcePath;
+  const routePath = entry.data.slug;
   const sourceSegments = sourcePath.split("/").filter(Boolean);
-  const bodyText = plainBody(entry);
 
   return {
     entry,
+    slug: entry.data.slug,
     routePath,
     href: `/blog/${encodeRoutePath(routePath)}/`,
+    aliases: entry.data.aliases,
     sourcePath,
     directorySegments: sourceSegments.slice(0, -1),
     routeSegments: routePath.split("/").filter(Boolean),
-    title: entry.data.title || fallbackTitle(entry),
-    summary: entry.data.summary || bodyText.slice(0, 150) || "一篇尚未添加摘要的 Markdown 文章。",
+    title: entry.data.title,
+    summary: entry.data.summary,
+    category: entry.data.category,
     tags: entry.data.tags,
+    featured: entry.data.featured,
     readingMinutes: readingMinutes(entry),
     date: entry.data.date,
     updated: entry.data.updated,
@@ -116,24 +121,29 @@ export function toBlogPost(entry: BlogEntry): BlogPost {
 }
 
 export async function getPublishedPosts() {
-  const entries = await getCollection("blog", ({ data }) => !data.draft);
-  const posts = entries.map(toBlogPost).sort((left, right) => {
-    const dateDifference = (right.date?.getTime() || 0) - (left.date?.getTime() || 0);
-    return dateDifference || pathCollator.compare(left.sourcePath, right.sourcePath);
-  });
+  const entries = await getCollection("blog");
+  const allPosts = entries.map(toBlogPost);
 
   const seen = new Map<string, string>();
-  for (const post of posts) {
-    const existing = seen.get(post.routePath);
-    if (existing) {
-      throw new Error(
-        `Blog route collision: "${existing}" and "${post.sourcePath}" both resolve to /blog/${post.routePath}/`,
-      );
+  for (const post of allPosts) {
+    for (const route of [post.routePath, ...post.aliases]) {
+      const existing = seen.get(route);
+      if (existing) {
+        throw new Error(
+          `Blog route collision: "${existing}" and "${post.sourcePath}" both claim /blog/${route}/. ` +
+            "Every slug and alias must be globally unique.",
+        );
+      }
+      seen.set(route, post.sourcePath);
     }
-    seen.set(post.routePath, post.sourcePath);
   }
 
-  return posts;
+  return allPosts
+    .filter((post) => !post.entry.data.draft)
+    .sort((left, right) => {
+      const dateDifference = (right.date?.getTime() || 0) - (left.date?.getTime() || 0);
+      return dateDifference || pathCollator.compare(left.slug, right.slug);
+    });
 }
 
 export function groupPostsByDirectory(posts: BlogPost[]): BlogDirectory[] {
@@ -168,9 +178,14 @@ export function formatBlogDate(date?: Date) {
 }
 
 export function blogCategory(post: BlogPost) {
-  return post.directorySegments.length ? post.directorySegments.join(" / ") : "写作与随笔";
+  return post.category;
 }
 
 export function uniqueBlogTags(posts: BlogPost[]) {
   return [...new Set(posts.flatMap((post) => post.tags))].sort(pathCollator.compare);
+}
+
+export function uniqueBlogCategories(posts: BlogPost[]) {
+  const used = new Set(posts.map((post) => post.category));
+  return BLOG_CATEGORIES.filter((category) => used.has(category));
 }

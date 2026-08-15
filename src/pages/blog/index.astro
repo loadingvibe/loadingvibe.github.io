@@ -1,17 +1,30 @@
 ---
+import ArchiveExplorer from "../../../components/ArchiveExplorer.jsx";
 import BlogLayout from "../../layouts/BlogLayout.astro";
 import {
-  blogCategory,
-  formatBlogDate,
   getPublishedPosts,
-  groupPostsByDirectory,
+  uniqueBlogCategories,
   uniqueBlogTags,
 } from "../../lib/blog";
 
 const posts = await getPublishedPosts();
-const directories = groupPostsByDirectory(posts);
 const tags = uniqueBlogTags(posts);
-const description = "从 Markdown 文件自动构建的文章库，收录 Roy 的学习笔记、技术总结与生活记录。";
+const categories = uniqueBlogCategories(posts);
+const archivePosts = posts.map((post) => ({
+  title: post.title,
+  summary: post.summary,
+  category: post.category,
+  tags: post.tags,
+  href: post.href,
+  sourcePath: post.sourcePath,
+  routePath: post.routePath,
+  readingMinutes: post.readingMinutes,
+  date: post.date?.toISOString(),
+  updated: post.updated?.toISOString(),
+  cover: post.cover,
+  featured: post.featured,
+}));
+const description = "Roy 的公开 Markdown 文章档案，收录生活、工作、学习笔记与长期收藏。";
 const blogJsonLd = {
   "@context": "https://schema.org",
   "@type": "Blog",
@@ -42,77 +55,29 @@ const blogJsonLd = {
   <main class="blog-index">
     <section class="blog-hero" aria-labelledby="blog-title">
       <div>
-        <p class="blog-kicker">MARKDOWN ARCHIVE · BUILD TO PUBLISH</p>
-        <h1 id="blog-title">文章<span>.</span></h1>
+        <p class="blog-kicker">PUBLIC ARCHIVE · SIGNALS</p>
+        <h1 id="blog-title">档案<span>.</span></h1>
       </div>
       <div class="blog-hero__intro">
-        <p>这里的每篇文章都从 <code>Blog</code> 文件夹中的 Markdown 生成。写作保持简单，发布交给构建。</p>
+        <p>这是我的公开写作与生活档案。搜索一个关键词，或沿着分类读取不同频率的记录。</p>
         <dl>
           <div><dt>POSTS</dt><dd>{posts.length}</dd></div>
+          <div><dt>CATEGORIES</dt><dd>{categories.length}</dd></div>
           <div><dt>TOPICS</dt><dd>{tags.length}</dd></div>
         </dl>
       </div>
     </section>
 
-    <section class="blog-library" aria-label="文章库">
-      <aside>
-        <p class="blog-section-label">LIBRARY / 目录</p>
-        <nav class="blog-tree" aria-label="文章目录">
-          {
-            directories.map((directory) => (
-              <div class="blog-tree__branch" style={`--depth: ${directory.depth}`}>
-                <p>
-                  {directory.label} <span>{String(directory.posts.length).padStart(2, "0")}</span>
-                </p>
-                {directory.posts.map((post) => (
-                  <a href={post.href}>
-                    <span>└</span> {post.title}
-                  </a>
-                ))}
-              </div>
-            ))
-          }
-        </nav>
-      </aside>
-
-      <div class="blog-list">
-        <header>
-          <p class="blog-section-label">LATEST / 最新发布</p>
-          <h2>全部文章</h2>
-        </header>
-
-        {
-          posts.length ? (
-            posts.map((post, index) => (
-              <article class="blog-card">
-                <a href={post.href} aria-label={`阅读《${post.title}》`} />
-                <span class="blog-card__number">{String(index + 1).padStart(2, "0")}</span>
-                <div>
-                  <p class="blog-card__path">{blogCategory(post)}</p>
-                  <h3>{post.title}</h3>
-                  <p class="blog-card__summary">{post.summary}</p>
-                  {post.tags.length > 0 && (
-                    <div class="blog-card__tags" aria-label="标签">
-                      {post.tags.map((tag) => <span>{tag}</span>)}
-                    </div>
-                  )}
-                </div>
-                <footer>
-                  <time datetime={post.date?.toISOString()}>{formatBlogDate(post.date)}</time>
-                  <span>{post.readingMinutes} MIN READ</span>
-                  <b aria-hidden="true">↗</b>
-                </footer>
-              </article>
-            ))
-          ) : (
-            <div class="blog-empty">
-              <span>00 / EMPTY</span>
-              <h3>还没有已发布的文章</h3>
-              <p>在 Blog 文件夹新建 Markdown 文件，下次构建时它就会出现在这里。</p>
-            </div>
-          )
-        }
-      </div>
+    <section class="blog-archive-index" aria-label="全部文章">
+      <ArchiveExplorer
+        posts={archivePosts}
+        eyebrow="LIBRARY / 全部文章"
+        heading="搜索一条信号"
+        description="只有作者通过 Markdown 写入内容，读者在这里搜索、筛选与阅读。"
+        archiveHref="/rss.xml"
+        archiveLabel="订阅 RSS"
+        client:load
+      />
     </section>
   </main>
 </BlogLayout>

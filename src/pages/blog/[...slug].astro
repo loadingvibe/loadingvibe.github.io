@@ -1,6 +1,11 @@
 ---
 import { render } from "astro:content";
+import ArticleOutline from "../../../components/ArticleOutline.astro";
+import BlogArchiveTree, {
+  type ArchiveTreeNode,
+} from "../../../components/BlogArchiveTree.astro";
 import BlogLayout from "../../layouts/BlogLayout.astro";
+import "../../styles/article-reader.css";
 import {
   blogCategory,
   formatBlogDate,
@@ -10,18 +15,82 @@ import {
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
-  return posts.map((post) => ({
-    params: { slug: post.routePath },
-    props: { post },
-  }));
+  return posts.flatMap((post) => [
+    {
+      params: { slug: post.routePath },
+      props: { post },
+    },
+    ...post.aliases.map((alias) => ({
+      params: { slug: alias },
+      props: { post, redirectTo: post.href },
+    })),
+  ]);
 }
 
 interface Props {
   post: BlogPost;
+  redirectTo?: string;
 }
 
-const { post } = Astro.props;
-const { Content } = await render(post.entry);
+const { post, redirectTo } = Astro.props;
+if (redirectTo) return Astro.redirect(redirectTo, 301);
+
+const { Content, headings } = await render(post.entry);
+const posts = await getPublishedPosts();
+const currentIndex = posts.findIndex((item) => item.routePath === post.routePath);
+const previousPost = currentIndex >= 0 ? posts[currentIndex + 1] : undefined;
+const nextPost = currentIndex > 0 ? posts[currentIndex - 1] : undefined;
+const outlineHeadings = headings.filter((heading) => heading.depth >= 1 && heading.depth <= 3);
+
+function createArchiveTree(items: BlogPost[]): ArchiveTreeNode {
+  const root: ArchiveTreeNode = {
+    label: "",
+    path: "",
+    total: 0,
+    posts: [],
+    children: [],
+  };
+
+  for (const item of items) {
+    let node = root;
+    const cumulativeSegments: string[] = [];
+
+    for (const segment of item.directorySegments) {
+      cumulativeSegments.push(segment);
+      let child = node.children.find((candidate) => candidate.label === segment);
+      if (!child) {
+        child = {
+          label: segment,
+          path: cumulativeSegments.join("/"),
+          total: 0,
+          posts: [],
+          children: [],
+        };
+        node.children.push(child);
+      }
+      node = child;
+    }
+
+    node.posts.push({
+      href: item.href,
+      routePath: item.routePath,
+      title: item.title,
+      dateLabel: formatBlogDate(item.date),
+    });
+  }
+
+  const collator = new Intl.Collator("zh-CN", { numeric: true, sensitivity: "base" });
+  function finalize(node: ArchiveTreeNode): number {
+    node.children.sort((left, right) => collator.compare(left.label, right.label));
+    node.total = node.posts.length + node.children.reduce((sum, child) => sum + finalize(child), 0);
+    return node.total;
+  }
+  finalize(root);
+
+  return root;
+}
+
+const archiveTree = createArchiveTree(posts);
 const canonicalUrl = new URL(post.href, Astro.site || Astro.url).toString();
 const coverUrl = post.cover ? new URL(post.cover, Astro.site || Astro.url).toString() : undefined;
 const pageTitle = `${post.title}｜有点来电`;
@@ -61,45 +130,102 @@ const articleJsonLd = {
   tags={post.tags}
   jsonLd={articleJsonLd}
 >
-  <main class="blog-reader-page">
+  <main class="blog-reader-page article-reader">
     <nav class="blog-breadcrumb" aria-label="面包屑">
-      <a href="/">首页</a><i>/</i><a href="/blog/">文章</a>
+      <a href="/">首页</a><i aria-hidden="true">/</i><a href="/blog/">文章档案</a>
       {
-        post.routeSegments.slice(0, -1).map((segment) => (
-          <><i>/</i><span>{segment}</span></>
-        ))
+        post.directorySegments.map((segment, index) => {
+          const directory = post.directorySegments.slice(0, index + 1).join("/");
+          return (
+            <>
+              <i aria-hidden="true">/</i>
+              <a href={`/blog/?directory=${encodeURIComponent(directory)}`}>{segment}</a>
+            </>
+          );
+        })
       }
+      <i aria-hidden="true">/</i><span aria-current="page">{post.title}</span>
     </nav>
 
-    <article class="blog-article">
-      <header>
-        <p class="blog-article__path">{blogCategory(post)}</p>
-        <h1>{post.title}</h1>
-        <p class="blog-article__summary">{post.summary}</p>
-        <div class="blog-article__meta">
-          <time datetime={post.date?.toISOString()}>{formatBlogDate(post.date)}</time>
-          <span>{post.readingMinutes} 分钟阅读</span>
-          {post.updated && <span>更新于 {formatBlogDate(post.updated)}</span>}
-          {post.tags.map((tag) => <em>{tag}</em>)}
+    <div class="reader-mobile-tools" aria-label="阅读辅助工具">
+      <details name="reader-tools">
+        <summary>档案目录 <span>{String(posts.length).padStart(2, "0")}</span></summary>
+        <div class="reader-mobile-tools__panel">
+          <BlogArchiveTree node={archiveTree} currentRoute={post.routePath} />
         </div>
-      </header>
+      </details>
+      <details name="reader-tools">
+        <summary>本文大纲 <span>{String(outlineHeadings.length + 1).padStart(2, "0")}</span></summary>
+        <div class="reader-mobile-tools__panel">
+          <ArticleOutline headings={outlineHeadings} articleTitle={post.title} />
+        </div>
+      </details>
+    </div>
 
-      {
-        post.cover && (
-          <figure class="blog-article__cover">
-            <img src={post.cover} alt={`${post.title} 的封面`} loading="eager" decoding="async" />
-          </figure>
-        )
-      }
+    <div class="article-reader__layout">
+      <aside class="article-reader__rail article-reader__rail--archive" aria-label="文章档案目录">
+        <header class="article-reader__rail-header">
+          <p class="article-reader__eyebrow">PUBLIC ARCHIVE / 目录</p>
+          <span>{String(posts.length).padStart(2, "0")}</span>
+        </header>
+        <BlogArchiveTree node={archiveTree} currentRoute={post.routePath} />
+      </aside>
 
-      <div class="markdown-content">
-        <Content />
-      </div>
+      <article class="blog-article">
+        <header id="article-top">
+          <p class="blog-article__path">{blogCategory(post)}</p>
+          <h1>{post.title}</h1>
+          <p class="blog-article__summary">{post.summary}</p>
+          <div class="blog-article__meta">
+            <time datetime={post.date?.toISOString()}>{formatBlogDate(post.date)}</time>
+            <span>{post.readingMinutes} 分钟阅读</span>
+            {post.updated && <span>更新于 {formatBlogDate(post.updated)}</span>}
+            {post.tags.map((tag) => <em>{tag}</em>)}
+          </div>
+        </header>
 
-      <footer class="blog-article__end">
-        <span>END OF NOTE</span>
-        <a href="/blog/">返回全部文章 ↗</a>
-      </footer>
-    </article>
+        {
+          post.cover && (
+            <figure class="blog-article__cover">
+              <img src={post.cover} alt={`${post.title} 的封面`} loading="eager" decoding="async" />
+            </figure>
+          )
+        }
+
+        <div class="markdown-content">
+          <Content />
+        </div>
+
+        {(previousPost || nextPost) && (
+          <nav class="article-neighbors" aria-label="相邻文章">
+            {previousPost && (
+              <a href={previousPost.href} rel="prev">
+                <span>← 上一篇</span>
+                <strong>{previousPost.title}</strong>
+              </a>
+            )}
+            {nextPost && (
+              <a href={nextPost.href} rel="next">
+                <span>下一篇 →</span>
+                <strong>{nextPost.title}</strong>
+              </a>
+            )}
+          </nav>
+        )}
+
+        <a class="article-reader__back" href="/blog/">
+          <span>END OF NOTE · 返回文章档案</span>
+          <span aria-hidden="true">↗</span>
+        </a>
+      </article>
+
+      <aside class="article-reader__rail article-reader__rail--outline" aria-label="本文大纲">
+        <header class="article-reader__rail-header">
+          <p class="article-reader__eyebrow">ON THIS PAGE / 大纲</p>
+          <span>{String(outlineHeadings.length + 1).padStart(2, "0")}</span>
+        </header>
+        <ArticleOutline headings={outlineHeadings} articleTitle={post.title} />
+      </aside>
+    </div>
   </main>
 </BlogLayout>

@@ -10,7 +10,19 @@ export default defineConfig({
   site: "https://loadingvibe.com",
   output: "static",
   trailingSlash: "always",
-  integrations: [react(), sitemap()],
+  integrations: [
+    react(),
+    sitemap({
+      filter(page) {
+        const match = new URL(page).pathname.match(/^\/blog\/(.+)\/$/u);
+        if (!match) return true;
+
+        // Canonical article slugs are one ASCII segment. Nested/legacy paths are
+        // generated only as noindex compatibility redirects and stay out of sitemap.
+        return /^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(match[1]);
+      },
+    }),
+  ],
   markdown: {
     processor: unified({
       remarkPlugins: [remarkMath],
