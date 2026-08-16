@@ -1,11 +1,11 @@
 ---
 title: python学习第一课：环境变量&项目搭建
+slug: gradient-xxxx
 catalogNo: F-004
-slug: 1
 date: 2026-08-16
 summary: python学习
 category: 笔记
-tags: [环境搭建，项目搭建]
+tags: [环境搭建, 项目搭建]
 featured: false
 ---
 
