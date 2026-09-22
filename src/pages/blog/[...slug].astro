@@ -96,7 +96,7 @@ function createArchiveTree(items: BlogPost[]): ArchiveTreeNode {
 const archiveTree = createArchiveTree(posts);
 const canonicalUrl = new URL(post.href, Astro.site || Astro.url).toString();
 const coverUrl = post.cover ? new URL(post.cover, Astro.site || Astro.url).toString() : undefined;
-const pageTitle = `${post.title}｜有点来电`;
+const pageTitle = `${post.title}｜loadingvibe`;
 const articleJsonLd = {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
@@ -117,7 +117,7 @@ const articleJsonLd = {
   },
   publisher: {
     "@type": "Organization",
-    name: "有点来电",
+    name: "loadingvibe",
     url: new URL("/", Astro.site || Astro.url).toString(),
   },
 };

@@ -36,7 +36,8 @@ const structuredData =
   ({
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "有点来电",
+    name: "loadingvibe",
+    alternateName: "有点来电",
     url: canonicalUrl,
     description,
     inLanguage: "zh-CN",
@@ -53,12 +54,12 @@ const safeStructuredData = JSON.stringify(structuredData).replaceAll("<", "\\u00
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
-    <link rel="alternate" type="application/rss+xml" title="有点来电·文章 RSS" href={rssUrl} />
+    <link rel="alternate" type="application/rss+xml" title="loadingvibe · 文章 RSS" href={rssUrl} />
     <link rel="icon" type="image/png" href="/assets/brand/optimized/favicon-64.png" />
 
     <meta property="og:locale" content="zh_CN" />
     <meta property="og:type" content={type} />
-    <meta property="og:site_name" content="有点来电" />
+    <meta property="og:site_name" content="loadingvibe" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />

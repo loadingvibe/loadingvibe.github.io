@@ -7,21 +7,11 @@ import {
   IconUser,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import AccordionGallery from "../components/AccordionGallery";
 import ArchiveExplorer from "../components/ArchiveExplorer";
 import BrandLockup from "../components/BrandLockup";
 import SideRays from "../components/SideRays";
 import StrokeText from "../components/StrokeText";
 import PagesComments from "./PagesComments";
-
-const ABOUT_GALLERY_ITEMS = [
-  { image: "/assets/about/gallery/mist-gorge.jpg", label: "雾峡", alt: "云雾缭绕的峡谷与山间建筑" },
-  { image: "/assets/about/gallery/cloud-meadow.jpg", label: "云野", alt: "蓝天白云下的高山草地" },
-  { image: "/assets/about/gallery/quiet-corner.jpg", label: "静室", alt: "老建筑内安静的光影与玻璃地面" },
-  { image: "/assets/about/gallery/sunset-gorge.jpg", label: "暮色", alt: "峡谷之间被夕阳染亮的云层" },
-  { image: "/assets/about/gallery/lake-birds.jpg", label: "鸥影", alt: "湖面上飞过亭子的鸟群" },
-  { image: "/assets/about/gallery/moon-peak.jpg", label: "月峰", alt: "白日月亮悬在奇峰之上" },
-];
 
 const PRIMARY_NAV_ITEMS = [
   { key: "about", label: "关于", href: "/#about", Icon: IconUser },
@@ -202,22 +192,6 @@ export default function App({ posts = [] }) {
               <p className="about-profile__eyebrow">A SHORT INTRODUCTION</p>
               <h3>About</h3>
               <p className="about-profile__statement">我是一名普通的大四学生。</p>
-              <div className="about-profile__gallery">
-                <AccordionGallery
-                  items={ABOUT_GALLERY_ITEMS}
-                  defaultIndex={5}
-                  accentColor="#ffb21c"
-                  overlayColor="#101612"
-                  height={380}
-                  gap={8}
-                  radius={14}
-                  expandRatio={0.54}
-                  duration={0.72}
-                  ease="power3.out"
-                  parallax={0.65}
-                  tilt={6}
-                />
-              </div>
             </article>
           </div>
         </section>

@@ -1,0 +1,74 @@
+---
+interface Props {
+  filterId: string;
+  class?: string;
+  label?: string;
+}
+
+const {
+  filterId,
+  class: className,
+  label = "loadingvibe",
+} = Astro.props;
+const maskId = `${filterId}-mask`;
+---
+
+<span class:list={["brand-wordmark", className]} role="img" aria-label={label}>
+  <svg viewBox="390 150 1428 400" aria-hidden="true" focusable="false">
+    <defs>
+      <filter
+        id={filterId}
+        x="0"
+        y="0"
+        width="2172"
+        height="724"
+        filterUnits="userSpaceOnUse"
+        color-interpolation-filters="sRGB"
+      >
+        <feColorMatrix
+          type="matrix"
+          values="
+              0 0   0 0 0
+              0 0   0 0 0
+              0 0   0 0 0
+           -1.9 0 1.9 0 -.025"
+        />
+      </filter>
+      <mask
+        id={maskId}
+        x="390"
+        y="150"
+        width="1428"
+        height="400"
+        maskUnits="userSpaceOnUse"
+        style="mask-type: alpha"
+      >
+        <image
+          href="/assets/brand/loadingvibe-script-source.png"
+          width="2172"
+          height="724"
+          preserveAspectRatio="none"
+          filter={`url(#${filterId})`}
+        />
+      </mask>
+    </defs>
+    <rect x="390" y="150" width="1428" height="400" fill="#51b7da" mask={`url(#${maskId})`} />
+  </svg>
+</span>
+
+<style>
+  .brand-wordmark {
+    display: inline-block;
+    width: var(--brand-wordmark-width, 132px);
+    aspect-ratio: 3.57;
+    flex: none;
+    line-height: 0;
+  }
+
+  .brand-wordmark svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+</style>

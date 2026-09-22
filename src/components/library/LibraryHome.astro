@@ -1,0 +1,352 @@
+---
+import BrandWordmark from "../BrandWordmark.astro";
+import { LIBRARY_VOLUMES } from "../../lib/library";
+import "../../styles/library-home.css";
+import LogoFormation from "./LogoFormation.astro";
+
+interface Props {
+  postCount?: number;
+}
+
+const { postCount = 0 } = Astro.props;
+---
+
+<div class="library-experience" data-library-experience data-state="welcome" data-logo-story="loading">
+  <section class="welcome-stage" data-welcome aria-labelledby="welcome-title">
+    <div class="welcome-stage__glow" aria-hidden="true"></div>
+    <div class="welcome-stage__content">
+      <div class="welcome-brand">
+        <LogoFormation />
+        <p>loadingvibe</p>
+        <span>有点来电</span>
+      </div>
+      <h1 id="welcome-title">欢迎参观我的网站</h1>
+      <p class="welcome-stage__note">A personal space by Roy.</p>
+      <a class="welcome-enter" data-enter-library href="#library">
+        <span>进入书架</span>
+        <i aria-hidden="true">→</i>
+      </a>
+    </div>
+    <p class="welcome-stage__edition" aria-hidden="true">LOADINGVIBE · 2026</p>
+  </section>
+
+  <main id="main-content" class="library-shell" data-library aria-hidden="true" tabindex="-1">
+    <header class="library-header">
+      <a class="library-brand" href="#library" aria-label="loadingvibe 首页">
+        <img
+          data-flight-target
+          src="/assets/brand/optimized/mark-192.avif"
+          width="192"
+          height="192"
+          alt=""
+        />
+        <span class="library-brand__name">
+          <BrandWordmark class="library-brand__wordmark" filterId="library-brand-wordmark-filter" />
+          <small>有点来电</small>
+        </span>
+      </a>
+
+      <nav class="library-nav" aria-label="网站导航">
+        {
+          LIBRARY_VOLUMES.map((volume) => (
+            <a href={volume.href} data-volume-link={volume.key}>
+              <span>{volume.navLabel}</span>
+              <small>{volume.number}</small>
+            </a>
+          ))
+        }
+      </nav>
+    </header>
+
+    <section id="library" class="library-stage" aria-labelledby="library-title">
+      <header class="library-intro">
+        <p>THE PERSONAL INDEX · 2026</p>
+        <h1 id="library-title">从这里，认识我。</h1>
+        <span>三册内容，关于我、写作，以及来访者的声音。</span>
+      </header>
+
+      <div class="bookcase" aria-label="loadingvibe 的书架">
+        <nav class="volume-stack" aria-label="选择一本书">
+          {
+            LIBRARY_VOLUMES.map((volume, index) => (
+              <a
+                class={`volume volume--${volume.tone}`}
+                href={volume.href}
+                data-volume={volume.key}
+                style={`--volume-index: ${index}`}
+                aria-label={`打开${volume.navLabel}：${volume.title}`}
+              >
+                <span class="volume__head" aria-hidden="true"></span>
+                <span class="volume__spine">
+                  <small>{volume.number}</small>
+                  <span class="volume__title">{volume.title}</span>
+                  <span class="volume__rule" aria-hidden="true"></span>
+                  <span class="volume__subtitle">{volume.subtitle}</span>
+                  <b aria-hidden="true">LV</b>
+                </span>
+                <span class="volume__foot" aria-hidden="true"></span>
+              </a>
+            ))
+          }
+        </nav>
+
+        <div class="shelf" aria-hidden="true">
+          <div class="shelf__top"></div>
+          <div class="shelf__front">
+            <div class="shelf__invitation">
+              <span>开始看书</span>
+              <span class="shelf-sticker">
+                <svg viewBox="0 0 126 72" role="img">
+                  <path class="shelf-sticker__outline" d="M7 15C9 7 18 3 29 5l33 7 34-7c11-2 20 3 22 11l1 36c0 9-7 14-17 12l-40-8-39 8C13 66 5 60 6 51z" />
+                  <path class="shelf-sticker__page" d="M14 17c2-5 8-7 15-5l31 7v29l-34-7c-7-1-11 2-12 5z" />
+                  <path class="shelf-sticker__page" d="M111 17c-2-5-8-7-15-5l-31 7v29l34-7c7-1 11 2 12 5z" />
+                  <path class="shelf-sticker__crease" d="M62 18v36" />
+                  <circle cx="45" cy="30" r="2.8" />
+                  <circle cx="80" cy="30" r="2.8" />
+                  <path class="shelf-sticker__smile" d="M53 36c5 5 13 5 18 0" />
+                  <path class="shelf-sticker__spark" d="m108 3 2 5 5 2-5 2-2 5-2-5-5-2 5-2z" />
+                </svg>
+                <i>翻一页？</i>
+              </span>
+            </div>
+            <p>03 VOLUMES <span>/</span> {String(postCount).padStart(2, "0")} NOTES</p>
+          </div>
+        </div>
+      </div>
+
+      <footer class="library-footer">
+        <p>LOADINGVIBE · PERSONAL WEBSITE</p>
+        <nav aria-label="其他链接">
+          <a href="https://github.com/loadingvibe" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="mailto:8212230801@csu.edu.cn">Email</a>
+          <a href="/rss.xml">RSS</a>
+        </nav>
+      </footer>
+    </section>
+  </main>
+
+  <div class="page-wash" data-page-wash aria-hidden="true"></div>
+</div>
+
+<noscript>
+  <style>
+    .welcome-stage { display: none !important; }
+    .library-shell { opacity: 1 !important; visibility: visible !important; }
+  </style>
+</noscript>
+
+<script>
+  const experienceNode = document.querySelector("[data-library-experience]");
+
+  if (experienceNode instanceof HTMLElement && experienceNode.dataset.bound !== "true") {
+    const experience = experienceNode;
+    experience.dataset.bound = "true";
+
+    const welcome = experience.querySelector("[data-welcome]");
+    const library = experience.querySelector("[data-library]");
+    const enter = experience.querySelector("[data-enter-library]");
+    const origin = experience.querySelector("[data-flight-origin]");
+    const target = experience.querySelector("[data-flight-target]");
+    const wash = experience.querySelector("[data-page-wash]");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sessionKey = "loadingvibe:welcome-seen";
+
+    let seen = false;
+    try {
+      seen = window.sessionStorage.getItem(sessionKey) === "1";
+    } catch {
+      seen = false;
+    }
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const forceWelcome = searchParams.has("welcome");
+    const skipWelcome = !forceWelcome && (seen || window.location.hash === "#library" || searchParams.has("library"));
+
+    function setLibraryState(shouldFocus = false) {
+      experience.dataset.state = "library";
+      if (welcome instanceof HTMLElement) welcome.setAttribute("aria-hidden", "true");
+      if (library instanceof HTMLElement) {
+        library.setAttribute("aria-hidden", "false");
+        if (shouldFocus) library.focus({ preventScroll: true });
+      }
+      document.body.classList.remove("library-welcome-active");
+
+      if (searchParams.has("library") || forceWelcome) {
+        const nextUrl = new URL(window.location.href);
+        nextUrl.searchParams.delete("library");
+        nextUrl.searchParams.delete("welcome");
+        nextUrl.hash = "library";
+        window.history.replaceState({}, "", `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);
+      }
+    }
+
+    function rememberWelcome() {
+      try {
+        window.sessionStorage.setItem(sessionKey, "1");
+      } catch {
+        // Browsing modes that disable sessionStorage still get a working entrance.
+      }
+    }
+
+    if (skipWelcome) {
+      setLibraryState();
+    } else {
+      document.body.classList.add("library-welcome-active");
+    }
+
+    let entering = false;
+    enter?.addEventListener("click", async (event) => {
+      event.preventDefault();
+      if (entering) return;
+      entering = true;
+      rememberWelcome();
+      experience.dispatchEvent(new CustomEvent("logoformation:finish"));
+
+      if (reduceMotion.matches || !(origin instanceof HTMLImageElement) || !(target instanceof HTMLImageElement)) {
+        setLibraryState(true);
+        return;
+      }
+
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      const from = origin.getBoundingClientRect();
+      const to = target.getBoundingClientRect();
+      const flyingLogo = origin.cloneNode(true);
+
+      if (!(flyingLogo instanceof HTMLImageElement)) {
+        setLibraryState(true);
+        return;
+      }
+
+      flyingLogo.className = "flying-logo";
+      flyingLogo.removeAttribute("data-flight-origin");
+      Object.assign(flyingLogo.style, {
+        left: `${from.left}px`,
+        top: `${from.top}px`,
+        width: `${from.width}px`,
+        height: `${from.height}px`,
+      });
+      document.body.append(flyingLogo);
+      origin.style.opacity = "0";
+      experience.dataset.state = "transition";
+      if (library instanceof HTMLElement) library.setAttribute("aria-hidden", "false");
+
+      const deltaX = to.left - from.left;
+      const deltaY = to.top - from.top;
+      const scale = to.width / from.width;
+      const flight = flyingLogo.animate(
+        [
+          { transform: "translate3d(0, 0, 0) scale(1)", filter: "drop-shadow(0 20px 28px rgb(20 21 20 / 14%))" },
+          { offset: 0.44, transform: `translate3d(${deltaX * 0.48}px, ${deltaY * 0.42}px, 0) scale(${0.82 + scale * 0.18})` },
+          { transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scale})`, filter: "drop-shadow(0 4px 8px rgb(20 21 20 / 9%))" },
+        ],
+        { duration: 1040, easing: "cubic-bezier(.22, 1, .36, 1)", fill: "forwards" },
+      );
+
+      flight.finished
+        .catch(() => undefined)
+        .finally(() => {
+          flyingLogo.remove();
+          origin.style.opacity = "";
+          setLibraryState(true);
+        });
+    });
+
+    let openingVolume = false;
+
+    function restoreBookcase() {
+      openingVolume = false;
+      document.querySelectorAll(".volume-flight, .book-spread").forEach((node) => node.remove());
+      experience.classList.remove("is-pushing-volume", "is-opening-volume");
+      experience.querySelectorAll<HTMLElement>("[data-volume]").forEach((node) => { node.style.visibility = ""; });
+      if (wash instanceof HTMLElement) { wash.style.opacity = ""; wash.style.clipPath = ""; }
+    }
+    window.addEventListener("pageshow", restoreBookcase);
+
+    async function openVolume(event: Event, volumeKey: string) {
+      const book = experience.querySelector(`[data-volume="${volumeKey}"]`);
+      if (!(book instanceof HTMLAnchorElement)) return;
+
+      const href = book.href;
+      if (event instanceof MouseEvent && (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0)) return;
+      event.preventDefault();
+      if (openingVolume) return;
+      openingVolume = true;
+
+      if (reduceMotion.matches) {
+        window.location.assign(href);
+        return;
+      }
+
+      const rect = book.getBoundingClientRect();
+      const clone = book.cloneNode(true);
+      if (!(clone instanceof HTMLAnchorElement)) {
+        window.location.assign(href);
+        return;
+      }
+
+      clone.classList.add("volume-flight");
+      clone.removeAttribute("href");
+      clone.removeAttribute("data-volume");
+      Object.assign(clone.style, {
+        left: `${rect.left}px`,
+        top: `${rect.top}px`,
+        width: `${rect.width}px`,
+        height: `${rect.height}px`,
+      });
+      document.body.append(clone);
+      book.style.visibility = "hidden";
+      experience.classList.add("is-pushing-volume");
+
+      const pushY = window.innerWidth <= 760 ? -13 : -19;
+      const pushScale = window.innerWidth <= 760 ? 1.045 : 1.065;
+      const pushTransform = `perspective(1000px) translate3d(0, ${pushY}px, 64px) scale(${pushScale}) rotateY(-4deg)`;
+      const pushAnimation = clone.animate(
+        [
+          { transform: "perspective(1000px) translate3d(0, 0, 0) scale(1) rotateY(0deg)", filter: "drop-shadow(0 18px 24px rgb(28 28 30 / 18%))" },
+          { transform: pushTransform, filter: "drop-shadow(0 34px 38px rgb(28 28 30 / 26%))" },
+        ],
+        { duration: 240, easing: "cubic-bezier(.22, 1, .36, 1)", fill: "forwards" },
+      );
+
+      await pushAnimation.finished.catch(() => undefined);
+      experience.classList.remove("is-pushing-volume");
+      const spread = document.createElement("div");
+      spread.className = "book-spread";
+      spread.setAttribute("aria-hidden", "true");
+      const leftLeaf = document.createElement("div");
+      const rightLeaf = document.createElement("div");
+      leftLeaf.className = "book-spread__leaf book-spread__leaf--left";
+      rightLeaf.className = "book-spread__leaf book-spread__leaf--right";
+      const heading = document.createElement("strong");
+      heading.textContent = book.querySelector(".volume__title")?.textContent || "loadingvibe";
+      const caption = document.createElement("small");
+      caption.textContent = "LOADINGVIBE · " + (book.querySelector(".volume__spine > small")?.textContent || "");
+      rightLeaf.append(caption, heading);
+      spread.append(leftLeaf, rightLeaf);
+      Object.assign(spread.style, { left: `${rect.left}px`, top: `${rect.top + pushY}px`, width: `${rect.width * pushScale}px`, height: `${rect.height * pushScale}px` });
+      document.body.append(spread);
+      const expand = spread.animate([
+        { left: `${rect.left}px`, top: `${rect.top + pushY}px`, width: `${rect.width * pushScale}px`, height: `${rect.height * pushScale}px` },
+        { offset: .62, left: `${window.innerWidth * .08}px`, top: `${window.innerHeight * .08}px`, width: `${window.innerWidth * .84}px`, height: `${window.innerHeight * .84}px` },
+        { left: "0px", top: "0px", width: `${window.innerWidth}px`, height: `${window.innerHeight}px` },
+      ], { duration: 780, easing: "cubic-bezier(.22,1,.36,1)", fill: "forwards" });
+      leftLeaf.animate([{ transform: "rotateY(84deg)" }, { transform: "rotateY(0deg)" }], { duration: 650, easing: "cubic-bezier(.22,1,.36,1)", fill: "forwards" });
+      rightLeaf.animate([{ transform: "rotateY(-84deg)" }, { transform: "rotateY(0deg)" }], { duration: 650, easing: "cubic-bezier(.22,1,.36,1)", fill: "forwards" });
+      clone.animate([{ transform: pushTransform, opacity: 1 }, { transform: `perspective(1000px) translate3d(-12px,${pushY}px,64px) rotateY(-105deg)`, opacity: 0 }], { duration: 420, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" });
+      heading.animate([{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "translateY(0)" }], { duration: 400, delay: 180, fill: "both" });
+      await expand.finished.catch(() => undefined);
+
+      window.location.assign(href);
+    }
+
+    experience.querySelectorAll("[data-volume]").forEach((book) => {
+      const key = book.getAttribute("data-volume");
+      if (key) book.addEventListener("click", (event) => openVolume(event, key));
+    });
+
+    experience.querySelectorAll("[data-volume-link]").forEach((link) => {
+      const key = link.getAttribute("data-volume-link");
+      if (key) link.addEventListener("click", (event) => openVolume(event, key));
+    });
+  }
+</script>

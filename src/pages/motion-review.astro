@@ -1,0 +1,50 @@
+---
+import { FLOW_DELAY, FRAME_COUNT, LEFT_ARM_END, LEFT_ARM_START, STORY_DURATION } from "../components/library/logo-story-math";
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Logo 动画审核 · loadingvibe</title>
+  </head>
+  <body>
+    <header><a href="/?welcome=1">← 欢迎页</a><span>LOADINGVIBE · MOTION STUDY 07</span></header>
+    <main>
+      <h1>让灵感，成为形状。</h1>
+      <p class="intro">一体造型 · 连续肩线 · 随笔触抬手 · 原图归位</p>
+      <div class="comparison">
+        <section class="stage"><canvas id="review-scene" aria-label="可以暂停和逐帧审核的三维 Logo 动画"></canvas><span id="phase">材料加载中</span></section>
+        <aside><img src="/assets/brand/optimized/mark-768.avif" width="768" height="768" alt="原始 Logo，人物轮廓和色彩对照" /><p>原始 Logo</p><small>金黄主色 / 青蓝左缘 / 橙红右缘<br />人物从开始即为彩色</small></aside>
+      </div>
+      <div class="controls">
+        <button id="replay">重播</button><button id="pause">播放</button>
+        <button id="prev" aria-label="上一帧">← 一帧</button><button id="next" aria-label="下一帧">一帧 →</button>
+        <label>速度 <select id="rate"><option value="1">1×</option><option value="0.5">0.5×</option><option value="0.25">0.25×</option></select></label>
+        <output id="time">0.00s / {STORY_DURATION.toFixed(2)}s</output>
+      </div>
+      <input id="scrub" type="range" min="0" max={FRAME_COUNT-1} step="1" value="0" aria-label="动画帧" />
+      <div class="milestones"><button data-seek="0.10">开场姿态</button><button data-seek="1.10">最后一笔</button><button data-seek="1.78">收笔抬笔</button><button data-seek="1.96">星光上升</button><button data-seek="2.56">星光成形</button><button data-seek={(LEFT_ARM_START+LEFT_ARM_END)/2}>左手抬起</button><button data-seek={LEFT_ARM_END}>左手归位</button><button data-seek={3.43+FLOW_DELAY}>原地轻跳</button><button data-seek={3.65+FLOW_DELAY}>遮挡后归位</button><button data-seek={4.70+FLOW_DELAY}>原图人物对齐</button><button data-seek={5.10+FLOW_DELAY}>原图交接</button><button data-seek={STORY_DURATION}>最终定格</button></div>
+      <p class="decision">审核重点：肩部、身体、髋部与双腿共用连续轮廓，取消身体下沿与腿根的横向拼接线。左臂沿连续曲线弯曲，随条纹流动抬至原 Logo 姿势。腿部在笔触遮挡下连续收回，不再切换独立腿模型。星光由下往上渐显，每颗约 0.68 秒；黑板绘图不含星星，整段 6.2 秒。</p>
+      <div class="audit"><button id="audit">检查全部 {FRAME_COUNT} 帧</button><output id="audit-status">按 60fps 采样，检查肩部折叠、人物横移、网格归位、星光停稳和交接。</output></div>
+      <div id="sheet-controls" hidden><button id="sheet-prev">上一组</button><span id="sheet-label"></span><button id="sheet-next">下一组</button><button id="sheet-focus">专注查看全帧</button><button id="download">下载检查结果</button></div>
+      <canvas id="contact-sheet" width="1440" height="900" hidden aria-label="逐帧动画接触表"></canvas>
+      <details><summary>造型与验证说明</summary><p>人物身体与双腿为单个连续的带厚度网格，髋部和膝踝重新设计，原图的蓝、金、橙色纹理连续延伸到腿部，不使用独立胶囊拼接。左臂沿连续中心线弯曲；肩部表面重新分布三角面，减少变形折痕。头部保持原图圆形，无脖子。它仍是固定正面镜头的三维浮雕，不是任意视角的全身角色。</p><p>“归位网格误差”比较结束姿态与预设的原图轮廓建模基准，不是原始图片的逐像素相似度。肩部翻转检查针对左肩区域的三角面，不代表全身碰撞检测；需要同时查看开场、抬手中途、收腿和原图对照。本版不再使用独立腿模型，也不再报告旧版的“腿根嵌入率”和“隐藏独立腿像素差”。</p></details>
+    </main>
+    <script src="../components/library/motion-review.ts"></script>
+  </body>
+</html>
+<style>
+  :global(*){box-sizing:border-box} :global(body){margin:0;background:#f5f5f3;color:#1d1d1f;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+  :global([hidden]){display:none!important}
+  :global(body.sheet-mode) header,:global(body.sheet-mode) main>:not(#sheet-controls):not(#contact-sheet){display:none}
+  :global(body.sheet-mode) main{margin:10px auto;width:min(1440px,96vw)}
+  :global(body.sheet-mode) #contact-sheet{max-height:calc(100vh - 80px);width:auto;max-width:100%;display:block;margin:auto}
+  header{display:flex;justify-content:space-between;align-items:center;padding:24px 5vw;border-bottom:1px solid #ddd}header a{color:inherit;text-decoration:none;font-size:13px}header span{font-size:10px;letter-spacing:.18em;color:#727277}
+  main{width:min(1180px,94vw);margin:32px auto 80px}h1{font-size:clamp(28px,4vw,46px);letter-spacing:-.06em;margin:0 0 8px}.intro{color:#78787e;font-size:14px;margin-bottom:24px}
+  .comparison{display:grid;grid-template-columns:3fr 1fr;gap:18px}.stage{background:radial-gradient(ellipse,#fff 30%,#eeefed);border:1px solid #e1e1de;border-radius:20px;position:relative;overflow:hidden;aspect-ratio:1.55}#review-scene{width:100%;height:100%;display:block}#phase{position:absolute;bottom:14px;left:20px;font-size:11px;color:#73737a}
+  aside{display:flex;flex-direction:column;justify-content:center;align-items:center;background:#f0f0ed;border-radius:20px;padding:16px}aside img{width:100%;height:auto}aside p{margin:8px;font-size:12px}aside small{font-size:10px;color:#777;line-height:1.8;text-align:center}
+  .controls,.milestones,.audit,#sheet-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:18px 0}button,select{font:inherit;font-size:12px;border:1px solid #d2d2cf;border-radius:999px;padding:9px 16px;color:inherit;background:white;cursor:pointer}button:hover{background:#e7e7e4}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #189abc;outline-offset:3px}label{font-size:12px;margin-left:auto}output{font:12px ui-monospace,monospace;color:#67676d}#scrub{width:100%;accent-color:#232328}.milestones button{font-size:11px;padding:7px 12px;background:transparent}.decision{font-size:12px;line-height:1.8;color:#6d6d74}#audit{background:#242428;color:white;border:0}.audit{border-top:1px solid #ddd;padding-top:20px}#contact-sheet{max-width:100%;height:auto;border-radius:12px}details{font-size:12px;line-height:1.8;margin-top:24px;color:#6d6d74}summary{cursor:pointer}
+  @media(max-width:650px){.comparison{grid-template-columns:1fr}.stage{aspect-ratio:1.48}aside{flex-direction:row;gap:12px}aside img{width:90px}header span{font-size:8px}.controls{gap:7px}button{padding:9px 12px}label{margin-left:0}h1{font-size:32px}}
+</style>

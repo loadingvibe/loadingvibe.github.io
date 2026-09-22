@@ -1,0 +1,161 @@
+<div class="logo-formation" data-logo-formation data-phase="loading" aria-hidden="true">
+  <canvas class="logo-formation__canvas" data-logo-canvas></canvas>
+  <img
+    class="logo-formation__final"
+    data-logo-final
+    data-flight-origin
+    src="/assets/brand/optimized/mark-768.avif"
+    width="768"
+    height="768"
+    fetchpriority="high"
+    alt=""
+  />
+</div>
+
+<script is:inline>
+  window.setTimeout(() => {
+    document.querySelectorAll("[data-logo-formation][data-phase='loading']").forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      node.dataset.phase = "fallback";
+      const experience = node.closest("[data-library-experience]");
+      if (experience instanceof HTMLElement) experience.dataset.logoStory = "static";
+    });
+  }, 2500);
+</script>
+
+<script>
+  // Keep the Three.js chunk off the return-visitor and reduced-motion path.
+  const wantsMotion = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const params = new URLSearchParams(location.search);
+  let seen = false;
+  try { seen = sessionStorage.getItem("loadingvibe:welcome-seen") === "1"; } catch {}
+  const skip = !params.has("welcome") && (seen || params.has("library") || location.hash === "#library");
+  if (wantsMotion && !skip) {
+    import("./logo-formation").then(({ mountLogoFormations }) => mountLogoFormations()).catch(() => {
+      document.querySelectorAll<HTMLElement>("[data-logo-formation]").forEach((root) => {
+        root.dataset.phase = "fallback";
+        const experience = root.closest<HTMLElement>("[data-library-experience]");
+        if (experience) experience.dataset.logoStory = "static";
+      });
+    });
+  } else {
+    document.querySelectorAll<HTMLElement>("[data-logo-formation]").forEach((root) => {
+      root.dataset.phase = "fallback";
+      const experience = root.closest<HTMLElement>("[data-library-experience]");
+      if (experience) experience.dataset.logoStory = "static";
+    });
+  }
+</script>
+
+<style>
+  .logo-formation {
+    position: relative;
+    isolation: isolate;
+    width: clamp(330px, min(64vw, 78svh), 760px);
+    max-width: 100%;
+    aspect-ratio: 1.55;
+  }
+
+  .logo-formation[data-phase="loading"] {
+    transform: none;
+  }
+
+  .logo-formation[data-phase="playing"] {
+    animation: none;
+  }
+
+  .logo-formation::before {
+    position: absolute;
+    z-index: -1;
+    right: 18%;
+    bottom: 7%;
+    left: 18%;
+    height: 12%;
+    border-radius: 50%;
+    background: rgb(29 29 31 / 12%);
+    content: "";
+    filter: blur(28px);
+    opacity: 0;
+    transition: opacity 500ms ease;
+  }
+
+  .logo-formation__canvas {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 170ms ease;
+  }
+
+  .logo-formation__final {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    width: auto;
+    height: 83.5918%;
+    filter: drop-shadow(0 25px 31px rgb(29 29 31 / 14%));
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition:
+      filter 500ms ease,
+      opacity 120ms ease,
+      transform 500ms cubic-bezier(.22, 1, .36, 1);
+    user-select: none;
+  }
+
+  .logo-formation[data-phase="playing"] .logo-formation__canvas {
+    opacity: 1;
+  }
+
+  .logo-formation[data-phase="static"]::before,
+  .logo-formation[data-phase="fallback"]::before {
+    opacity: .55;
+  }
+
+  .logo-formation[data-phase="static"] .logo-formation__canvas,
+  .logo-formation[data-phase="fallback"] .logo-formation__canvas {
+    opacity: 0;
+  }
+
+  .logo-formation[data-phase="static"] .logo-formation__final,
+  .logo-formation[data-phase="fallback"] .logo-formation__final {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  /* The canvas already contains the exact final mark. Swap the matching image
+     without a second alpha crossfade, which would briefly expose the backdrop. */
+  .logo-formation[data-phase="static"] .logo-formation__canvas { transition: none; }
+  .logo-formation[data-phase="static"] .logo-formation__final { transition: filter 500ms ease; }
+
+  @media (max-width: 760px) {
+    .logo-formation {
+      width: min(94vw, 460px);
+      aspect-ratio: 1.48;
+    }
+
+    .logo-formation__final { width: auto; }
+  }
+
+  @media (max-width: 420px) {
+    .logo-formation { width: min(96vw, 390px); }
+    .logo-formation__final { width: auto; }
+  }
+
+  @media (max-height: 540px) and (min-width: 650px) {
+    .logo-formation { width: min(48vw, 560px); aspect-ratio: 1.55; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo-formation { animation: none; transform: none; }
+    .logo-formation__canvas { display: none; }
+    .logo-formation__final {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+      transition: none;
+    }
+  }
+</style>

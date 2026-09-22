@@ -15,6 +15,7 @@ const mimeTypes = {
   ".js": "text/javascript; charset=utf-8",
   ".jpg": "image/jpeg",
   ".json": "application/json; charset=utf-8",
+  ".mp4": "video/mp4",
   ".png": "image/png",
   ".svg": "image/svg+xml",
   ".txt": "text/plain; charset=utf-8",
@@ -212,6 +213,24 @@ const indexHtml = readFileSync(resolve(buildRoot, "index.html"), "utf8");
 if (indexHtml.includes("chatgpt.site") || /<meta[^>]+http-equiv=["']?refresh/i.test(indexHtml)) {
   throw new Error("Static build must host the site directly, not redirect elsewhere.");
 }
+const homepageScriptMatch = indexHtml.match(/<script[^>]+type="module"[^>]+src="\/(?:_astro\/)?([^"]+\.js)"/i);
+if (!homepageScriptMatch) {
+  throw new Error("Static homepage is missing its compiled module script.");
+}
+const homepageScriptPath = homepageScriptMatch[1].startsWith("_astro/")
+  ? homepageScriptMatch[1]
+  : `_astro/${homepageScriptMatch[1]}`;
+const homepageScript = readFileSync(resolve(buildRoot, homepageScriptPath), "utf8");
+for (const marker of ["comments.loadingvibe.com", "requestAnimationFrame", "currentTime"]) {
+  if (!homepageScript.includes(marker)) {
+    throw new Error(`Compiled homepage script is missing runtime marker: ${marker}`);
+  }
+}
+for (const removedMarker of ["一册未装订的生活", "href=\"/photos/\"", "href=\"/leaves/\""]) {
+  if (indexHtml.includes(removedMarker)) {
+    throw new Error(`Static homepage still contains removed marker: ${removedMarker}`);
+  }
+}
 
 const sitemapXml = sitemapFiles
   .map((relativePath) => readFileSync(resolve(buildRoot, relativePath), "utf8"))
@@ -240,9 +259,14 @@ for (const removedRoute of ["/blog/README/"]) {
   }
 }
 
-for (const route of ["/about/", "/photos/", "/leaves/", "/marginalia/"]) {
+for (const route of ["/about/", "/marginalia/"]) {
   if (!sitemapXml.includes(route)) {
-    throw new Error(`Sitemap is missing the book route ${route}.`);
+    throw new Error(`Sitemap is missing the library route ${route}.`);
+  }
+}
+for (const removedRoute of ["/photos/", "/leaves/"]) {
+  if (sitemapXml.includes(removedRoute)) {
+    throw new Error(`Sitemap still contains removed route ${removedRoute}.`);
   }
 }
 
@@ -354,33 +378,31 @@ async function checkStatus(pathname, expectedStatus) {
 try {
   await checkHtml("/", {
     html: [
-      "一册未装订的生活｜有点来电",
+      "<html lang=\"en\">",
       "id=\"main-content\"",
-      "id=\"inside-cover\"",
-      "id=\"about\"",
+      "data-story-app",
+      "data-intro-video",
+      "poster=\"/assets/video/intro-background.png\"",
+      "muted playsinline webkit-playsinline preload=\"auto\"",
+      "/assets/video/story-01.mp4",
+      "data-folder-trigger",
+      "data-anchor=\"about\" data-video-index=\"0\" data-media-time=\"3.4\"",
+      "data-scroll-duration=\"0.45\"",
+      "data-scroll-power=\"0.1\"",
       "id=\"comments\"",
-      "book-cover",
-      "href=\"/about/\"",
-      "href=\"/photos/\"",
-      "href=\"/leaves/\"",
+      "href=\"/blog/\"",
     ],
-    text: ["一册未装订的生活", "UNBOUND EDITION", "生活还没有装订", "最近编页"],
+    text: ["loadingvibe", "loadingvibelyg@gmail.com", "Hi, I’m Roy", "Open blog", "Comments"],
   });
   await checkHtml("/about/", {
     html: ["id=\"main-content\"", "author-portrait", "persona-shelf", "临时占位图"],
     text: ["关于作者", "此刻的我", "人物图版"],
   });
-  await checkHtml("/photos/", {
-    html: ["id=\"main-content\"", "contact-sheet", "P-001", "P-006"],
-    text: ["接触印样", "ROLL 001", "山野、建筑与光"],
-  });
-  await checkHtml("/leaves/", {
-    html: ["id=\"main-content\"", "leaf-stack", "PRIVATE DRAFTS"],
-    text: ["未装订散页", "这不是私密草稿目录", "已选散页"],
-  });
+  await checkStatus("/photos/", 404);
+  await checkStatus("/leaves/", 404);
   await checkHtml("/marginalia/", {
     html: ["id=\"main-content\"", "marginalia-thread", "comments-panel"],
-    text: ["页边批注", "全站旁批簿"],
+    text: ["评论", "全站旁批簿"],
   });
   await checkHtml("/blog/", {
     html: [
@@ -435,8 +457,18 @@ try {
   await checkText("/CNAME", ["loadingvibe.com"]);
   await checkAsset("/assets/brand/you-dian-lai-dian-mark-v1.png");
   await checkAsset("/assets/brand/optimized/mark-192.avif");
+  await checkAsset("/assets/brand/loadingvibe-script-source.png");
   await checkAsset("/assets/about/optimized/roy-profile-960.avif");
   await checkAsset("/og-you-dian-lai-dian-v1.png");
+  await checkAsset("/assets/video/intro-gaze.mp4");
+  await checkAsset("/assets/video/intro-background.png");
+  await checkAsset("/assets/video/intro-person-mask.png");
+  await checkAsset("/assets/video/intro-person-mask.mp4");
+  await checkAsset("/assets/video/story-01.mp4");
+  await checkAsset("/assets/video/story-02.mp4");
+  await checkAsset("/assets/video/story-03.mp4");
+  await checkAsset("/assets/video/story-04.mp4");
+  await checkAsset("/assets/video/folder-burst.mp4");
 
   for (const sitemapFile of sitemapFiles) {
     await fetchOk("/" + sitemapFile);

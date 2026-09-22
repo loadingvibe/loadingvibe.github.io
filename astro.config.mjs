@@ -10,10 +10,14 @@ export default defineConfig({
   site: "https://loadingvibe.com",
   output: "static",
   trailingSlash: "always",
+  devToolbar: {
+    enabled: false,
+  },
   integrations: [
     react(),
     sitemap({
       filter(page) {
+        if (new URL(page).pathname === "/motion-review/") return false;
         const match = new URL(page).pathname.match(/^\/blog\/(.+)\/$/u);
         if (!match) return true;
 

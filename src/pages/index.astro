@@ -1,145 +1,281 @@
 ---
-import BookLayout from "../layouts/BookLayout.astro";
-import { formatBlogDate, getPublishedPosts } from "../lib/blog";
+import BrandWordmark from "../components/BrandWordmark.astro";
+import "../styles/scrollytelling.css";
 
-const posts = await getPublishedPosts();
-const latestPost = posts[0];
-const featuredPosts = [...posts]
-  .sort((left, right) => Number(right.featured) - Number(left.featured))
-  .slice(0, 3);
-const description = "Roy 持续编写的一册数字艺术书：收录生活、技术学习、照片、散页与页边批注。";
-const coverJsonLd = {
+const title = "loadingvibe — Roy's personal website";
+const description =
+  "Roy's scrollytelling portfolio: everyday glimpses, technology notes, personal reflections, and an open conversation.";
+const siteBase = Astro.site || Astro.url;
+const canonicalUrl = new URL("/", siteBase).toString();
+const imageUrl = new URL("/assets/brand/optimized/og-unbound-edition-v1.jpg", siteBase).toString();
+const structuredData = JSON.stringify({
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "一册未装订的生活｜有点来电",
-  alternateName: "UNBOUND EDITION",
+  name: "loadingvibe",
   description,
-  url: new URL("/", Astro.site || Astro.url).toString(),
-  inLanguage: "zh-CN",
+  url: canonicalUrl,
+  inLanguage: "en",
   author: {
     "@type": "Person",
     name: "Roy",
     sameAs: ["https://github.com/loadingvibe"],
   },
-};
+}).replaceAll("<", "\\u003c");
 ---
 
-<BookLayout
-  title="一册未装订的生活｜有点来电"
-  description={description}
-  canonical="/"
-  image="/og-you-dian-lai-dian-v1.png"
-  jsonLd={coverJsonLd}
-  page="cover"
-  folios={posts.length}
-  plates={6}
->
-  <main id="main-content" class="book-cover-page">
-    <section class="book-cover" aria-labelledby="cover-title">
-      <div class="book-cover__spine" aria-hidden="true"><span>有点来电 · 2026</span></div>
-      <div class="book-cover__edition">
-        <p>有点来电 <span>PRESENTS</span></p>
-        <p>EDITION 01 · 2026—ONGOING</p>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f2eee9" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" type="image/png" href="/assets/brand/optimized/favicon-64.png" />
+    <link rel="alternate" type="application/rss+xml" title="loadingvibe · RSS" href="/rss.xml" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="loadingvibe" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={imageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <script is:inline type="application/ld+json" set:html={structuredData}></script>
+  </head>
+  <body class="scrolly-page">
+    <a class="skip-link" href="#main-content">Skip to the story</a>
+
+    <div class="story-app" data-story-app data-scene="intro">
+      <div class="media-stage" aria-hidden="true">
+        <video
+          class="story-video story-video--intro"
+          data-intro-video
+          src="/assets/video/intro-gaze.mp4"
+          poster="/assets/video/intro-background.png"
+          muted
+          playsinline
+          webkit-playsinline
+          preload="auto"
+          loop
+          autoplay
+        ></video>
+        <video
+          class="intro-mask-source"
+          data-intro-mask-video
+          src="/assets/video/intro-person-mask.mp4"
+          muted
+          playsinline
+          webkit-playsinline
+          preload="auto"
+          loop
+          autoplay
+        ></video>
+        <div class="intro-display" data-intro-display aria-hidden="true">
+          <span class="intro-display__word intro-display__word--loading">loading</span>
+          <span class="intro-display__word intro-display__word--vibe">vibe</span>
+        </div>
+        <canvas class="intro-foreground" data-intro-foreground></canvas>
+        <video
+          class="story-video story-video--main"
+          data-story-video
+          data-index="0"
+          data-duration="5.042"
+          src="/assets/video/story-01.mp4"
+          muted
+          playsinline
+          webkit-playsinline
+          preload="auto"
+        ></video>
+        <video
+          class="story-video story-video--main"
+          data-story-video
+          data-index="1"
+          data-duration="5.042"
+          data-scroll-duration="0.45"
+          src="/assets/video/story-02.mp4"
+          muted
+          playsinline
+          webkit-playsinline
+          preload="auto"
+        ></video>
+        <video
+          class="story-video story-video--main"
+          data-story-video
+          data-index="2"
+          data-duration="5.042"
+          data-scroll-duration="2.2"
+          data-scroll-power="0.1"
+          src="/assets/video/story-03.mp4"
+          muted
+          playsinline
+          webkit-playsinline
+          preload="auto"
+        ></video>
+        <video
+          class="story-video story-video--main"
+          data-story-video
+          data-index="3"
+          data-duration="5.042"
+          src="/assets/video/story-04.mp4"
+          muted
+          playsinline
+          webkit-playsinline
+          preload="auto"
+        ></video>
+        <video
+          class="folder-burst"
+          data-folder-burst
+          src="/assets/video/folder-burst.mp4"
+          muted
+          playsinline
+          webkit-playsinline
+          preload="auto"
+        ></video>
+        <div class="media-fallback" aria-hidden="true"></div>
+        <canvas class="ripple-field" data-ripple-field></canvas>
       </div>
 
-      <div class="book-cover__title-block">
-        <p class="book-cover__kicker">A GROWING DIGITAL ART BOOK</p>
-        <h1 id="cover-title">一册未装订的生活</h1>
-        <p class="book-cover__english" lang="en">UNBOUND EDITION</p>
-        <p class="book-cover__byline">ROY · 长沙</p>
-      </div>
-
-      <div class="book-cover__mark" aria-hidden="true">
-        <img src="/assets/brand/optimized/mark-192.avif" width="192" height="192" alt="" />
-      </div>
-
-      <div class="book-cover__lower">
-        <dl>
-          <div><dt>FOLIOS</dt><dd>{String(posts.length).padStart(2, "0")}</dd></div>
-          <div><dt>PLATES</dt><dd>06</dd></div>
-          <div><dt>LAST REVISED</dt><dd>{latestPost ? formatBlogDate(latestPost.date) : "待编页"}</dd></div>
-        </dl>
-        <nav aria-label="打开本册">
-          <a class="book-button book-button--light" href="#inside-cover">翻开本册 <span aria-hidden="true">↓</span></a>
-          {latestPost && <a class="book-button book-button--ghost" href={latestPost.href}>阅读最近一篇 <span aria-hidden="true">↗</span></a>}
+      <header class="story-header">
+        <a class="brand" href="#home" data-story-link="home" aria-label="loadingvibe, back to the opening">
+          <img src="/assets/brand/optimized/mark-192.avif" width="192" height="192" alt="" />
+          <BrandWordmark class="story-brand__wordmark" filterId="story-brand-wordmark-filter" />
+        </a>
+        <nav class="story-nav" aria-label="Primary navigation">
+          <a href="#about" data-story-link="about">
+            <svg class="story-nav__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="8" r="3.25"></circle>
+              <path d="M5.75 19c.45-3.55 2.58-5.5 6.25-5.5s5.8 1.95 6.25 5.5"></path>
+            </svg>
+            <span>About</span>
+          </a>
+          <a href="/blog/">
+            <svg class="story-nav__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6.5 3.75h7l4 4V20.25H6.5z"></path>
+              <path d="M13.5 3.75v4h4M9 12h6M9 15.5h6"></path>
+            </svg>
+            <span>Blog</span>
+          </a>
+          <a href="#comments" data-story-link="comments">
+            <svg class="story-nav__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4.25 5.5h15.5v10.75H10l-4.5 3v-3H4.25z"></path>
+              <path d="M8 9.25h8M8 12.5h5"></path>
+            </svg>
+            <span>Comments</span>
+          </a>
         </nav>
-      </div>
-    </section>
-
-    <section id="inside-cover" class="inside-cover" aria-labelledby="inside-title">
-      <span id="about" class="book-legacy-anchor" aria-hidden="true"></span>
-      <header class="book-section-heading">
-        <div>
-          <p>INSIDE COVER / 内折页</p>
-          <h2 id="inside-title">生活还没有装订，<br />就先这样留下。</h2>
-        </div>
-        <p>
-          我是 Roy，正在学习自动驾驶与嵌入式。这里保存我从代码、道路与日常里接收到的信号，也收下那些尚未成为完整文章的片段。
-        </p>
       </header>
 
-      <div class="inside-cover__grid">
-        <article class="inside-cover__author">
-          <div class="inside-cover__label"><span>AUTHOR</span><b>A-01</b></div>
-          <img src="/assets/about/optimized/roy-profile-960.avif" width="960" height="720" alt="Roy 的个人照片" loading="lazy" decoding="async" />
-          <div>
-            <p>关于作者</p>
-            <h3>一名仍在学习，也仍在记录的大四学生。</h3>
-            <a href="/about/">打开作者页 ↗</a>
-          </div>
-        </article>
+      <main id="main-content" class="story-scenes">
+        <section class="scene scene--intro is-visible" data-scene-panel="intro" aria-labelledby="intro-title">
+          <h1 id="intro-title" class="sr-only">loadingvibe</h1>
+          <address class="intro-contact" aria-label="Contact Roy">
+            <span class="contact-card__strap" aria-hidden="true"></span>
+            <span class="contact-card__clip" aria-hidden="true"><i></i></span>
+            <header class="contact-card__heading">
+              <p>Contact Me</p>
+              <span class="contact-card__smile" aria-hidden="true">⌣</span>
+            </header>
+            <div class="contact-card__list">
+              <a class="contact-card__item" href="mailto:loadingvibelyg@gmail.com">
+                <span class="contact-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M3.5 5.5h17v13h-17zM4.5 7l7.5 6 7.5-6" /></svg>
+                </span>
+                <span class="contact-card__copy">
+                  <small>Email</small>
+                  <strong>loadingvibelyg@gmail.com</strong>
+                </span>
+              </a>
+              <a class="contact-card__item" href="tel:+8615197200627">
+                <span class="contact-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M8.1 3.7 5.5 5.4c-1.2.8-.9 3.3.8 6.1 1.8 2.9 4.4 5.3 7.4 6.7 2.8 1.3 5 .9 5.7-.4l1.2-2.2-4.4-2.5-1.5 1.7c-1.8-.8-4.6-3.1-5.5-5l1.5-1.6z" /></svg>
+                </span>
+                <span class="contact-card__copy">
+                  <small>WeChat</small>
+                  <strong>15197200627</strong>
+                </span>
+              </a>
+              <a class="contact-card__item" href="https://github.com/loadingvibe?tab=repositories" target="_blank" rel="noreferrer">
+                <span class="contact-card__icon contact-card__icon--github" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M12 2.7a9.5 9.5 0 0 0-3 18.5c.5.1.7-.2.7-.5v-1.9c-2.8.6-3.4-1.2-3.4-1.2-.5-1.1-1.1-1.4-1.1-1.4-.9-.6.1-.6.1-.6 1 0 1.6 1.1 1.6 1.1.9 1.6 2.4 1.1 2.9.9.1-.7.4-1.1.7-1.3-2.3-.3-4.6-1.1-4.6-4.7 0-1 .4-1.9 1-2.6-.1-.3-.4-1.3.1-2.6 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 4.9 0c1.8-1.3 2.7-1 2.7-1 .5 1.3.2 2.3.1 2.6.7.7 1 1.6 1 2.6 0 3.7-2.4 4.5-4.6 4.7.4.3.7.9.7 1.8v2.6c0 .4.2.6.7.5A9.5 9.5 0 0 0 12 2.7Z" /></svg>
+                </span>
+                <span class="contact-card__copy">
+                  <small>GitHub</small>
+                  <strong>github.com/loadingvibe?tab=repositories</strong>
+                </span>
+              </a>
+            </div>
+            <span class="contact-card__note" aria-hidden="true">Let’s<br />connect!</span>
+            <span class="contact-card__star" aria-hidden="true">★</span>
+            <span class="contact-card__footer" aria-hidden="true"><i></i>loadingvibe<i></i></span>
+          </address>
+        </section>
 
-        <article class="inside-cover__plates">
-          <div class="inside-cover__label"><span>CONTACT SHEET</span><b>P-001—006</b></div>
-          <div class="inside-cover__plate-strip" aria-label="第一卷照片预览">
-            <figure><img src="/assets/about/optimized/mist-gorge-960.avif" width="720" height="960" alt="雾中的峡谷" loading="lazy" decoding="async" /><figcaption>P-001 / 雾峡</figcaption></figure>
-            <figure><img src="/assets/about/optimized/cloud-meadow-960.avif" width="960" height="675" alt="蓝天下的高山草地" loading="lazy" decoding="async" /><figcaption>P-002 / 云野</figcaption></figure>
-            <figure><img src="/assets/about/optimized/moon-peak-960.avif" width="723" height="960" alt="白日月亮与山峰" loading="lazy" decoding="async" /><figcaption>P-006 / 月峰</figcaption></figure>
+        <section class="scene scene--about" data-scene-panel="about" aria-labelledby="about-title" aria-hidden="true" inert>
+          <h2 id="about-title" class="sr-only">About Roy</h2>
+          <div class="about-copy">
+            <p>
+              Hi, I’m <em>Roy</em>! Currently in my final year at Central South University, geeking out over
+              <em>AI</em> and <em>self-driving tech</em> by day, and living life to the fullest by night. I built
+              this space to share everyday glimpses, <em>tech notes</em>, and random reflections. Always down to
+              meet <em>like-minded</em> souls. If we share any of these interests, feel free to drop me a message!
+            </p>
           </div>
-          <a href="/photos/">查看完整接触印样 ↗</a>
-        </article>
+        </section>
 
-        <article class="inside-cover__leaf">
-          <div class="inside-cover__label"><span>LOOSE LEAF</span><b>L-001</b></div>
-          <p class="inside-cover__leaf-copy">“有些念头还不够成为一篇正文，但已经值得拥有一张纸。”</p>
-          <p>公开散页只存放经过选择的片段；真正的本地草稿仍留在书桌上。</p>
-          <a href="/leaves/">拾起一张散页 ↗</a>
-        </article>
+        <section class="scene scene--folder" data-scene-panel="folder" aria-label="Open the blog" aria-hidden="true" inert>
+          <div class="folder-hit-map">
+            <button class="folder-hotspot" type="button" data-folder-trigger aria-label="Open the blog">
+              <span class="folder-hotspot__label">Open blog</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="scene scene--comments" data-scene-panel="comments" aria-labelledby="comments-title" aria-hidden="true" inert>
+          <div class="comments-sheet" data-comments-sheet>
+            <header class="comments-heading">
+              <p>Open conversation</p>
+              <h2 id="comments-title">Comments</h2>
+              <span>Leave a note, an idea, or a hello.</span>
+            </header>
+            <div class="comments-mount" id="story-comments" data-comments-mount>
+              <p class="comments-loading" data-comments-loading>Connecting to the conversation…</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <div class="story-progress" aria-hidden="true">
+        <span class="story-progress__track"><i data-progress-bar></i></span>
+        <span class="story-progress__number" data-progress-number>01</span>
       </div>
-    </section>
+      <div class="scroll-pulse" aria-hidden="true"><i></i></div>
+      <div class="pointer-marker" data-pointer-marker aria-hidden="true"><i></i></div>
 
-    <section class="cover-contents" aria-labelledby="contents-title">
-      <header class="book-section-heading book-section-heading--compact">
-        <div>
-          <p>BOUND FOLIOS / 已编入正文</p>
-          <h2 id="contents-title">最近编页</h2>
-        </div>
-        <a href="/blog/">打开全书目录 ↗</a>
-      </header>
-      {
-        featuredPosts.length > 0 ? (
-          <ol class="cover-contents__list">
-            {featuredPosts.map((post) => (
-              <li>
-                <a href={post.href}>
-                  <span>{post.catalogNo}</span>
-                  <div><small>{post.category}</small><h3>{post.title}</h3><p>{post.summary}</p></div>
-                  <time datetime={post.date?.toISOString()}>{formatBlogDate(post.date)}</time>
-                  <b aria-hidden="true">↗</b>
-                </a>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <p class="book-empty-state">第一篇正文仍在编写中。</p>
-        )
-      }
-    </section>
+      <div class="story-spacer" data-story-spacer>
+        <span class="story-anchor" id="home" data-anchor="home" data-time="0"></span>
+        <span class="story-anchor" id="about" data-anchor="about" data-video-index="0" data-media-time="3.4"></span>
+        <span class="story-anchor" id="folder" data-anchor="folder" data-video-index="2" data-media-time="3.666"></span>
+        <span class="story-anchor" id="comments" data-anchor="comments" data-video-index="3" data-media-time="2.624"></span>
+      </div>
 
-    <aside id="comments" class="cover-marginalia-link" aria-label="旧评论入口">
-      <span>MARGINALIA / M-001</span>
-      <p>原来的“回声”已经移到本册的页边，欢迎继续留下问候、建议或此刻的想法。</p>
-      <a href="/marginalia/">打开旁批簿 ↗</a>
-    </aside>
-  </main>
-</BookLayout>
+      <div class="burst-cover" data-burst-cover aria-live="polite" aria-label="Opening the blog"></div>
+    </div>
+
+    <noscript>
+      <div class="noscript-card">
+        <img src="/assets/brand/optimized/mark-192.avif" width="96" height="96" alt="loadingvibe logo" />
+        <h1>loadingvibe</h1>
+        <p>This story needs JavaScript for scroll-controlled video.</p>
+        <p><a href="/blog/">Open the blog</a> · <a href="/marginalia/">Open comments</a></p>
+      </div>
+    </noscript>
+
+    <script src="../scripts/scrollytelling.js"></script>
+  </body>
+</html>

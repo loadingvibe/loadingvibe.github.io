@@ -14,9 +14,8 @@ interface Props {
   modifiedTime?: Date;
   tags?: string[];
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
-  page?: "cover" | "about" | "photos" | "leaves" | "blog" | "marginalia";
+  page?: "about" | "blog" | "marginalia";
   folios?: number;
-  plates?: number;
   showFooter?: boolean;
 }
 
@@ -30,9 +29,8 @@ const {
   modifiedTime,
   tags,
   jsonLd,
-  page = "cover",
+  page = "about",
   folios,
-  plates,
   showFooter = true,
 } = Astro.props;
 ---
@@ -51,6 +49,5 @@ const {
 >
   <BookHeader page={page} />
   <slot />
-  {showFooter && <BookFooter folios={folios} plates={plates} />}
+  {showFooter && <BookFooter folios={folios} />}
 </BaseLayout>
-
