@@ -1,0 +1,39 @@
+---
+export interface OutlineNode {
+  depth: number;
+  slug: string;
+  text: string;
+  children: OutlineNode[];
+}
+
+interface Props {
+  node: OutlineNode;
+}
+
+const { node } = Astro.props;
+---
+
+<li class="article-outline__branch" data-heading-depth={node.depth}>
+  {node.children.length ? (
+    <details data-outline-branch data-heading-slug={node.slug} open>
+      <summary class="article-outline__row">
+        <svg class="article-outline__toggle" width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true" focusable="false">
+          <path d="m4 2 5 4-5 4Z" />
+        </svg>
+        <a class="article-outline__link" data-outline-link data-heading-slug={node.slug} href={`#${encodeURIComponent(node.slug)}`} title={node.text}>
+          <span class="article-outline__text">{node.text}</span>
+        </a>
+      </summary>
+      <ol class="article-outline__children">
+        {node.children.map((child) => <Astro.self node={child} />)}
+      </ol>
+    </details>
+  ) : (
+    <div class="article-outline__row">
+      <span class="article-outline__toggle" aria-hidden="true"></span>
+      <a class="article-outline__link" data-outline-link data-heading-slug={node.slug} href={`#${encodeURIComponent(node.slug)}`} title={node.text}>
+        <span class="article-outline__text">{node.text}</span>
+      </a>
+    </div>
+  )}
+</li>

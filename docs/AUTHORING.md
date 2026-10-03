@@ -30,6 +30,12 @@ featured: false
 正文……
 ```
 
+## 博客侧栏分类
+
+侧栏包含「知识库」和「朋友圈」两类，新文章可以分别放入 `Blog/知识库/` 和 `Blog/朋友圈/`，并在其中继续创建主题子目录。最外层目录决定侧栏分类，不会改动 `slug` 或永久 F 编号。
+
+旧文章无需迁移：未使用这两个顶层目录时，`category: 生活` 归入「朋友圈」，其余类别归入「知识库」。各分类直接按文章 `date` 从新到旧列出记录，日期相同时按 `slug` 稳定排序；源文件仍可按子目录整理，但侧栏不显示子目录或数量数字。没有已发布内容时显示空状态，不会生成占位文章。
+
 ## 字段规则
 
 | 字段 | 必填 | 用途与规则 |
@@ -49,7 +55,7 @@ featured: false
 
 `slug: stable-english-slug` 生成 `/blog/stable-english-slug/`。文件从一个目录移到另一个目录时，URL 不会改变。所有 slug 和 alias 都必须全站唯一，冲突时构建会指出涉及的两个源文件。
 
-`catalogNo` 是书内身份，同时作为评论线程的稳定键。新文章应使用尚未占用的下一个编号；即使以后修改 slug，也不要修改已经发布过的 `catalogNo`。
+`catalogNo` 是书内永久身份。新文章应使用尚未占用的下一个编号；即使以后修改 slug，也不要修改已经发布过的 `catalogNo`。阅读页不再提供文章评论区或上一篇／下一篇导航。
 
 ## 文件是文章的身份
 
@@ -92,6 +98,8 @@ public/assets/blog/my-note/diagram.webp
 ![图片的有意义替代文本](/assets/blog/my-note/diagram.webp)
 ```
 
+也可以继续使用现有的 `![说明](./文章名.assets/图片.png)` 相对路径。正文图片保持原始宽高比：超过正文宽度时等比例缩小，小图不放大；不需要在 Markdown 中手动设置宽高。
+
 ## 本地检查与自动上线
 
 ```bash
@@ -105,6 +113,8 @@ git push origin main
 
 `git push origin main` 后，`.github/workflows/deploy-pages.yml` 会自动执行 `npm ci`、`npm run build` 和 `npm run check`，只在所有步骤成功时更新 `gh-pages`。
 
-`Blog/README.md` 不会被发布，但写作说明仍应放在 `docs/`。下划线开头的文件或目录不会进入内容集，但如果提交到公开 Git 仓库，源码仍然公开。
+博客页尾的 `LAST BUILD` 显示当前发布版本的部署构建时间（北京时间），不是访问时间，也不是 GitHub Pages 完成发布的精确时刻。工作流在构建前固定 `SITE_DEPLOYMENT_BUILD_TIME`，同一时间会随页面保存到 `/deployment-build.json`；失败构建不会更新线上记录。本地预览和普通本地构建读取已获取的 `origin/gh-pages` 中的发布记录，旧版本则使用该部署分支的提交时间；执行 `git fetch origin gh-pages` 后，重启本地预览或重新构建即可刷新记录。没有部署记录时显示“尚无部署记录”，不会使用当前时间兜底。
+
+`Blog/README.md` 不会被发布，但写作说明仍应放在 `docs/`。下划线开头的文件或目录、`.assets` 资源目录中的辅助 Markdown 不会进入内容集，但如果提交到公开 Git 仓库，源码仍然公开。
 
 真正私密的本地草稿应放在仓库根目录的 `.private-drafts/` 中；该目录已被 `.gitignore` 排除，也不会被网站读取。不要把密码、令牌、私人身份信息或其他敏感内容放进 `Blog/`，即使文章设置了 `draft: true`。

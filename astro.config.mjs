@@ -17,7 +17,7 @@ export default defineConfig({
     react(),
     sitemap({
       filter(page) {
-        if (new URL(page).pathname === "/motion-review/") return false;
+        if (["/motion-review/", "/blog/"].includes(new URL(page).pathname)) return false;
         const match = new URL(page).pathname.match(/^\/blog\/(.+)\/$/u);
         if (!match) return true;
 

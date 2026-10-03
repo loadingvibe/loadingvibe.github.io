@@ -1,0 +1,320 @@
+<div
+  class="logo-replay"
+  data-logo-replay
+  data-state="idle"
+  id="logo-replay-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-label="loadingvibe Logo 动画"
+  aria-hidden="true"
+  tabindex="-1"
+  hidden
+>
+  <div class="logo-replay__stage" data-logo-replay-stage>
+    <canvas class="logo-replay__canvas" data-logo-replay-canvas aria-hidden="true"></canvas>
+    <img
+      class="logo-replay__fallback"
+      data-logo-replay-fallback
+      src="/assets/brand/optimized/mark-768.avif"
+      width="768"
+      height="768"
+      alt=""
+    />
+  </div>
+  <p class="sr-only" data-logo-replay-status role="status" aria-live="polite"></p>
+</div>
+
+<script>
+  const overlayNode = document.querySelector<HTMLElement>("[data-logo-replay]");
+  const triggerNode = document.querySelector<HTMLButtonElement>("[data-logo-replay-trigger]");
+
+  if (overlayNode && triggerNode && overlayNode.dataset.bound !== "true") {
+    overlayNode.dataset.bound = "true";
+    const overlay = overlayNode;
+    const trigger = triggerNode;
+    const stage = overlay.querySelector<HTMLElement>("[data-logo-replay-stage]");
+    const canvas = overlay.querySelector<HTMLCanvasElement>("[data-logo-replay-canvas]");
+    const status = overlay.querySelector<HTMLElement>("[data-logo-replay-status]");
+    const story = document.querySelector<HTMLElement>("[data-story-app]");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    type LogoModule = typeof import("./logo-formation");
+    type LogoInstance = Awaited<ReturnType<LogoModule["LogoScene"]["create"]>>;
+
+    let modulePromise: Promise<LogoModule> | null = null;
+    let scene: LogoInstance | null = null;
+    let resizeObserver: ResizeObserver | null = null;
+    let animationFrame = 0;
+    let finishTimer = 0;
+    let startTime = 0;
+    let storyDuration = 0;
+    let pausedAt = 0;
+    let runId = 0;
+    let active = false;
+    let previousFocus: HTMLElement | null = null;
+
+    const loadModule = () => (modulePromise ??= import("./logo-formation"));
+    const nextPaint = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+    function lockPage(locked: boolean) {
+      document.body.classList.toggle("logo-replay-active", locked);
+      if (story) story.inert = locked;
+      trigger.setAttribute("aria-expanded", String(locked));
+    }
+
+    function resetResources() {
+      cancelAnimationFrame(animationFrame);
+      window.clearTimeout(finishTimer);
+      resizeObserver?.disconnect();
+      resizeObserver = null;
+      scene?.dispose();
+      scene = null;
+      animationFrame = 0;
+      storyDuration = 0;
+      pausedAt = 0;
+    }
+
+    function restorePage(shouldFocus = true) {
+      resetResources();
+      active = false;
+      overlay.hidden = true;
+      overlay.dataset.state = "idle";
+      overlay.setAttribute("aria-hidden", "true");
+      lockPage(false);
+      if (status) status.textContent = "";
+      if (shouldFocus && document.contains(previousFocus)) previousFocus?.focus({ preventScroll: true });
+      previousFocus = null;
+    }
+
+    function closeOverlay(id: number, delay = 180) {
+      if (!active || id !== runId) return;
+      cancelAnimationFrame(animationFrame);
+      animationFrame = 0;
+      finishTimer = window.setTimeout(() => {
+        if (id !== runId) return;
+        overlay.dataset.state = "closing";
+        finishTimer = window.setTimeout(() => {
+          if (id !== runId) return;
+          restorePage();
+        }, reduceMotion.matches ? 30 : 460);
+      }, delay);
+    }
+
+    function showStaticFallback(id: number) {
+      if (!active || id !== runId) return;
+      overlay.dataset.state = "fallback";
+      if (status) status.textContent = "Logo 已显示。";
+      closeOverlay(id, reduceMotion.matches ? 720 : 1050);
+    }
+
+    function renderFrame(now: number, id: number) {
+      if (!active || id !== runId || !scene || storyDuration <= 0) return;
+      const elapsed = (now - startTime) / 1000;
+      scene.render(elapsed);
+      if (elapsed >= storyDuration) {
+        scene.render(storyDuration);
+        if (status) status.textContent = "Logo 动画播放完毕。";
+        closeOverlay(id);
+        return;
+      }
+      animationFrame = requestAnimationFrame((next) => renderFrame(next, id));
+    }
+
+    async function playLogo() {
+      if (active || !stage || !canvas) return;
+      active = true;
+      const id = ++runId;
+      previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : trigger;
+      overlay.hidden = false;
+      overlay.dataset.state = "idle";
+      overlay.setAttribute("aria-hidden", "false");
+      lockPage(true);
+      overlay.focus({ preventScroll: true });
+      if (status) status.textContent = "Logo 动画正在播放。";
+
+      await nextPaint();
+      if (!active || id !== runId) return;
+      overlay.dataset.state = "loading";
+
+      if (reduceMotion.matches) {
+        showStaticFallback(id);
+        return;
+      }
+
+      try {
+        const { LogoScene, STORY_DURATION } = await loadModule();
+        if (!active || id !== runId) return;
+        scene = await LogoScene.create(canvas);
+        if (!active || id !== runId) {
+          scene.dispose();
+          scene = null;
+          return;
+        }
+
+        const resize = () => {
+          if (!scene) return;
+          const bounds = stage.getBoundingClientRect();
+          scene.resize(Math.max(1, bounds.width), Math.max(1, bounds.height));
+        };
+        resizeObserver = new ResizeObserver(resize);
+        resizeObserver.observe(stage);
+        resize();
+        overlay.dataset.state = "playing";
+        storyDuration = STORY_DURATION;
+        startTime = performance.now();
+        animationFrame = requestAnimationFrame((now) => renderFrame(now, id));
+      } catch (error) {
+        console.warn("Logo replay: static fallback", error);
+        showStaticFallback(id);
+      }
+    }
+
+    function dismiss() {
+      if (!active) return;
+      const id = runId;
+      closeOverlay(id, 0);
+    }
+
+    function handleVisibility() {
+      if (!active || !scene) return;
+      if (document.hidden) {
+        pausedAt = performance.now();
+        cancelAnimationFrame(animationFrame);
+        animationFrame = 0;
+      } else if (pausedAt) {
+        startTime += performance.now() - pausedAt;
+        pausedAt = 0;
+        const id = runId;
+        animationFrame = requestAnimationFrame((now) => renderFrame(now, id));
+      }
+    }
+
+    trigger.addEventListener("pointerenter", () => { if (!reduceMotion.matches) void loadModule(); }, { once: true });
+    trigger.addEventListener("focus", () => { if (!reduceMotion.matches) void loadModule(); }, { once: true });
+    trigger.addEventListener("click", () => void playLogo());
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && active) dismiss();
+    });
+    document.addEventListener("visibilitychange", handleVisibility);
+    reduceMotion.addEventListener("change", () => { if (active && reduceMotion.matches) dismiss(); });
+    window.addEventListener("pagehide", () => {
+      runId += 1;
+      restorePage(false);
+    });
+  }
+</script>
+
+<style>
+  .logo-replay {
+    position: fixed;
+    z-index: 1200;
+    inset: 0;
+    display: grid;
+    overflow: hidden;
+    padding: max(24px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    background: rgb(239 237 232 / 16%);
+    backdrop-filter: blur(18px) saturate(.7) brightness(.94);
+    -webkit-backdrop-filter: blur(18px) saturate(.7) brightness(.94);
+    opacity: 0;
+    place-items: center;
+    transition: opacity 420ms cubic-bezier(.22, 1, .36, 1);
+  }
+
+  .logo-replay[hidden] { display: none; }
+
+  .logo-replay[data-state="loading"],
+  .logo-replay[data-state="playing"],
+  .logo-replay[data-state="fallback"] { opacity: 1; }
+
+  .logo-replay[data-state="closing"] {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .logo-replay::before {
+    position: absolute;
+    width: min(76vw, 720px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(255 255 255 / 36%) 0, rgb(255 255 255 / 10%) 44%, transparent 72%);
+    content: "";
+    filter: blur(14px);
+    pointer-events: none;
+  }
+
+  .logo-replay__stage {
+    position: relative;
+    width: min(92vw, 880px, calc((100svh - 56px) * 1.55));
+    aspect-ratio: 1.55;
+    opacity: 0;
+    transform: scale(.965);
+    transition:
+      opacity 360ms ease,
+      transform 700ms cubic-bezier(.22, 1, .36, 1);
+  }
+
+  .logo-replay[data-state="playing"] .logo-replay__stage,
+  .logo-replay[data-state="fallback"] .logo-replay__stage {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .logo-replay[data-state="closing"] .logo-replay__stage {
+    opacity: 0;
+    transform: scale(.975);
+    transition-duration: 340ms;
+  }
+
+  .logo-replay__canvas,
+  .logo-replay__fallback {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    inset: 0;
+  }
+
+  .logo-replay__canvas { display: block; }
+
+  .logo-replay__fallback {
+    width: auto;
+    height: 83.5918%;
+    top: 50%;
+    left: 50%;
+    filter: drop-shadow(0 22px 30px rgb(22 25 25 / 18%));
+    object-fit: contain;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.94);
+    transition: opacity 260ms ease, transform 650ms cubic-bezier(.22, 1, .36, 1);
+  }
+
+  .logo-replay[data-state="fallback"] .logo-replay__canvas { opacity: 0; }
+
+  .logo-replay[data-state="fallback"] .logo-replay__fallback {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  :global(body.logo-replay-active) {
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
+  }
+
+  @media (max-width: 600px) {
+    .logo-replay {
+      backdrop-filter: blur(14px) saturate(.72) brightness(.95);
+      -webkit-backdrop-filter: blur(14px) saturate(.72) brightness(.95);
+    }
+
+    .logo-replay__stage {
+      width: min(96vw, 70svh);
+      aspect-ratio: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo-replay,
+    .logo-replay__stage,
+    .logo-replay__fallback { transition: none; }
+  }
+</style>

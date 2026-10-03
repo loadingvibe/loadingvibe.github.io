@@ -4,6 +4,7 @@ interface ArchivePostLink {
   routePath: string;
   title: string;
   dateLabel: string;
+  dateTime?: string;
 }
 
 export interface ArchiveTreeNode {
@@ -21,6 +22,10 @@ interface Props {
 }
 
 const { node, currentRoute, level = 0 } = Astro.props;
+
+function firstArticleHref(branch: ArchiveTreeNode): string | undefined {
+  return branch.posts[0]?.href || branch.children.map(firstArticleHref).find(Boolean);
+}
 ---
 
 <ul class="article-archive-tree" data-level={level}>
@@ -33,7 +38,7 @@ const { node, currentRoute, level = 0 } = Astro.props;
           aria-current={item.routePath === currentRoute ? "page" : undefined}
         >
           <span>{item.title}</span>
-          <time>{item.dateLabel}</time>
+          <time datetime={item.dateTime}>{item.dateLabel}</time>
         </a>
       </li>
     ))
@@ -44,16 +49,14 @@ const { node, currentRoute, level = 0 } = Astro.props;
       <li class="article-archive-tree__branch">
         <div class="article-archive-tree__directory">
           <a
-            href={`/blog/?directory=${encodeURIComponent(child.path)}`}
-            aria-label={`查看“${child.label}”目录的文章`}
+            href={firstArticleHref(child)}
+            aria-label={`阅读“${child.label}”目录的首篇文章`}
           >
             <span aria-hidden="true">/ </span>{child.label}
           </a>
-          <small>{String(child.total).padStart(2, "0")}</small>
         </div>
         <Astro.self node={child} currentRoute={currentRoute} level={level + 1} />
       </li>
     ))
   }
 </ul>
-

@@ -176,6 +176,12 @@ export async function getPublishedPosts() {
     });
 }
 
+export function getBlogEntryPost(posts: BlogPost[]) {
+  // Open the reading page shown in the blog entry design. Fall back to the
+  // newest published post if that folio is ever unpublished or removed.
+  return posts.find((post) => post.catalogNo === "F-004") || posts[0];
+}
+
 export function groupPostsByDirectory(posts: BlogPost[]): BlogDirectory[] {
   const groups = new Map<string, BlogPost[]>();
 

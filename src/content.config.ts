@@ -107,6 +107,8 @@ const blog = defineCollection({
       "!**/[Rr][Ee][Aa][Dd][Mm][Ee].md",
       "!**/_*.md",
       "!**/_*/**/*.md",
+      // Markdown stored beside exported images is an attachment, not a published article.
+      "!**/*.assets/**",
     ],
     generateId: ({ entry }) => entry.replace(/\.(?:md|mdx)$/iu, ""),
   }),

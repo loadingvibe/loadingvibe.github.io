@@ -270,6 +270,33 @@ body.scrolly-page :focus-visible {
   align-items: center;
   gap: 7px;
   color: var(--story-ink);
+}
+
+.brand__mark {
+  display: grid;
+  width: 66px;
+  height: 66px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  place-items: center;
+  transition: filter 220ms ease, transform 320ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.brand__mark:hover {
+  filter: brightness(1.04);
+  transform: scale(1.055) rotate(2deg);
+}
+
+.brand__mark:active { transform: scale(.97); }
+
+.brand__home {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
   text-decoration: none;
 }
 
@@ -277,7 +304,7 @@ body.scrolly-page :focus-visible {
   --brand-wordmark-width: clamp(156px, 12vw, 192px);
 }
 
-.brand img {
+.brand__mark img {
   width: 66px;
   height: 66px;
   flex: none;
@@ -967,7 +994,8 @@ body.scrolly-page :focus-visible {
     gap: 8px;
   }
 
-  .brand img {
+  .brand__mark,
+  .brand__mark img {
     width: 54px;
     height: 54px;
   }

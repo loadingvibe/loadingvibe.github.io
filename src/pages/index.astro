@@ -1,7 +1,10 @@
 ---
 import BrandWordmark from "../components/BrandWordmark.astro";
+import LogoReplayOverlay from "../components/library/LogoReplayOverlay.astro";
+import { getBlogEntryPost, getPublishedPosts } from "../lib/blog";
 import "../styles/scrollytelling.css";
 
+const blogEntryHref = getBlogEntryPost(await getPublishedPosts())?.href || "/blog/";
 const title = "loadingvibe — Roy's personal website";
 const description =
   "Roy's scrollytelling portfolio: everyday glimpses, technology notes, personal reflections, and an open conversation.";
@@ -51,7 +54,7 @@ const structuredData = JSON.stringify({
   <body class="scrolly-page">
     <a class="skip-link" href="#main-content">Skip to the story</a>
 
-    <div class="story-app" data-story-app data-scene="intro">
+    <div class="story-app" data-story-app data-scene="intro" data-blog-entry={blogEntryHref}>
       <div class="media-stage" aria-hidden="true">
         <video
           class="story-video story-video--intro"
@@ -142,10 +145,22 @@ const structuredData = JSON.stringify({
       </div>
 
       <header class="story-header">
-        <a class="brand" href="#home" data-story-link="home" aria-label="loadingvibe, back to the opening">
-          <img src="/assets/brand/optimized/mark-192.avif" width="192" height="192" alt="" />
-          <BrandWordmark class="story-brand__wordmark" filterId="story-brand-wordmark-filter" />
-        </a>
+        <div class="brand">
+          <button
+            class="brand__mark"
+            type="button"
+            data-logo-replay-trigger
+            aria-label="播放 loadingvibe Logo 动画"
+            aria-controls="logo-replay-overlay"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+          >
+            <img src="/assets/brand/optimized/mark-192.avif" width="192" height="192" alt="" />
+          </button>
+          <a class="brand__home" href="#home" data-story-link="home" aria-label="loadingvibe, back to the opening">
+            <BrandWordmark class="story-brand__wordmark" filterId="story-brand-wordmark-filter" />
+          </a>
+        </div>
         <nav class="story-nav" aria-label="Primary navigation">
           <a href="#about" data-story-link="about">
             <svg class="story-nav__icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -154,7 +169,7 @@ const structuredData = JSON.stringify({
             </svg>
             <span>About</span>
           </a>
-          <a href="/blog/">
+          <a href={blogEntryHref}>
             <svg class="story-nav__icon" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M6.5 3.75h7l4 4V20.25H6.5z"></path>
               <path d="M13.5 3.75v4h4M9 12h6M9 15.5h6"></path>
@@ -267,12 +282,14 @@ const structuredData = JSON.stringify({
       <div class="burst-cover" data-burst-cover aria-live="polite" aria-label="Opening the blog"></div>
     </div>
 
+    <LogoReplayOverlay />
+
     <noscript>
       <div class="noscript-card">
         <img src="/assets/brand/optimized/mark-192.avif" width="96" height="96" alt="loadingvibe logo" />
         <h1>loadingvibe</h1>
         <p>This story needs JavaScript for scroll-controlled video.</p>
-        <p><a href="/blog/">Open the blog</a> · <a href="/marginalia/">Open comments</a></p>
+        <p><a href={blogEntryHref}>Open the blog</a> · <a href="/marginalia/">Open comments</a></p>
       </div>
     </noscript>
 

@@ -525,7 +525,7 @@ if (app instanceof HTMLElement) {
     const navigate = () => {
       if (navigated) return;
       navigated = true;
-      window.location.assign("/blog/");
+      window.location.assign(app.dataset.blogEntry || "/blog/");
     };
     const fallbackTimer = window.setTimeout(navigate, 1700);
 

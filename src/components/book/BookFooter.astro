@@ -1,24 +1,31 @@
 ---
+import { deploymentBuild, formatDeploymentBuild } from "../../lib/deployment-build.mjs";
+
 interface Props {
   folios?: number;
+  compact?: boolean;
 }
 
-const { folios } = Astro.props;
-const buildDate = new Intl.DateTimeFormat("zh-CN", {
-  dateStyle: "medium",
-  timeZone: "Asia/Shanghai",
-}).format(new Date());
+const { folios, compact = false } = Astro.props;
+const buildDate = formatDeploymentBuild(deploymentBuild.builtAt);
 ---
 
-<footer class="book-colophon">
+<footer class:list={["book-colophon", { "book-colophon--compact": compact }]}>
   <div class="book-colophon__title">
-    <p>LOADINGVIBE / END</p>
+    {!compact && <p>LOADINGVIBE / END</p>}
     <h2>下次见。</h2>
   </div>
   <dl>
-    <div><dt>STATUS</dt><dd>2026—ONGOING</dd></div>
-    {typeof folios === "number" && <div><dt>FOLIOS</dt><dd>{String(folios).padStart(2, "0")}</dd></div>}
-    <div><dt>LAST BUILD</dt><dd>{buildDate}</dd></div>
+    {!compact && <div><dt>STATUS</dt><dd>2026—ONGOING</dd></div>}
+    {!compact && typeof folios === "number" && <div><dt>FOLIOS</dt><dd>{String(folios).padStart(2, "0")}</dd></div>}
+    <div>
+      <dt>LAST BUILD</dt>
+      <dd>
+        {deploymentBuild.builtAt
+          ? <time datetime={deploymentBuild.builtAt} title="部署版本构建时间（北京时间）">{buildDate}</time>
+          : buildDate}
+      </dd>
+    </div>
   </dl>
   <nav aria-label="版本与订阅">
     <a href="/rss.xml">RSS</a>

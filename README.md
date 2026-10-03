@@ -2,7 +2,7 @@
 
 「有点来电」是使用 [Astro](https://astro.build/) 构建的静态个人网站与 Markdown 档案。`Blog/` 是唯一的作者内容源：作者在仓库中编辑 Markdown，访客在网站上阅读和搜索。网页不再提供基于浏览器本地存储的发布编辑器，因此不会把访客的本地数据误表述为公开文章。
 
-构建会为每篇已发布文章生成静态 HTML，并同步到列表、搜索数据、RSS 和 sitemap，不需要数据库或服务端运行环境。
+构建会为每篇已发布文章生成静态 HTML，并同步到阅读页左侧目录、RSS 和 sitemap，不需要数据库或服务端运行环境。博客入口直接打开 `F-004` 阅读页；如果该文章下线，则打开最新已发布文章。旧 `/blog/` 地址只负责自动跳转，不再提供独立目录页面。
 
 ## 写一篇文章
 
@@ -18,7 +18,7 @@ Blog/
         └── 八档值得长期收听的播客.md
 ```
 
-构建会递归读取 `Blog/**/*.md`，并且不会发布 `README.md`、下划线开头的文件或目录。每篇文章必须提供完整 frontmatter：
+构建会递归读取 `Blog/**/*.md`，并且不会发布 `README.md`、下划线开头的文件或目录，以及 `.assets` 资源目录中的辅助 Markdown。每篇文章必须提供完整 frontmatter：
 
 ```yaml
 ---
@@ -78,7 +78,7 @@ npm run build
 npm run check
 ```
 
-`npm run build` 将完整静态站生成到 `dist/`；`npm run check` 检查首页、博客列表、示例文章、RSS、sitemap、自定义域名文件和品牌资源。检查命令读取已有的 `dist/`，因此应在构建之后运行。需要本地浏览最终产物时可执行 `npm run preview`。
+`npm run build` 将完整静态站生成到 `dist/`；`npm run check` 检查首页、博客入口跳转、示例文章、RSS、sitemap、自定义域名文件和品牌资源。检查命令读取已有的 `dist/`，因此应在构建之后运行。需要本地浏览最终产物时可执行 `npm run preview`。
 
 ## GitHub Pages 发布
 
