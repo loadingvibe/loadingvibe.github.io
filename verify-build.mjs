@@ -154,6 +154,17 @@ function resolveRequestFile(pathname) {
 const builtFiles = listFiles(buildRoot);
 const blogSources = loadBlogSources();
 const publishedBlogSources = blogSources.filter((source) => !source.draft);
+// Removed notes must disappear from the artifact, even if an old route was
+// left behind by a build or copied into dist before deployment.
+const expectedBlogHtmlFiles = new Set([
+  "blog/index.html",
+  ...publishedBlogSources.flatMap((source) => [source.slug, ...source.aliases]
+    .map((route) => `blog/${route}/index.html`)),
+]);
+const unexpectedBlogHtmlFiles = builtFiles.filter((file) =>
+  file.startsWith("blog/") && file.endsWith(".html") && !expectedBlogHtmlFiles.has(file));
+assert.deepEqual(unexpectedBlogHtmlFiles, [],
+  `Static build contains blog pages without a current published Blog/ source: ${unexpectedBlogHtmlFiles.join(", ")}`);
 const postOrder = new Intl.Collator("zh-CN", { numeric: true, sensitivity: "base" });
 // Folders define the catalog even before they contain a published article.
 const navigationSections = readdirSync(blogRoot, { withFileTypes: true })
