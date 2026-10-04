@@ -1,6 +1,7 @@
 ---
 import BookFooter from "../components/book/BookFooter.astro";
 import BookHeader from "../components/book/BookHeader.astro";
+import BlogLightbox from "../components/blog/BlogLightbox.astro";
 import "../styles/book.css";
 import BaseLayout from "./BaseLayout.astro";
 
@@ -43,5 +44,6 @@ const {
 >
   <BookHeader page="blog" />
   <slot />
+  <BlogLightbox />
   <BookFooter compact />
 </BaseLayout>

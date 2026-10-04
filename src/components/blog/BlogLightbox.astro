@@ -1,0 +1,56 @@
+---
+import "../../styles/blog-lightbox.css";
+---
+
+<dialog
+  class="blog-lightbox"
+  data-blog-lightbox
+  aria-labelledby="blog-lightbox-title"
+  aria-describedby="blog-lightbox-caption"
+>
+  <header class="blog-lightbox__toolbar">
+    <div class="blog-lightbox__heading">
+      <h2 id="blog-lightbox-title">图片浏览</h2>
+      <span data-lightbox-count></span>
+    </div>
+    <div class="blog-lightbox__actions">
+      <button type="button" class="blog-lightbox__control" data-lightbox-zoom aria-label="原始尺寸" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5M7.5 10.5h6M10.5 7.5v6" /></svg>
+        <span>原始尺寸</span>
+      </button>
+      <a class="blog-lightbox__control blog-lightbox__download" data-lightbox-download download>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4" /></svg>
+        <span>下载原图</span>
+      </a>
+      <button type="button" class="blog-lightbox__control blog-lightbox__close" data-lightbox-close aria-label="关闭图片浏览" autofocus>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="blog-lightbox__stage" data-lightbox-stage>
+    <div class="blog-lightbox__canvas" data-lightbox-canvas>
+      <img class="blog-lightbox__image" data-lightbox-image alt="" draggable="false" decoding="async" />
+    </div>
+  </div>
+
+  <footer class="blog-lightbox__footer">
+    <div class="blog-lightbox__details">
+      <p id="blog-lightbox-caption" data-lightbox-caption></p>
+      <a data-lightbox-original target="_blank" rel="noopener noreferrer">查看原图 <span aria-hidden="true">↗</span></a>
+      <p class="blog-lightbox__status" data-lightbox-status role="status" aria-live="polite"></p>
+    </div>
+    <nav class="blog-lightbox__navigation" aria-label="切换图片">
+      <button type="button" class="blog-lightbox__control" data-lightbox-prev aria-label="上一张图片">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6" /></svg>
+      </button>
+      <button type="button" class="blog-lightbox__control" data-lightbox-next aria-label="下一张图片">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6" /></svg>
+      </button>
+    </nav>
+  </footer>
+</dialog>
+
+<script>
+  import "../../scripts/blog-lightbox";
+</script>
