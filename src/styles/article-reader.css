@@ -254,11 +254,13 @@
 }
 
 .blog-article__title-icon {
-  width: .95em;
-  height: .95em;
+  display: block;
+  width: 1.15em;
+  height: 1.15em;
   flex: 0 0 auto;
-  margin-top: .15em;
-  color: var(--book-amber-ink);
+  /* Match the serif glyphs' visual center on the first line, including wrapped titles. */
+  margin-top: .2em;
+  object-fit: contain;
 }
 
 .article-reader .blog-article > header h1 > span {

@@ -6,6 +6,7 @@ import ArticleOutline from "../../../components/ArticleOutline.astro";
 import BlogSidebar from "../../components/blog/BlogSidebar.astro";
 import BlogLayout from "../../layouts/BlogLayout.astro";
 import "../../styles/article-reader.css";
+import { assignBlogTitleIcons, BLOG_TITLE_ICONS } from "../../lib/blog-title-icons.mjs";
 import {
   getPublishedPosts,
   type BlogPost,
@@ -35,6 +36,7 @@ if (redirectTo) return Astro.redirect(redirectTo, 301);
 
 const { Content, headings } = await render(post.entry);
 const posts = await getPublishedPosts();
+const titleIcon = assignBlogTitleIcons(posts).get(post.sourcePath) ?? BLOG_TITLE_ICONS[0];
 const outlineHeadings = headings.filter((heading) => heading.depth >= 1 && heading.depth <= 6);
 
 const canonicalUrl = new URL(post.href, Astro.site || Astro.url).toString();
@@ -101,22 +103,16 @@ const articleJsonLd = {
       <article class="blog-article">
         <header id="article-top">
           <h1>
-            <svg
+            <img
               class="blog-article__title-icon"
-              width="40"
-              height="40"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              src={titleIcon.src}
+              data-icon={titleIcon.id}
+              width="64"
+              height="64"
+              alt=""
               aria-hidden="true"
-              focusable="false"
-            >
-              <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
-              <path d="M8 3v18M12 8h4M12 12h4M12 16h2M2 7h4M2 12h4M2 17h4" />
-            </svg>
+              decoding="async"
+            />
             <span>{post.title}</span>
           </h1>
         </header>
