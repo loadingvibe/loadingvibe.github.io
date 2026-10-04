@@ -100,7 +100,25 @@ const articleJsonLd = {
 
       <article class="blog-article">
         <header id="article-top">
-          <h1>{post.title}</h1>
+          <h1>
+            <svg
+              class="blog-article__title-icon"
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
+              <path d="M8 3v18M12 8h4M12 12h4M12 16h2M2 7h4M2 12h4M2 17h4" />
+            </svg>
+            <span>{post.title}</span>
+          </h1>
         </header>
 
         {import.meta.env.DEV && <aside class="article-preview-note" aria-label="本地写作预览">
