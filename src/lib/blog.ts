@@ -1,4 +1,6 @@
 import { getCollection, type CollectionEntry } from "astro:content";
+import { resolve } from "node:path";
+import { resolveBlogAssetUrl } from "./blog-assets.mjs";
 
 export type BlogEntry = CollectionEntry<"blog">;
 export type BlogCategory = BlogEntry["data"]["category"];
@@ -51,7 +53,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
 });
 
 function stripMarkdownExtension(value: string) {
-  return value.replace(/\.(?:md|mdx)$/iu, "");
+  return value.replace(/\.(?:md|markdown|txt)$/iu, "");
 }
 
 function normalizePath(value: string) {
@@ -101,14 +103,17 @@ function readingMinutes(entry: BlogEntry) {
   return Math.max(1, Math.ceil(chineseCharacters / 450 + latinWords / 220));
 }
 
-function normalizeCover(value?: string) {
-  if (!value || /^(?:[a-z][a-z\d+.-]*:|\/\/)/iu.test(value)) return value;
+function normalizeCover(value: string | undefined, sourceFilePath: string) {
+  if (!value) return value;
+  const asset = resolveBlogAssetUrl(value, resolve(sourceFilePath), { allowMissing: true });
+  if (asset !== value) return asset;
+  if (/^(?:[a-z][a-z\d+.-]*:|\/\/)/iu.test(value)) return value;
   return `/${value.replace(/^\.?(?:\/|\\)+/u, "")}`;
 }
 
 export function toBlogPost(entry: BlogEntry): BlogPost {
   const sourcePath = sourceId(entry);
-  const sourceFilePath = `Blog/${sourcePath}.md`;
+  const sourceFilePath = entry.filePath?.startsWith("Blog/") ? entry.filePath : `Blog/${entry.id}`;
   const routePath = entry.data.slug;
   const sourceSegments = sourcePath.split("/").filter(Boolean);
 
@@ -133,43 +138,18 @@ export function toBlogPost(entry: BlogEntry): BlogPost {
     readingMinutes: readingMinutes(entry),
     date: entry.data.date,
     updated: entry.data.updated,
-    cover: normalizeCover(entry.data.cover),
+    cover: normalizeCover(entry.data.cover, sourceFilePath),
   };
 }
 
-export async function getPublishedPosts() {
+export async function getPublishedPosts({ includeDrafts = import.meta.env.DEV } = {}) {
   const entries = await getCollection("blog");
   // One Markdown file is always one content entry. Body text is deliberately never hashed or deduplicated:
   // two files with identical prose remain two posts as long as their public URL claims are distinct.
   const allPosts = entries.map(toBlogPost);
 
-  const seen = new Map<string, { claim: "slug" | "alias"; sourceFilePath: string }>();
-  const seenCatalogNumbers = new Map<string, string>();
-  for (const post of allPosts) {
-    const existingCatalogSource = seenCatalogNumbers.get(post.catalogNo);
-    if (existingCatalogSource) {
-      throw new Error(
-        `Blog catalog collision: "${existingCatalogSource}" and "${post.sourceFilePath}" both use ${post.catalogNo}.`,
-      );
-    }
-    seenCatalogNumbers.set(post.catalogNo, post.sourceFilePath);
-
-    for (const [index, route] of [post.routePath, ...post.aliases].entries()) {
-      const claim = index === 0 ? "slug" : "alias";
-      const existing = seen.get(route);
-      if (existing) {
-        throw new Error(
-          `Blog URL collision: "${existing.sourceFilePath}" (${existing.claim}) and ` +
-            `"${post.sourceFilePath}" (${claim}) both claim /blog/${route}/. ` +
-            "No article was removed: give every slug and alias a globally unique value.",
-        );
-      }
-      seen.set(route, { claim, sourceFilePath: post.sourceFilePath });
-    }
-  }
-
   return allPosts
-    .filter((post) => !post.entry.data.draft)
+    .filter((post) => includeDrafts || !post.entry.data.draft)
     .sort((left, right) => {
       const dateDifference = (right.date?.getTime() || 0) - (left.date?.getTime() || 0);
       return dateDifference || pathCollator.compare(left.slug, right.slug);
@@ -223,5 +203,6 @@ export function uniqueBlogTags(posts: BlogPost[]) {
 
 export function uniqueBlogCategories(posts: BlogPost[]) {
   const used = new Set(posts.map((post) => post.category));
-  return BLOG_CATEGORIES.filter((category) => used.has(category));
+  return [...BLOG_CATEGORIES.filter((category) => used.has(category)),
+    ...[...used].filter((category) => !BLOG_CATEGORIES.includes(category)).sort(pathCollator.compare)];
 }

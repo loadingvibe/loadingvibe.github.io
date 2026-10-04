@@ -2,7 +2,9 @@ import rss from "@astrojs/rss";
 import { getPublishedPosts } from "../lib/blog";
 
 export async function GET(context: { site?: URL }) {
-  const posts = await getPublishedPosts();
+  const posts = await getPublishedPosts({ includeDrafts: false });
+  const escapeXml = (value: string) => value.replace(/[&<>"']/gu, (character) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[character]!);
 
   return rss({
     title: "loadingvibe · 文章",
@@ -13,7 +15,7 @@ export async function GET(context: { site?: URL }) {
       title: post.title,
       description: post.summary,
       link: post.href,
-      customData: `<guid isPermaLink="false">loadingvibe:${post.catalogNo}</guid>`,
+      customData: `<guid isPermaLink="false">loadingvibe:${escapeXml(post.catalogNo)}</guid>`,
       ...(post.date ? { pubDate: post.date } : {}),
       ...(post.tags.length ? { categories: post.tags } : {}),
     })),

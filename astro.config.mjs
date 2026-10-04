@@ -5,6 +5,14 @@ import { defineConfig } from "astro/config";
 import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
 import remarkMath from "remark-math";
+import { fileURLToPath } from "node:url";
+import blogAssetsIntegration from "./src/integrations/blog-assets.mjs";
+import blogPreview from "./src/integrations/blog-preview.mjs";
+import { remarkBlogAssets, rehypeBlogAssets } from "./src/lib/blog-assets.mjs";
+import { readBlogSources, encodeBlogRoute } from "./src/lib/blog-content.mjs";
+import { remarkBlogLinks, rehypeBlogLinks } from "./src/lib/blog-links.mjs";
+
+let canonicalBlogPaths;
 
 export default defineConfig({
   site: "https://loadingvibe.com",
@@ -15,22 +23,25 @@ export default defineConfig({
   },
   integrations: [
     react(),
+    blogAssetsIntegration(),
+    blogPreview(),
     sitemap({
       filter(page) {
         if (["/motion-review/", "/blog/"].includes(new URL(page).pathname)) return false;
         const match = new URL(page).pathname.match(/^\/blog\/(.+)\/$/u);
         if (!match) return true;
 
-        // Canonical article slugs are one ASCII segment. Nested/legacy paths are
-        // generated only as noindex compatibility redirects and stay out of sitemap.
-        return /^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(match[1]);
+        canonicalBlogPaths ??= new Set(readBlogSources(fileURLToPath(new URL("./Blog", import.meta.url)))
+          .filter((source) => !source.data.draft)
+          .map((source) => `/blog/${encodeBlogRoute(source.data.slug)}/`));
+        return canonicalBlogPaths.has(new URL(page).pathname);
       },
     }),
   ],
   markdown: {
     processor: unified({
-      remarkPlugins: [remarkMath],
-      rehypePlugins: [rehypeKatex, rehypeSlug],
+      remarkPlugins: [remarkBlogLinks, remarkBlogAssets, remarkMath],
+      rehypePlugins: [rehypeBlogLinks, rehypeBlogAssets, [rehypeKatex, { throwOnError: false, strict: "ignore" }], rehypeSlug],
     }),
     shikiConfig: {
       theme: "github-dark",

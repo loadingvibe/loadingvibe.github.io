@@ -1,17 +1,16 @@
 import assert from "node:assert/strict";
 import { createReadStream, existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { createServer } from "node:http";
-import { basename, dirname, extname, isAbsolute, join, relative, resolve } from "node:path";
+import { dirname, extname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createMarkdownProcessor } from "@astrojs/markdown-remark";
 import sharp from "sharp";
 import { formatDeploymentBuild, normalizeDeploymentTime, readDeploymentBuild } from "./src/lib/deployment-build.mjs";
+import { encodeBlogRoute, readBlogSources } from "./src/lib/blog-content.mjs";
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
 const buildRoot = resolve(projectRoot, "dist");
 const blogRoot = resolve(projectRoot, "Blog");
-const blogGithubRepositoryUrl = "https://github.com/loadingvibe/loadingvibe.github.io";
-const blogGithubBranch = "main";
 const mimeTypes = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
@@ -94,99 +93,30 @@ function listFiles(directory, prefix = "") {
   });
 }
 
-function frontmatterBlock(contents, sourcePath) {
-  const match = contents.match(/^---[\t ]*\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/u);
-  if (!match) {
-    throw new Error(`Blog source is missing YAML frontmatter: ${sourcePath}`);
-  }
-  return match[1];
-}
-
-function frontmatterScalar(frontmatter, key, sourcePath) {
-  const match = frontmatter.match(new RegExp(`^${key}:[\\t ]*(.*?)[\\t ]*$`, "mu"));
-  if (!match || !match[1]) {
-    throw new Error(`Blog source is missing required frontmatter field "${key}": ${sourcePath}`);
-  }
-
-  const value = match[1].trim();
-  const quote = value.at(0);
-  if ((quote === '"' || quote === "'") && value.at(-1) === quote) {
-    return value.slice(1, -1);
-  }
-  return value;
-}
-
-function frontmatterList(frontmatter, key) {
-  const inline = frontmatter.match(new RegExp(`^${key}:[\\t ]*\\[([^\\]]*)\\][\\t ]*$`, "mu"));
-  if (inline) {
-    return inline[1]
-      .split(",")
-      .map((value) => value.trim().replace(/^(["'])(.*)\1$/u, "$2"))
-      .filter(Boolean);
-  }
-
-  const block = frontmatter.match(new RegExp(`^${key}:[\\t ]*\\r?\\n((?:[\\t ]+-[\\t ]*[^\\r\\n]+(?:\\r?\\n|$))*)`, "mu"));
-  if (!block) return [];
-
-  return block[1]
-    .split(/\r?\n/u)
-    .map((line) => line.match(/^[\t ]+-[\t ]*(.+?)[\t ]*$/u)?.[1] || "")
-    .map((value) => value.replace(/^(["'])(.*)\1$/u, "$2"))
-    .filter(Boolean);
-}
-
-function encodePathSegments(value) {
-  return value
-    .split("/")
-    .map((segment) => encodeURIComponent(segment))
-    .join("/");
-}
-
-function githubFileUrl(action, sourceFilePath) {
-  return (
-    `${blogGithubRepositoryUrl}/${action}/${encodeURIComponent(blogGithubBranch)}/` +
-    encodePathSegments(sourceFilePath)
-  );
-}
-
 function loadBlogSources() {
   if (!existsSync(blogRoot) || !statSync(blogRoot).isDirectory()) {
     throw new Error("Missing Blog/ author content directory.");
   }
 
-  return listFiles(blogRoot)
-    .filter((sourcePath) => sourcePath.toLowerCase().endsWith(".md"))
-    .filter((sourcePath) => {
-      const segments = sourcePath.split("/");
-      return basename(sourcePath).toLowerCase() !== "readme.md" &&
-        !segments.some((part) => part.startsWith("_") || part.endsWith(".assets"));
-    })
-    .map((sourcePath) => {
-      const contents = readFileSync(resolve(blogRoot, sourcePath), "utf8");
-      const frontmatter = frontmatterBlock(contents, sourcePath);
-      const slug = frontmatterScalar(frontmatter, "slug", sourcePath);
-      const catalogNo = frontmatterScalar(frontmatter, "catalogNo", sourcePath);
-      const category = frontmatterScalar(frontmatter, "category", sourcePath);
-      const createdAt = Date.parse(frontmatterScalar(frontmatter, "date", sourcePath));
-      const topLevelDirectory = sourcePath.split("/")[0];
-      const draftMatch = frontmatter.match(/^draft:[\t ]*(true|false)[\t ]*$/imu);
-      const sourceFilePath = `Blog/${sourcePath}`;
-
-      return {
-        sourcePath,
-        sourceFilePath,
-        githubManageUrl: githubFileUrl("blob", sourceFilePath),
-        githubDeleteUrl: githubFileUrl("delete", sourceFilePath),
-        slug,
-        catalogNo,
-        createdAt,
-        navigationSection: ["知识库", "朋友圈"].includes(topLevelDirectory)
-          ? topLevelDirectory
-          : category === "生活" ? "朋友圈" : "知识库",
-        aliases: frontmatterList(frontmatter, "aliases"),
-        draft: draftMatch?.[1].toLowerCase() === "true",
-      };
-    });
+  // Share parsing, fallback metadata and collision resolution with the build.
+  // Verification must not reject an input that the authoring loader accepts.
+  return readBlogSources(blogRoot).map(({ id, filePath, data, body }) => {
+    const topLevelDirectory = id.split("/")[0];
+    return {
+      sourcePath: id,
+      sourceFilePath: filePath,
+      slug: data.slug,
+      href: `/blog/${encodeBlogRoute(data.slug)}/`,
+      catalogNo: data.catalogNo,
+      createdAt: data.date?.getTime() ?? 0,
+      navigationSection: ["知识库", "朋友圈"].includes(topLevelDirectory)
+        ? topLevelDirectory
+        : data.category === "生活" ? "朋友圈" : "知识库",
+      aliases: data.aliases,
+      draft: data.draft,
+      body,
+    };
+  });
 }
 
 function resolveRequestFile(pathname) {
@@ -250,7 +180,7 @@ for (const source of blogSources) {
       throw new Error(
         `Blog URL collision: ${existing.sourceFilePath} (${existing.claim}) and ` +
           `${source.sourceFilePath} (${claim}) both claim /blog/${route}/. ` +
-          "No source was discarded; assign a unique slug or alias and rebuild.",
+          "The content loader must resolve route collisions before emitting pages.",
       );
     }
     claimedBlogRoutes.set(route, { claim, sourceFilePath: source.sourceFilePath });
@@ -273,8 +203,8 @@ if (sitemapFiles.length === 0) {
 const indexHtml = readFileSync(resolve(buildRoot, "index.html"), "utf8");
 const blogEntryHref = indexHtml.match(/data-blog-entry="([^"]+)"/u)?.[1];
 const configuredEntry = publishedBlogSources.find((source) => source.catalogNo === "F-004");
-if (!publishedBlogSources.some((source) => blogEntryHref === `/blog/${source.slug}/`) ||
-    (configuredEntry && blogEntryHref !== `/blog/${configuredEntry.slug}/`)) {
+if (!publishedBlogSources.some((source) => blogEntryHref === source.href) ||
+    (configuredEntry && blogEntryHref !== configuredEntry.href)) {
   throw new Error("Homepage blog entry must link directly to the configured published reading page.");
 }
 if (indexHtml.includes("chatgpt.site") || /<meta[^>]+http-equiv=["']?refresh/i.test(indexHtml)) {
@@ -314,13 +244,13 @@ if (sitemapXml.includes("<loc>https://loadingvibe.com/blog/</loc>")) {
   throw new Error("Sitemap must not contain the retired blog catalog compatibility redirect.");
 }
 for (const source of publishedBlogSources) {
-  const route = `/blog/${source.slug}/`;
+  const route = source.href;
   if (!sitemapXml.includes(route)) {
     throw new Error(`Sitemap is missing ${route} generated from Blog/${source.sourcePath}.`);
   }
 
   for (const alias of source.aliases) {
-    const aliasUrl = new URL(`/blog/${alias}/`, "https://loadingvibe.com").toString();
+    const aliasUrl = new URL(`/blog/${encodeBlogRoute(alias)}/`, "https://loadingvibe.com").toString();
     if (sitemapXml.includes(aliasUrl)) {
       throw new Error(`Sitemap contains noindex compatibility alias instead of only canonical URLs: ${aliasUrl}`);
     }
@@ -564,10 +494,9 @@ function assertImageRatio(actual, original, context) {
 
 async function verifyBlogImageProportions(source, articleHtml) {
   const sourceFile = resolve(blogRoot, source.sourcePath);
-  const contents = readFileSync(sourceFile, "utf8").replace(/^---[\t ]*\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/u, "");
   // Use Astro's own Markdown parser so reference images and fenced examples are
   // interpreted like the build, rather than mistaking Markdown text for images.
-  const rendered = await imageMarkdown.render(contents, { fileURL: sourceFile });
+  const rendered = await imageMarkdown.render(source.body, { fileURL: sourceFile });
   const sourceImages = [...rendered.code.matchAll(/<img\b[^>]*>/gu)].map(([tag]) => htmlAttributes(tag));
   const builtImages = [...markdownContentHtml(articleHtml).matchAll(/<img\b[^>]*>/gu)].map(([tag]) => htmlAttributes(tag));
   if (sourceImages.length !== builtImages.length) {
@@ -724,7 +653,7 @@ try {
   }
 
   for (const source of publishedBlogSources) {
-    await checkHtml(`/blog/${source.slug}/`, {
+    await checkHtml(source.href, {
       html: [
         "markdown-content",
         "article-reader__rail--archive",
@@ -741,12 +670,15 @@ try {
         "data-outline-collapse-all",
         "book-return-bar",
         "book-return-link",
-        source.catalogNo,
-        ...publishedBlogSources.map((article) => `href="/blog/${article.slug}/"`),
+        ...publishedBlogSources.map((article) => `href="${article.href}"`),
       ],
       text: ["Roy", "知识库", "朋友圈"],
     });
     const articleHtml = readFileSync(resolve(buildRoot, `blog/${source.slug}/index.html`), "utf8");
+    const structuredData = articleHtml.match(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/u)?.[1];
+    assert.ok(structuredData, `Reading page ${source.slug} must contain structured article metadata.`);
+    assert.equal(JSON.parse(structuredData).identifier, source.catalogNo,
+      `Reading page ${source.slug} must retain its assigned catalog number.`);
     if ([...articleHtml.matchAll(/<h2\b[^>]*class="blog-sidebar__name"[^>]*>Roy<\/h2>/gu)].length !== 2) {
       throw new Error(`Reading page ${source.slug} must show Roy in both sidebar profiles.`);
     }
@@ -785,7 +717,7 @@ try {
       const expectedLinks = publishedBlogSources
         .filter((article) => article.navigationSection === section)
         .sort((left, right) => right.createdAt - left.createdAt || postOrder.compare(left.slug, right.slug))
-        .map((article) => `/blog/${article.slug}/`);
+        .map((article) => article.href);
       const sectionCopies = [...articleHtml.matchAll(new RegExp(
         `<details[^>]*data-section="${section}"[^>]*>([\\s\\S]*?)</details>`, "gu",
       ))];
@@ -801,11 +733,11 @@ try {
     }
 
     for (const alias of source.aliases) {
-      await checkHtml(`/blog/${alias}/`, {
+      await checkHtml(`/blog/${encodeBlogRoute(alias)}/`, {
         html: [
           "http-equiv=\"refresh\"",
           "name=\"robots\" content=\"noindex\"",
-          `href=\"https://loadingvibe.com/blog/${source.slug}/\"`,
+          `href=\"https://loadingvibe.com${source.href}\"`,
         ],
       });
     }
@@ -821,10 +753,18 @@ try {
 
   const rss = await checkText(
     "/rss.xml",
-    publishedBlogSources.map((source) => `/blog/${source.slug}/`),
+    publishedBlogSources.map((source) => source.href),
   );
   if (!/<(?:rss|feed)\b/i.test(rss)) {
     throw new Error("Smoke test failed for /rss.xml: RSS or Atom root element missing");
+  }
+
+  for (const source of blogSources.filter((article) => article.draft)) {
+    await checkStatus(source.href, 404);
+    for (const alias of source.aliases) await checkStatus(`/blog/${encodeBlogRoute(alias)}/`, 404);
+    if (rss.includes(source.href) || sitemapXml.includes(source.href) || indexHtml.includes(source.href)) {
+      throw new Error(`Production build exposed a draft route: ${source.sourceFilePath}.`);
+    }
   }
 
   await checkText("/robots.txt", ["User-agent:", "Sitemap:"]);

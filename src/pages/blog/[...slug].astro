@@ -103,6 +103,12 @@ const articleJsonLd = {
           <h1>{post.title}</h1>
         </header>
 
+        {import.meta.env.DEV && <aside class="article-preview-note" aria-label="本地写作预览">
+          <strong>{post.entry.data.draft ? "草稿预览 · 不会发布到网站" : "本地预览 · 保存后自动更新"}</strong>
+          <p><code>{post.sourceFilePath}</code></p>
+          {post.entry.data.authorWarnings.map((warning) => <p>{warning}</p>)}
+        </aside>}
+
         {
           post.cover && (
             <figure class="blog-article__cover">

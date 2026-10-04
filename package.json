@@ -7,7 +7,8 @@
     "dev": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "check": "node verify-build.mjs"
+    "check": "node verify-build.mjs",
+    "test:blog": "node --test tests/*.test.mjs scripts/blog-preview.test.mjs"
   },
   "engines": {
     "node": ">=22.12.0"
@@ -20,6 +21,7 @@
     "@tabler/icons-react": "^3.46.0",
     "@waline/client": "^3.15.2",
     "astro": "^7.2.2",
+    "github-slugger": "^2.0.0",
     "gsap": "^3.13.0",
     "katex": "^0.18.4",
     "ogl": "^1.0.11",

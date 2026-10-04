@@ -399,6 +399,20 @@ details[open] > .article-outline__row > svg.article-outline__toggle { transform:
   line-height: 1.6;
 }
 
+.article-preview-note {
+  margin: 0 0 1.5rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #d6d2c8;
+  border-radius: 0.4rem;
+  background: #f7f4ed;
+  color: #5d5a51;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.article-preview-note p { margin: 0.35rem 0 0; }
+
 .article-author-tools {
   margin-top: 42px;
   border: 1px solid #c5cac3;
