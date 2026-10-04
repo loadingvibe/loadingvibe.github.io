@@ -84,9 +84,10 @@ function initializeBlogLightbox() {
     const existingTrigger = image.closest<HTMLElement>('a[href], button, summary, [role="button"], [role="link"]');
     const trigger = existingTrigger || image;
     if (!triggerPhotos.has(trigger)) {
-      rememberAttributes(trigger, ["data-lightbox-trigger", "role", "tabindex", "aria-label", "aria-haspopup"]);
+      rememberAttributes(trigger, ["data-lightbox-trigger", "role", "tabindex", "aria-label", "aria-haspopup", "title"]);
       trigger.setAttribute("data-lightbox-trigger", "");
       trigger.setAttribute("aria-haspopup", "dialog");
+      if (!trigger.hasAttribute("title")) trigger.setAttribute("title", "点击放大，可下载原图");
       if (!existingTrigger) {
         trigger.setAttribute("role", "button");
         trigger.setAttribute("tabindex", "0");
@@ -315,9 +316,25 @@ if (document.readyState === "loading") {
   initializeBlogLightbox();
 }
 document.addEventListener("astro:page-load", initializeBlogLightbox);
-document.addEventListener("astro:before-swap", () => {
+function disposeBlogLightbox() {
   cleanUpLightbox?.();
   cleanUpLightbox = undefined;
-});
+}
+document.addEventListener("astro:before-swap", disposeBlogLightbox);
+
+function restoreBlogLightbox(event: PageTransitionEvent) {
+  if (event.persisted) initializeBlogLightbox();
+}
+window.addEventListener("pageshow", restoreBlogLightbox);
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    disposeBlogLightbox();
+    document.removeEventListener("DOMContentLoaded", initializeBlogLightbox);
+    document.removeEventListener("astro:page-load", initializeBlogLightbox);
+    document.removeEventListener("astro:before-swap", disposeBlogLightbox);
+    window.removeEventListener("pageshow", restoreBlogLightbox);
+  });
+}
 
 export {};
