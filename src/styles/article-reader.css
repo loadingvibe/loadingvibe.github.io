@@ -223,7 +223,7 @@
 }
 
 .blog-sidebar__icon { width: 22px; height: 22px; }
-.blog-sidebar__label { color: #000; font-family: var(--book-serif); font-size: 22px; line-height: 1.25; }
+.blog-sidebar__label { min-width: 0; color: #000; font-family: var(--book-serif); font-size: 22px; line-height: 1.25; overflow-wrap: anywhere; }
 .blog-sidebar__chevron { width: 14px; height: 14px; margin-left: auto; transition: transform 160ms ease; }
 .blog-sidebar__group[open] > summary .blog-sidebar__chevron { transform: rotate(90deg); }
 .blog-sidebar__body { min-width: 0; padding: 8px 0 2px 10px; }

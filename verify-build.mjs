@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { createMarkdownProcessor } from "@astrojs/markdown-remark";
 import sharp from "sharp";
 import { formatDeploymentBuild, normalizeDeploymentTime, readDeploymentBuild } from "./src/lib/deployment-build.mjs";
-import { encodeBlogRoute, readBlogSources } from "./src/lib/blog-content.mjs";
+import { BLOG_EXTENSIONS, encodeBlogRoute, normalizeBlogRoute, readBlogSources } from "./src/lib/blog-content.mjs";
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
 const buildRoot = resolve(projectRoot, "dist");
@@ -101,17 +101,16 @@ function loadBlogSources() {
   // Share parsing, fallback metadata and collision resolution with the build.
   // Verification must not reject an input that the authoring loader accepts.
   return readBlogSources(blogRoot).map(({ id, filePath, data, body }) => {
-    const topLevelDirectory = id.split("/")[0];
+    const sourcePath = id.replace(/\.(?:md|markdown|txt)$/iu, "");
     return {
       sourcePath: id,
+      sortPath: sourcePath,
       sourceFilePath: filePath,
       slug: data.slug,
       href: `/blog/${encodeBlogRoute(data.slug)}/`,
       catalogNo: data.catalogNo,
-      createdAt: data.date?.getTime() ?? 0,
-      navigationSection: ["知识库", "朋友圈"].includes(topLevelDirectory)
-        ? topLevelDirectory
-        : data.category === "生活" ? "朋友圈" : "知识库",
+      createdAt: (data.createdAt ?? data.date)?.getTime() ?? 0,
+      navigationSection: id.includes("/") ? id.split("/")[0] : "未分类",
       aliases: data.aliases,
       draft: data.draft,
       body,
@@ -155,6 +154,19 @@ function resolveRequestFile(pathname) {
 const builtFiles = listFiles(buildRoot);
 const blogSources = loadBlogSources();
 const publishedBlogSources = blogSources.filter((source) => !source.draft);
+const postOrder = new Intl.Collator("zh-CN", { numeric: true, sensitivity: "base" });
+// Folders define the catalog even before they contain a published article.
+const navigationSections = readdirSync(blogRoot, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory() && !/^[_.]|\.assets$/iu.test(entry.name))
+  .map((entry) => entry.name)
+  .sort(postOrder.compare);
+if (publishedBlogSources.some((source) => source.navigationSection === "未分类") &&
+    !navigationSections.includes("未分类")) navigationSections.push("未分类");
+const documentationRoutes = [...new Set(listFiles(blogRoot)
+  .filter((sourcePath) => /^readme\./iu.test(sourcePath.split("/").at(-1) ?? "") &&
+    BLOG_EXTENSIONS.has(extname(sourcePath).toLowerCase()) &&
+    !sourcePath.split("/").some((segment) => /^[_.]|\.assets$/iu.test(segment)))
+  .map((sourcePath) => `/blog/${encodeBlogRoute(normalizeBlogRoute(sourcePath))}/`))];
 const sitemapFiles = builtFiles.filter((relativePath) => {
   const filename = relativePath.split("/").at(-1);
   return filename && /^sitemap.*\.xml$/i.test(filename);
@@ -257,7 +269,10 @@ for (const source of publishedBlogSources) {
   }
 }
 
-for (const removedRoute of ["/blog/README/"]) {
+for (const removedRoute of documentationRoutes) {
+  // An article may deliberately claim the same public URL through its slug or
+  // alias; excluding README sources must not forbid that valid author choice.
+  if (claimedBlogRoutes.has(normalizeBlogRoute(removedRoute))) continue;
   if (sitemapXml.includes(removedRoute)) {
     throw new Error(`Sitemap contains internal author documentation: ${removedRoute}`);
   }
@@ -310,13 +325,16 @@ let checkedRoutes = 0;
 let checkedBlogImages = 0;
 const imageMarkdown = await createMarkdownProcessor({ syntaxHighlight: false, smartypants: false });
 
+function decodeHtmlEntities(value) {
+  return value.replace(/&(?:#(x[0-9a-f]+|\d+)|amp|quot|apos|lt|gt);/giu, (entity, numeric) => {
+    if (numeric) return String.fromCodePoint(Number.parseInt(numeric.replace(/^x/iu, ""), /^x/iu.test(numeric) ? 16 : 10));
+    return { "&amp;": "&", "&quot;": '"', "&apos;": "'", "&lt;": "<", "&gt;": ">" }[entity.toLowerCase()];
+  });
+}
+
 function htmlAttributes(tag) {
   return Object.fromEntries([...tag.matchAll(/([^\s=<>/]+)="([^"]*)"/gu)].map(([, name, value]) => [
-    name,
-    value.replace(/&(?:#(x[0-9a-f]+|\d+)|amp|quot|apos|lt|gt);/giu, (entity, numeric) => {
-      if (numeric) return String.fromCodePoint(Number.parseInt(numeric.replace(/^x/iu, ""), /^x/iu.test(numeric) ? 16 : 10));
-      return { "&amp;": "&", "&quot;": '"', "&apos;": "'", "&lt;": "<", "&gt;": ">" }[entity.toLowerCase()];
-    }),
+    name, decodeHtmlEntities(value),
   ]));
 }
 
@@ -536,12 +554,12 @@ async function verifyBlogImageProportions(source, articleHtml) {
 }
 
 function visibleText(html) {
-  return html
+  return decodeHtmlEntities(html
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
-    .trim();
+    .trim());
 }
 
 async function fetchOk(pathname) {
@@ -662,8 +680,6 @@ try {
         "blog-sidebar__profile",
         "blog-sidebar__avatar",
         "alt=\"Roy 的头像\"",
-        "data-section=\"知识库\"",
-        "data-section=\"朋友圈\"",
         "data-article-outline",
         "data-outline-tree",
         "data-outline-visibility",
@@ -672,7 +688,7 @@ try {
         "book-return-link",
         ...publishedBlogSources.map((article) => `href="${article.href}"`),
       ],
-      text: ["Roy", "知识库", "朋友圈"],
+      text: ["Roy"],
     });
     const articleHtml = readFileSync(resolve(buildRoot, `blog/${source.slug}/index.html`), "utf8");
     const structuredData = articleHtml.match(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/u)?.[1];
@@ -712,23 +728,37 @@ try {
         returnLinks[0].href !== "/?library=1#library" || visibleText(returnBars[0][1]) !== "return") {
       throw new Error(`Reading page ${source.slug} must retain its single top return link to the library.`);
     }
-    const postOrder = new Intl.Collator("zh-CN", { numeric: true, sensitivity: "base" });
-    for (const section of ["知识库", "朋友圈"]) {
+    const renderedSections = htmlElementsWithAttribute(articleHtml, "data-section")
+      .map((sectionHtml) => ({
+        html: sectionHtml,
+        name: htmlAttributes(sectionHtml.match(/^<details\b[^>]*>/u)?.[0] ?? "")["data-section"],
+      }));
+    assert.deepEqual(renderedSections.map((section) => section.name), [...navigationSections, ...navigationSections],
+      `Reading page ${source.slug} must render the exact folder names in both navigation copies.`);
+    for (const section of navigationSections) {
       const expectedLinks = publishedBlogSources
         .filter((article) => article.navigationSection === section)
-        .sort((left, right) => right.createdAt - left.createdAt || postOrder.compare(left.slug, right.slug))
+        .sort((left, right) => right.createdAt - left.createdAt || postOrder.compare(left.sortPath, right.sortPath))
         .map((article) => article.href);
-      const sectionCopies = [...articleHtml.matchAll(new RegExp(
-        `<details[^>]*data-section="${section}"[^>]*>([\\s\\S]*?)</details>`, "gu",
-      ))];
+      // Compare decoded attributes rather than interpolating a folder name into
+      // a regular expression: names may contain quotes or regex punctuation.
+      const sectionCopies = renderedSections.filter((rendered) => rendered.name === section);
       if (sectionCopies.length !== 2) {
         throw new Error(`Reading page ${source.slug} must render desktop and mobile ${section} navigation.`);
       }
-      for (const [, sectionHtml] of sectionCopies) {
-        const actualLinks = [...sectionHtml.matchAll(/href="([^"]+)"/gu)].map((match) => match[1]);
+      for (const { html: sectionHtml } of sectionCopies) {
+        const label = sectionHtml.match(/<span\b[^>]*class="blog-sidebar__label"[^>]*>([\s\S]*?)<\/span>/u)?.[1];
+        assert.equal(decodeHtmlEntities(label ?? ""), section, `${section} navigation must preserve its folder name.`);
+        const actualLinks = [...sectionHtml.matchAll(/<a\b[^>]*>/gu)].map(([tag]) => htmlAttributes(tag).href);
         if (JSON.stringify(actualLinks) !== JSON.stringify(expectedLinks)) {
           throw new Error(`Reading page ${source.slug} ${section} records are not ordered by creation date.`);
         }
+        const iconTags = [...sectionHtml.matchAll(/<svg\b[^>]*>/gu)]
+          .map(([tag]) => htmlAttributes(tag))
+          .filter((attributes) => (attributes.class ?? "").split(/\s+/u).includes("blog-sidebar__icon"));
+        const expectedIcon = section.includes("知识库") ? "book" : section === "朋友圈" ? "people" : "folder";
+        assert.equal(iconTags.length, 1, `${section} navigation must have one leading icon.`);
+        assert.equal(iconTags[0]["data-icon"], expectedIcon, `${section} navigation has the wrong folder icon.`);
       }
     }
 
@@ -743,13 +773,11 @@ try {
     }
   }
 
-  await checkStatus("/blog/README/", 404);
-  await checkStatus("/blog/知识库/README/", 404);
-  await checkStatus("/blog/朋友圈/README/", 404);
-  await checkHtml("/blog/url-name/", {
-    html: ["markdown-content"],
-    text: ["url", "当我们希望找到函数"],
-  });
+  for (const documentationRoute of documentationRoutes) {
+    if (!claimedBlogRoutes.has(normalizeBlogRoute(documentationRoute))) {
+      await checkStatus(documentationRoute, 404);
+    }
+  }
 
   const rss = await checkText(
     "/rss.xml",

@@ -33,16 +33,17 @@ const currentSection = currentPost ? blogNavigationSection(currentPost) : undefi
   </div>
 
   <nav class="blog-sidebar__nav" aria-label="博客分类">
-    {sections.map((section) => (
+    {sections.map((section, index) => (
       <details
         class="blog-sidebar__group"
         data-section={section.name}
         data-current={section.name === currentSection ? "true" : undefined}
-        open={section.name === currentSection || (!currentSection && section.name === "知识库")}
+        open={section.name === currentSection || (!currentSection && index === 0)}
       >
         <summary class="blog-sidebar__summary">
           <svg
             class="blog-sidebar__icon"
+            data-icon={section.icon}
             width="22"
             height="22"
             viewBox="0 0 24 24"
@@ -54,16 +55,18 @@ const currentSection = currentPost ? blogNavigationSection(currentPost) : undefi
             aria-hidden="true"
             focusable="false"
           >
-            {section.name === "知识库" ? (
+            {section.icon === "book" ? (
               <>
                 <path d="M12 5.5C9.3 3.8 5.7 3.3 3 4v15c2.7-.7 6.3-.2 9 1.5 2.7-1.7 6.3-2.2 9-1.5V4c-2.7-.7-6.3-.2-9 1.5Z" />
                 <path d="M12 5.5v15" />
               </>
-            ) : (
+            ) : section.icon === "people" ? (
               <>
                 <circle cx="9" cy="8" r="3" />
                 <path d="M3 20v-1.5a6 6 0 0 1 12 0V20M16 5.2a3 3 0 0 1 0 5.6M21 20v-1.5a6 6 0 0 0-3.5-5.4" />
               </>
+            ) : (
+              <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
             )}
           </svg>
           <span class="blog-sidebar__label">{section.name}</span>
@@ -88,7 +91,7 @@ const currentSection = currentPost ? blogNavigationSection(currentPost) : undefi
             <BlogArchiveTree node={section.tree} currentRoute={currentRoute} />
           ) : (
             <p class="blog-sidebar__empty">
-              {section.name === "朋友圈" ? "还没有发布的动态" : "还没有发布的笔记"}
+              还没有发布的文章
             </p>
           )}
         </div>

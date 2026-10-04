@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import { parseFrontmatter } from "@astrojs/markdown-remark";
+import { createBlogCreationReader } from "./blog-created.mjs";
 
 export const BLOG_EXTENSIONS = new Set([".md", ".markdown", ".txt"]);
 
@@ -109,7 +110,7 @@ function recoverFields(raw) {
   return data;
 }
 
-export function readBlogDocument(contents, sourcePath) {
+export function readBlogDocument(contents, sourcePath, options = {}) {
   const text = contents.replace(/^\uFEFF/u, "").replace(/\r\n?/gu, "\n");
   let body = text;
   let raw = {};
@@ -129,7 +130,7 @@ export function readBlogDocument(contents, sourcePath) {
           raw = parseFrontmatter(`${opening[1]}\n${metadata}\n${opening[1]}`).frontmatter;
           if (!raw || Array.isArray(raw) || typeof raw !== "object") raw = {};
           // Preserve bare YAML calendar dates before the parser can roll an invalid day forward.
-          for (const match of metadata.matchAll(/^(date|日期|created|createdAt|pubDate|published|发布时间|updated|更新日期|updatedAt|modified|lastmod):[\t ]*(\d{4}-\d{1,2}-\d{1,2}(?:[T ][^\n#]+)?)[\t ]*(?:#.*)?$/gmu)) {
+          for (const match of metadata.matchAll(/^(date|日期|created|createdAt|创建时间|pubDate|published|发布时间|updated|更新日期|updatedAt|modified|lastmod):[\t ]*(\d{4}-\d{1,2}-\d{1,2}(?:[T ][^\n#]+)?)[\t ]*(?:#.*)?$/gmu)) {
             if (raw[match[1]] instanceof Date) raw[match[1]] = match[2].trim();
           }
         } catch {
@@ -150,11 +151,16 @@ export function readBlogDocument(contents, sourcePath) {
   const heading = textWithoutCode.match(/^ {0,3}#{1,6}\s+(.+?)(?:\s+#+)?\s*$/mu)?.[1] ||
     textWithoutCode.match(/^([^\n]+)\n(?:={3,}|-{3,})\s*$/mu)?.[1];
   const title = scalar(field(raw, "title", "标题", "name")) || (heading && plainBlogText(heading)) || basename(path, extname(path));
-  const dateInput = field(raw, "date", "日期", "created", "createdAt", "pubDate", "published", "发布时间");
+  const dateInput = field(raw, "date", "日期", "pubDate", "published", "发布时间", "created", "createdAt", "创建时间");
+  const createdInput = field(raw, "created", "createdAt", "创建时间");
   const updatedInput = field(raw, "updated", "更新日期", "updatedAt", "modified", "lastmod");
-  const created = date(dateInput) || date(path.match(/\d{4}[-/.]\d{1,2}[-/.]\d{1,2}/u)?.[0]);
+  const published = date(dateInput) || date(path.match(/\d{4}[-/.]\d{1,2}[-/.]\d{1,2}/u)?.[0]);
+  const createdAt = date(createdInput) || published || date(typeof options.createdAt === "function" ? options.createdAt() : options.createdAt);
+  // Plain notes can display their creation date. Malformed author dates keep their warning.
+  const created = published || (!dateInput ? createdAt : undefined);
   const updated = date(updatedInput);
   if (dateInput && !date(dateInput)) warnings.push("日期未能识别，暂不显示日期。建议写为 YYYY-MM-DD。");
+  if (createdInput && createdInput !== dateInput && !date(createdInput)) warnings.push("创建时间未能识别，已使用可用日期排序。建议写为 YYYY-MM-DD 或 ISO 时间。");
   if (updatedInput && !updated) warnings.push("更新日期未能识别，暂不显示更新日期。");
   const draftInput = field(raw, "draft", "草稿");
   const status = scalar(field(raw, "status", "状态"));
@@ -170,6 +176,7 @@ export function readBlogDocument(contents, sourcePath) {
     draft: incomplete || boolean(draftInput, draftInput !== undefined) || /^(?:draft|private|草稿|私密)$/iu.test(status),
     featured: boolean(field(raw, "featured", "精选", "推荐")),
     ...(created ? { date: created } : {}),
+    ...(createdAt ? { createdAt } : {}),
     ...(updated ? { updated } : {}),
     ...(scalar(field(raw, "cover", "封面", "image")) ? { cover: scalar(field(raw, "cover", "封面", "image")) } : {}),
     authorWarnings: warnings,
@@ -222,8 +229,10 @@ export function resolveBlogEntries(entries) {
 }
 
 export function readBlogSources(blogRoot) {
+  const readCreation = createBlogCreationReader(blogRoot);
   return resolveBlogEntries(listBlogFiles(blogRoot).map((sourcePath) => {
-    const document = readBlogDocument(readFileSync(join(blogRoot, sourcePath), "utf8"), sourcePath);
+    const filePath = join(blogRoot, sourcePath);
+    const document = readBlogDocument(readFileSync(filePath, "utf8"), sourcePath, { createdAt: () => readCreation(filePath) });
     return { id: sourcePath, filePath: `Blog/${sourcePath}`, ...document };
   }));
 }

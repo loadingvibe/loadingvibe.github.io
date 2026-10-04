@@ -40,6 +40,45 @@ test("YAML Chinese fields and flexible tags, booleans and dates normalize", () =
   assert.equal(data.date.toISOString(), "2026-10-03T16:00:00.000Z");
 });
 
+test("creation metadata takes priority for sorting while publication dates stay unchanged", () => {
+  const fallback = new Date("2026-01-01T12:00:00Z");
+  for (const field of ["created", "createdAt", "创建时间"]) {
+    const { data } = readBlogDocument(`---\ndate: 2026-08-16\n${field}: 2026-10-01T09:14:39+08:00\n---\nBody`, "note.md", { createdAt: fallback });
+    assert.equal(data.date.toISOString(), "2026-08-15T16:00:00.000Z");
+    assert.equal(data.createdAt.toISOString(), "2026-10-01T01:14:39.000Z");
+    const creationOnly = readBlogDocument(`---\n${field}: 2026-10-01\n---\nBody`, "note.md");
+    assert.equal(creationOnly.data.date.toISOString(), creationOnly.data.createdAt.toISOString());
+  }
+  const published = readBlogDocument("---\npubDate: 2026-08-16\n---\nBody", "note.md", { createdAt: fallback });
+  assert.equal(published.data.createdAt.toISOString(), "2026-08-15T16:00:00.000Z");
+  for (const field of ["pubDate", "published", "发布时间"]) {
+    const { data } = readBlogDocument(`---\n${field}: 2026-08-16\ncreatedAt: 2026-10-01T09:14:39+08:00\n---\nBody`, "note.md");
+    assert.equal(data.date.toISOString(), "2026-08-15T16:00:00.000Z");
+    assert.equal(data.createdAt.toISOString(), "2026-10-01T01:14:39.000Z");
+  }
+  const named = readBlogDocument("Body", "notes/2026-10-04.md", { createdAt: fallback });
+  assert.equal(named.data.createdAt.toISOString(), "2026-10-03T16:00:00.000Z");
+  const plain = readBlogDocument("Body", "note.md", { createdAt: fallback });
+  assert.equal(plain.data.createdAt.toISOString(), fallback.toISOString());
+  assert.equal(plain.data.date.toISOString(), fallback.toISOString());
+  const malformed = readBlogDocument("---\ndate: 2026-02-30\n---\nBody", "note.md", { createdAt: fallback });
+  assert.equal(malformed.data.date, undefined);
+  assert.equal(malformed.data.createdAt.toISOString(), fallback.toISOString());
+  assert.ok(malformed.warnings.length);
+});
+
+test("date metadata avoids loading a creation fallback and rejects malformed creation dates", () => {
+  let calls = 0;
+  const createdAt = () => { calls++; return new Date("2026-10-01T01:14:39Z"); };
+  readBlogDocument("---\ndate: 2026-08-16\n---\nBody", "note.md", { createdAt });
+  readBlogDocument("Body", "2026-08-16.md", { createdAt });
+  assert.equal(calls, 0);
+  const invalid = readBlogDocument("---\n创建时间: 2026-02-30\n---\nBody", "note.md", { createdAt });
+  assert.equal(calls, 1);
+  assert.equal(invalid.data.date, undefined);
+  assert.equal(invalid.data.createdAt.toISOString(), "2026-10-01T01:14:39.000Z");
+});
+
 test("JSON and TOML metadata preserve the Markdown body", () => {
   const json = readBlogDocument('---\n{"title":"JSON note","tags":["A",2,{"name":"B"}]}\n---\n## Section\nText', "a.md");
   assert.equal(json.data.title, "JSON note");

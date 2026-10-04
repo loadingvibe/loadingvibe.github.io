@@ -1,43 +1,47 @@
 import type { ArchiveTreeNode } from "../../components/BlogArchiveTree.astro";
-import { formatBlogDate, type BlogPost } from "./blog";
+import { compareBlogPostsByCreatedAt, formatBlogDate, type BlogPost } from "./blog";
+import { blogDirectoryIcon, listBlogDirectories } from "./blog-directories.mjs";
 
-export const BLOG_NAVIGATION_SECTIONS = ["知识库", "朋友圈"] as const;
-export type BlogNavigationSectionName = (typeof BLOG_NAVIGATION_SECTIONS)[number];
+export type BlogNavigationSectionName = string;
 
 export interface BlogNavigationSection {
   name: BlogNavigationSectionName;
+  icon: "book" | "people" | "folder";
   posts: BlogPost[];
   tree: ArchiveTreeNode;
 }
 
-/** Real top-level folders take priority; older posts keep their source paths. */
+/** The exact top-level source folder determines the section, regardless of category or slug. */
 export function blogNavigationSection(post: BlogPost): BlogNavigationSectionName {
-  const topLevel = post.directorySegments[0];
-  if (topLevel === "知识库" || topLevel === "朋友圈") return topLevel;
-  return post.category === "生活" ? "朋友圈" : "知识库";
+  return post.directorySegments[0] || "未分类";
 }
 
-/** Show a flat reading list; source folders only determine the two sections. */
+/** Nested source folders contribute to their top-level folder's flat reading list. */
 export function createArchiveTree(items: BlogPost[]): ArchiveTreeNode {
   return {
     label: "",
     path: "",
     total: items.length,
-    // getPublishedPosts sorts by creation date (newest first), then stable slug.
-    posts: items.map((item) => ({
+    posts: [...items].sort(compareBlogPostsByCreatedAt).map((item) => ({
       href: item.href,
       routePath: item.routePath,
       title: item.title,
-      dateLabel: formatBlogDate(item.date),
-      dateTime: item.date?.toISOString(),
+      dateLabel: formatBlogDate(item.createdAt ?? item.date),
+      dateTime: (item.createdAt ?? item.date)?.toISOString(),
     })),
     children: [],
   };
 }
 
-export function createBlogNavigationSections(posts: BlogPost[]): BlogNavigationSection[] {
-  return BLOG_NAVIGATION_SECTIONS.map((name) => {
-    const sectionPosts = posts.filter((post) => blogNavigationSection(post) === name);
-    return { name, posts: sectionPosts, tree: createArchiveTree(sectionPosts) };
+export function createBlogNavigationSections(
+  posts: BlogPost[],
+  directoryNames: string[] = listBlogDirectories(),
+): BlogNavigationSection[] {
+  const names = [...directoryNames];
+  if (posts.some((post) => !post.directorySegments.length) && !names.includes("未分类")) names.push("未分类");
+  return names.map((name) => {
+    const sectionPosts = posts.filter((post) => blogNavigationSection(post) === name)
+      .sort(compareBlogPostsByCreatedAt);
+    return { name, icon: blogDirectoryIcon(name), posts: sectionPosts, tree: createArchiveTree(sectionPosts) };
   });
 }

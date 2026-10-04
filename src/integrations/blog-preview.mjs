@@ -1,5 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { isBlogDirectoryName } from "../lib/blog-directories.mjs";
 
 const CONTENT_DATA_ID = "\0astro:data-layer-content";
 const CONTENT_CHUNK_ID_PREFIX = `${CONTENT_DATA_ID}-chunk:`;
@@ -75,6 +76,17 @@ export function attachBlogPreview(server, { root, logger, debounceMs = 120 }) {
       server.environments.client.hot.send({ type: "full-reload", path: "*" });
     }, debounceMs);
   };
+  const onDirectory = (filePath) => {
+    const relative = path.relative(blogPath, path.resolve(filePath));
+    // Empty top-level folders have no content-store mutation to trigger Astro's reload.
+    if (relative.includes(path.sep) || !isBlogDirectoryName(relative)) return;
+    invalidateContent();
+    clearTimeout(attachmentTimer);
+    attachmentTimer = setTimeout(() => {
+      attachmentTimer = undefined;
+      server.environments.client.hot.send({ type: "full-reload", path: "*" });
+    }, debounceMs);
+  };
 
   server.watcher.add(blogPath);
   server.watcher.on("blog:updated", onBlogUpdated);
@@ -83,6 +95,7 @@ export function attachBlogPreview(server, { root, logger, debounceMs = 120 }) {
   server.watcher.prependListener("add", onContentStore);
   server.watcher.prependListener("change", onContentStore);
   for (const event of ["add", "change", "unlink"]) server.watcher.on(event, onAttachment);
+  for (const event of ["addDir", "unlinkDir"]) server.watcher.on(event, onDirectory);
 
   const dispose = () => {
     clearTimeout(attachmentTimer);
@@ -90,6 +103,7 @@ export function attachBlogPreview(server, { root, logger, debounceMs = 120 }) {
     server.watcher.off("add", onContentStore);
     server.watcher.off("change", onContentStore);
     for (const event of ["add", "change", "unlink"]) server.watcher.off(event, onAttachment);
+    for (const event of ["addDir", "unlinkDir"]) server.watcher.off(event, onDirectory);
     server.httpServer?.off("close", dispose);
   };
   server.httpServer?.once("close", dispose);

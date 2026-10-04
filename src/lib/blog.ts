@@ -28,6 +28,7 @@ export interface BlogPost {
   tags: string[];
   featured: boolean;
   readingMinutes: number;
+  createdAt?: Date;
   date?: Date;
   updated?: Date;
   cover?: string;
@@ -136,6 +137,7 @@ export function toBlogPost(entry: BlogEntry): BlogPost {
     tags: entry.data.tags,
     featured: entry.data.featured,
     readingMinutes: readingMinutes(entry),
+    createdAt: entry.data.createdAt,
     date: entry.data.date,
     updated: entry.data.updated,
     cover: normalizeCover(entry.data.cover, sourceFilePath),
@@ -150,10 +152,13 @@ export async function getPublishedPosts({ includeDrafts = import.meta.env.DEV } 
 
   return allPosts
     .filter((post) => includeDrafts || !post.entry.data.draft)
-    .sort((left, right) => {
-      const dateDifference = (right.date?.getTime() || 0) - (left.date?.getTime() || 0);
-      return dateDifference || pathCollator.compare(left.slug, right.slug);
-    });
+    .sort(compareBlogPostsByCreatedAt);
+}
+
+export function compareBlogPostsByCreatedAt(left: BlogPost, right: BlogPost) {
+  const createdDifference = (right.createdAt?.getTime() ?? right.date?.getTime() ?? 0)
+    - (left.createdAt?.getTime() ?? left.date?.getTime() ?? 0);
+  return createdDifference || pathCollator.compare(left.sourcePath, right.sourcePath);
 }
 
 export function getBlogEntryPost(posts: BlogPost[]) {

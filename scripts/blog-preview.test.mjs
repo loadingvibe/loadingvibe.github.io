@@ -83,7 +83,25 @@ test("server shutdown cancels pending attachment refreshes and detaches listener
   server.httpServer.emit("close");
   await delay(15);
   assert.deepEqual(events, []);
-  for (const event of ["add", "change", "unlink", "blog:updated"]) {
+  for (const event of ["add", "change", "unlink", "addDir", "unlinkDir", "blog:updated"]) {
     assert.equal(server.watcher.listenerCount(event), 0);
   }
+});
+
+test("empty top-level category creation and removal refresh cached desktop and mobile navigation", async () => {
+  const { server, events } = createServer();
+  const dispose = attachBlogPreview(server, { root, debounceMs: 5 });
+  for (const folder of [".private", "_drafts", "note.assets", "朋友圈/子目录", "../Outside", ""]) {
+    server.watcher.emit("addDir", `/tmp/blog-preview-fixture/Blog/${folder}`);
+  }
+  await delay(15);
+  assert.deepEqual(events, []);
+  server.watcher.emit("addDir", "/tmp/blog-preview-fixture/Blog/新门类");
+  server.watcher.emit("unlinkDir", "/tmp/blog-preview-fixture/Blog/旧门类");
+  await delay(15);
+  for (const environment of ["ssr", "prerender"]) {
+    assert.ok(events.some(([name, kind]) => name === environment && kind === "runner"));
+  }
+  assert.equal(events.filter(([name, message]) => name === "client" && message.type === "full-reload").length, 1);
+  dispose();
 });
