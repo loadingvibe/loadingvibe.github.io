@@ -297,6 +297,9 @@ if (app instanceof HTMLElement) {
         serverURL: "https://comments.loadingvibe.com",
         path: "/",
         lang: "en-US",
+        locale: {
+          placeholder: "Write something…\nShare your thoughts, ideas, or just say hi! ٩(｡•‿•｡)۶",
+        },
         login: "enable",
         meta: ["nick", "mail", "link"],
         requiredMeta: ["nick"],

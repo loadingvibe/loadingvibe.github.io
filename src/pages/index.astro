@@ -1,5 +1,6 @@
 ---
 import BrandWordmark from "../components/BrandWordmark.astro";
+import CommentsLettering from "../components/CommentsLettering.astro";
 import LogoReplayOverlay from "../components/library/LogoReplayOverlay.astro";
 import { getBlogEntryPost, getPublishedPosts } from "../lib/blog";
 import "../styles/scrollytelling.css";
@@ -254,9 +255,31 @@ const structuredData = JSON.stringify({
         <section class="scene scene--comments" data-scene-panel="comments" aria-labelledby="comments-title" aria-hidden="true" inert>
           <div class="comments-sheet" data-comments-sheet>
             <header class="comments-heading">
-              <p>Open conversation</p>
-              <h2 id="comments-title">Comments</h2>
-              <span>Leave a note, an idea, or a hello.</span>
+              <div class="comments-heading__copy">
+                <p>Open conversation</p>
+                <h2 id="comments-title">
+                  <span class="sr-only">Comments</span>
+                  <span class="comments-heading__title">
+                    <CommentsLettering variant="title" class="comments-heading__lettering" />
+                    <svg class="comments-heading__underline" viewBox="0 0 520 38" fill="none" aria-hidden="true">
+                      <path d="M8 26C94 8 174 9 220 13L158 31C286 8 384 6 510 13" />
+                    </svg>
+                  </span>
+                  <svg class="comments-heading__bubble" viewBox="0 0 88 82" fill="none" aria-hidden="true">
+                    <path d="M13 13 72 8Q79 8 78 17L76 54Q76 60 68 60L42 62 26 77 28 60 16 61Q9 61 10 53L8 22Q7 15 13 13Z" />
+                    <path class="comments-heading__bubble-accent" d="m64 2 4-8m10 10 7-5M3 45l-6 5" />
+                    <circle cx="28" cy="35" r="3" /><circle cx="44" cy="33" r="3" /><circle cx="60" cy="31" r="3" />
+                  </svg>
+                </h2>
+                <div class="comments-heading__subtitle">
+                  <span class="sr-only">Leave a note, an idea, or a hello!</span>
+                  <CommentsLettering variant="subtitle" class="comments-heading__subtitle-lettering" />
+                  <svg class="comments-heading__smile" viewBox="0 0 42 36" fill="none" aria-hidden="true">
+                    <path d="m13 4 1 5m13-6-1 5M5 17q14 24 31-2" />
+                  </svg>
+                </div>
+              </div>
+              <span class="comments-heading__aside" aria-hidden="true">Good ideas.<br />Good people.<br />Better conversations.</span>
             </header>
             <div class="comments-mount" id="story-comments" data-comments-mount>
               <p class="comments-loading" data-comments-loading>Connecting to the conversation…</p>

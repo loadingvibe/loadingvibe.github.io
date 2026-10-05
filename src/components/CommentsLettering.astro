@@ -1,0 +1,55 @@
+---
+interface Props {
+  variant: "title" | "subtitle";
+  class?: string;
+}
+
+const { variant, class: className } = Astro.props;
+const crop = variant === "title"
+  ? { x: 54, y: 0, width: 912, height: 211 }
+  : { x: 280, y: 180, width: 520, height: 86 };
+const filterId = `comments-${variant}-chalk`;
+const maskId = `${filterId}-mask`;
+const clipId = `${filterId}-clip`;
+const outline = variant === "title"
+  ? "M54 80 L103 25 L235 25 L235 0 L966 0 L966 145 L740 153 L560 177 L320 198 L235 215 L54 215 Z"
+  : "M280 225 L800 175 L800 224 L280 266 Z";
+---
+
+<!-- Use the reference's original lettering, including its brush texture, instead of a substitute font. -->
+<svg
+  class={className}
+  viewBox={`${crop.x} ${crop.y} ${crop.width} ${crop.height}`}
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <clipPath id={clipId}><path d={outline} /></clipPath>
+    <filter id={filterId} x="0" y="0" width="1128" height="266" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <!-- The blue channel separates the cream lettering from both the green board and yellow accents. -->
+      <feColorMatrix type="matrix" values="
+        0 0 0 0 0
+        0 0 0 0 0
+        0 0 0 0 0
+        0 0 8 0 -5
+      " />
+    </filter>
+    <mask
+      id={maskId}
+      x={crop.x}
+      y={crop.y}
+      width={crop.width}
+      height={crop.height}
+      maskUnits="userSpaceOnUse"
+      style="mask-type: alpha"
+    >
+      <image
+        href="/assets/comments/comments-lettering-reference.png"
+        width="1128"
+        height="266"
+        filter={`url(#${filterId})`}
+      />
+    </mask>
+  </defs>
+  <rect x={crop.x} y={crop.y} width={crop.width} height={crop.height} fill="#fff8e9" mask={`url(#${maskId})`} clip-path={`url(#${clipId})`} />
+</svg>
