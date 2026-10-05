@@ -4,6 +4,7 @@ import CommentsLettering from "../components/CommentsLettering.astro";
 import LogoReplayOverlay from "../components/library/LogoReplayOverlay.astro";
 import { getBlogEntryPost, getPublishedPosts } from "../lib/blog";
 import "../styles/scrollytelling.css";
+import "../styles/comments-wall.css";
 
 const blogEntryHref = getBlogEntryPost(await getPublishedPosts())?.href || "/blog/";
 const title = "loadingvibe — Roy's personal website";
@@ -281,7 +282,7 @@ const structuredData = JSON.stringify({
               </div>
               <span class="comments-heading__aside" aria-hidden="true">Good ideas.<br />Good people.<br />Better conversations.</span>
             </header>
-            <div class="comments-mount" id="story-comments" data-comments-mount>
+            <div class="comments-mount comments-board" id="story-comments" data-comments-mount>
               <p class="comments-loading" data-comments-loading>Connecting to the conversation…</p>
             </div>
           </div>
