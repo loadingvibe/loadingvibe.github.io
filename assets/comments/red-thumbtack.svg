@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="46" height="50" viewBox="0 0 46 50" fill="none">
+  <defs>
+    <linearGradient id="stem" x1="17" y1="19" x2="30" y2="35" gradientUnits="userSpaceOnUse"><stop stop-color="#ff7970"/><stop offset=".55" stop-color="#e74542"/><stop offset="1" stop-color="#a9282d"/></linearGradient>
+    <linearGradient id="cap" x1="12" y1="6" x2="33" y2="24" gradientUnits="userSpaceOnUse"><stop stop-color="#ff8980"/><stop offset=".45" stop-color="#f45a54"/><stop offset="1" stop-color="#c72f38"/></linearGradient>
+    <filter id="shadow" x="0" y="0" width="46" height="50" filterUnits="userSpaceOnUse"><feDropShadow dx="3" dy="5" stdDeviation="2" flood-color="#483225" flood-opacity=".28"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <path d="m24 30-2 12" stroke="#aaa49a" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="23" cy="29" rx="13" ry="8" fill="#b63238"/>
+    <ellipse cx="23" cy="26" rx="13" ry="8" fill="url(#cap)"/>
+    <path d="M17 13h12l-2 13c-1 4-7 4-8 0z" fill="url(#stem)"/>
+    <ellipse cx="23" cy="13" rx="11" ry="8" fill="url(#cap)"/>
+    <path d="M16 11c1-3 7-5 11-2" stroke="#ffb4a4" stroke-opacity=".7" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>
