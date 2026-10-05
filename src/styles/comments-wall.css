@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Long Cang";
+  src: url("/assets/fonts/long-cang-400.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 /* The board decorates Waline's existing nodes, so data and event handlers stay native. */
 .comments-mount.comments-board {
   padding: 38px 30px 24px;
@@ -163,13 +171,29 @@
   margin: 0;
 }
 
+/* Apply handwriting to prose, including replies and the Markdown preview. */
+.comments-board [data-waline] .wl-content {
+  font-family: "Long Cang", "Kaiti SC", KaiTi, STKaiti, serif;
+  font-size: 22px;
+  line-height: 28px;
+  color: #403a32;
+}
+
+.comments-board [data-waline] .wl-content :is(p, li, blockquote) {
+  line-height: inherit;
+}
+
+.comments-board [data-waline] .wl-content :is(pre, code, kbd, samp) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
 .comments-board > [data-waline] > .wl-cards > .wl-card-item > .wl-card > .wl-content {
   grid-area: 1 / 1 / 2 / -1;
   min-width: 0;
   margin: 0 0 8px;
   padding: 0;
   color: #403a32;
-  font-size: 16px;
+  font-size: 22px;
   line-height: 28px;
   overflow-wrap: anywhere;
 }
@@ -236,7 +260,8 @@
   .comments-board > [data-waline] > .wl-cards { gap: 28px 18px; padding-inline: 3px; }
   .comments-board > [data-waline] > .wl-cards > .wl-card-item { padding: 32px 14px 20px; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; min-height: 250px; }
   .comments-board > [data-waline] > .wl-cards > .wl-card-item > .wl-user { --avatar-size: 28px; }
-  .comments-board > [data-waline] > .wl-cards > .wl-card-item > .wl-card > .wl-content { font-size: 14px; line-height: 28px; }
+  .comments-board [data-waline] .wl-content,
+  .comments-board > [data-waline] > .wl-cards > .wl-card-item > .wl-card > .wl-content { font-size: 20px; line-height: 28px; }
   .comments-board > [data-waline] > .wl-cards :is(.wl-reply-wrapper, .wl-edit-wrapper) .wl-footer { gap: 8px; }
   .comments-board > [data-waline] > .wl-cards :is(.wl-reply-wrapper, .wl-edit-wrapper) .wl-actions { flex: 1 1 100%; }
   .comments-board > [data-waline] > .wl-cards :is(.wl-reply-wrapper, .wl-edit-wrapper) .wl-info { flex: 1 1 100%; }
