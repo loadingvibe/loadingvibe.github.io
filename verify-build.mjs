@@ -109,6 +109,7 @@ function loadBlogSources() {
       slug: data.slug,
       href: `/blog/${encodeBlogRoute(data.slug)}/`,
       catalogNo: data.catalogNo,
+      title: data.title,
       createdAt: (data.createdAt ?? data.date)?.getTime() ?? 0,
       navigationSection: id.includes("/") ? id.split("/")[0] : "未分类",
       aliases: data.aliases,
@@ -706,6 +707,13 @@ try {
     assert.ok(structuredData, `Reading page ${source.slug} must contain structured article metadata.`);
     assert.equal(JSON.parse(structuredData).identifier, source.catalogNo,
       `Reading page ${source.slug} must retain its assigned catalog number.`);
+    assert.equal(JSON.parse(structuredData).headline, source.title,
+      `Reading page ${source.slug} metadata must use its filename as the title.`);
+    assert.equal(decodeHtmlEntities(articleHtml.match(/<title>([\s\S]*?)<\/title>/u)?.[1] ?? ""), `${source.title}｜loadingvibe`,
+      `Reading page ${source.slug} browser title must use its filename.`);
+    const articleHeading = articleHtml.match(/<header\b[^>]*\bid="article-top"[^>]*>[\s\S]*?<h1\b[^>]*>([\s\S]*?)<\/h1>/u)?.[1];
+    assert.equal(visibleText(articleHeading ?? ""), source.title.replace(/\s+/gu, " ").trim(),
+      `Reading page ${source.slug} heading must use its filename.`);
     if ([...articleHtml.matchAll(/<h2\b[^>]*class="blog-sidebar__name"[^>]*>Roy<\/h2>/gu)].length !== 2) {
       throw new Error(`Reading page ${source.slug} must show Roy in both sidebar profiles.`);
     }
@@ -747,10 +755,11 @@ try {
     assert.deepEqual(renderedSections.map((section) => section.name), [...navigationSections, ...navigationSections],
       `Reading page ${source.slug} must render the exact folder names in both navigation copies.`);
     for (const section of navigationSections) {
-      const expectedLinks = publishedBlogSources
+      const expectedArticles = publishedBlogSources
         .filter((article) => article.navigationSection === section)
-        .sort((left, right) => right.createdAt - left.createdAt || postOrder.compare(left.sortPath, right.sortPath))
-        .map((article) => article.href);
+        .sort((left, right) => right.createdAt - left.createdAt || postOrder.compare(left.sortPath, right.sortPath));
+      const expectedLinks = expectedArticles.map((article) => article.href);
+      const expectedTitles = expectedArticles.map((article) => article.title.replace(/\s+/gu, " ").trim());
       // Compare decoded attributes rather than interpolating a folder name into
       // a regular expression: names may contain quotes or regex punctuation.
       const sectionCopies = renderedSections.filter((rendered) => rendered.name === section);
@@ -764,6 +773,9 @@ try {
         if (JSON.stringify(actualLinks) !== JSON.stringify(expectedLinks)) {
           throw new Error(`Reading page ${source.slug} ${section} records are not ordered by creation date.`);
         }
+        const actualTitles = [...sectionHtml.matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/gu)]
+          .map(([, contents]) => visibleText(contents.match(/<span\b[^>]*>([\s\S]*?)<\/span>/u)?.[1] ?? ""));
+        assert.deepEqual(actualTitles, expectedTitles, `${section} navigation must use filenames as article titles.`);
         const iconTags = [...sectionHtml.matchAll(/<svg\b[^>]*>/gu)]
           .map(([tag]) => htmlAttributes(tag))
           .filter((attributes) => (attributes.class ?? "").split(/\s+/u).includes("blog-sidebar__icon"));
@@ -796,6 +808,14 @@ try {
   );
   if (!/<(?:rss|feed)\b/i.test(rss)) {
     throw new Error("Smoke test failed for /rss.xml: RSS or Atom root element missing");
+  }
+  const rssTitles = new Map([...rss.matchAll(/<item>([\s\S]*?)<\/item>/gu)].map(([, item]) => [
+    decodeHtmlEntities(item.match(/<link>([\s\S]*?)<\/link>/u)?.[1] ?? ""),
+    decodeHtmlEntities(item.match(/<title>([\s\S]*?)<\/title>/u)?.[1] ?? ""),
+  ]));
+  for (const source of publishedBlogSources) {
+    assert.equal(rssTitles.get(new URL(source.href, "https://loadingvibe.com").href), source.title,
+      `RSS title for ${source.slug} must use its filename.`);
   }
 
   for (const source of blogSources.filter((article) => article.draft)) {

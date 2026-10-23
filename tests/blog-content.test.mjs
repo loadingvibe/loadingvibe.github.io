@@ -10,14 +10,40 @@ function entry(path, text) {
 }
 
 test("a plain Chinese or English note needs no frontmatter", () => {
-  const note = readBlogDocument("\uFEFF# 初识数据类型\r\n\r\n正文和 **重点**。", "Python learning/初识数据类型.MD");
-  assert.equal(note.data.title, "初识数据类型");
-  assert.equal(note.data.slug, "python-learning/初识数据类型");
+  const note = readBlogDocument("\uFEFF# 初识数据类型\r\n\r\n正文和 **重点**。", "Python learning/03-初识数据类型.MD");
+  assert.equal(note.data.title, "03-初识数据类型");
+  assert.equal(note.data.slug, "python-learning/03-初识数据类型");
   assert.equal(note.data.category, "笔记");
   assert.equal(note.data.draft, false);
   assert.ok(note.data.summary.includes("正文和 重点"));
   assert.equal(readBlogDocument("Plain text", "notes/My note.txt").data.title, "My note");
   assert.equal(readBlogDocument("", "blank.markdown").data.summary, "blank的笔记。");
+});
+
+test("public titles use the filename even when metadata and body headings disagree", () => {
+  const body = "# 正文中的不同标题 🤪\n\n## 第一节\n\n正文。";
+  const documents = [
+    body,
+    "正文标题\n========\n\n正文。",
+    ...["title", "标题", "name"].map((key) => `---\n${key}: 元数据中的不同标题\nslug: stable-public-url\n---\n${body}`),
+    `---\n{"title":"JSON title"}\n---\n${body}`,
+    `+++\ntitle = "TOML title"\n+++\n${body}`,
+  ];
+  for (const extension of ["md", "MD", "markdown", "MARKDOWN", "txt", "TXT"]) {
+    for (const text of documents) {
+      const sourcePath = `Blog/朋友圈/子目录/01-My Note.不要觉得可以一蹴而就 🤪.${extension}`;
+      const note = readBlogDocument(text, sourcePath);
+      assert.equal(note.data.title, "01-My Note.不要觉得可以一蹴而就 🤪");
+      assert.equal(note.data.draft, false);
+      if (text.includes(body)) assert.equal(note.body, body);
+      if (text.includes("stable-public-url")) assert.equal(note.data.slug, "stable-public-url");
+    }
+  }
+  // Renaming the file updates its title while an explicit published URL stays fixed.
+  const text = `---\nslug: stable-public-url\n---\n${body}`;
+  const renamed = readBlogDocument(text, "朋友圈/新文件名.md");
+  assert.equal(renamed.data.title, "新文件名");
+  assert.equal(renamed.data.slug, "stable-public-url");
 });
 
 test("YAML Chinese fields and flexible tags, booleans and dates normalize", () => {
@@ -81,11 +107,11 @@ test("date metadata avoids loading a creation fallback and rejects malformed cre
 
 test("JSON and TOML metadata preserve the Markdown body", () => {
   const json = readBlogDocument('---\n{"title":"JSON note","tags":["A",2,{"name":"B"}]}\n---\n## Section\nText', "a.md");
-  assert.equal(json.data.title, "JSON note");
+  assert.equal(json.data.title, "a");
   assert.deepEqual(json.data.tags, ["A", "2", "B"]);
   assert.equal(json.body, "## Section\nText");
   const toml = readBlogDocument('+++\ntitle = "TOML note"\ndraft = true\n+++\nText', "a.markdown");
-  assert.equal(toml.data.title, "TOML note");
+  assert.equal(toml.data.title, "a");
   assert.equal(toml.data.draft, true);
   assert.equal(toml.body, "Text");
 });
@@ -97,7 +123,7 @@ test("leading Markdown horizontal rules never consume an ordinary introduction",
     assert.equal(note.data.draft, false);
     assert.ok(note.data.summary.includes("第一段"));
   }
-  assert.equal(readBlogDocument('---\n"title": Quoted key\n---\nBody', "note.md").data.title, "Quoted key");
+  assert.equal(readBlogDocument('---\n"title": Quoted key\n---\nBody', "note.md").data.title, "note");
 });
 
 test("unfinished metadata previews as a draft and malformed values never take down other notes", () => {
@@ -107,7 +133,7 @@ test("unfinished metadata previews as a draft and malformed values never take do
     assert.ok(note.warnings.length);
   }
   const note = readBlogDocument('---\ndate: 2026/02/30\ntitle: 123\ntags: {bad: shape}\ndraft: unsure\n---\nBody', "note.md");
-  assert.equal(note.data.title, "123");
+  assert.equal(note.data.title, "note");
   assert.equal(note.data.date, undefined);
   assert.deepEqual(note.data.tags, []);
   assert.equal(note.data.draft, true);

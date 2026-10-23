@@ -147,10 +147,8 @@ export function readBlogDocument(contents, sourcePath, options = {}) {
   }
 
   const path = sourcePath.replace(/^Blog\//u, "").replaceAll("\\", "/");
-  const textWithoutCode = body.replace(/(`{3,}|~{3,})[^\n]*\n[\s\S]*?\1/gu, "");
-  const heading = textWithoutCode.match(/^ {0,3}#{1,6}\s+(.+?)(?:\s+#+)?\s*$/mu)?.[1] ||
-    textWithoutCode.match(/^([^\n]+)\n(?:={3,}|-{3,})\s*$/mu)?.[1];
-  const title = scalar(field(raw, "title", "标题", "name")) || (heading && plainBlogText(heading)) || basename(path, extname(path));
+  // The source filename is the public title everywhere, including RSS and metadata.
+  const title = basename(path, extname(path));
   const dateInput = field(raw, "date", "日期", "pubDate", "published", "发布时间", "created", "createdAt", "创建时间");
   const createdInput = field(raw, "created", "createdAt", "创建时间");
   const updatedInput = field(raw, "updated", "更新日期", "updatedAt", "modified", "lastmod");
